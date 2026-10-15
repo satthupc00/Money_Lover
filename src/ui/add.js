@@ -24,20 +24,20 @@ function collect(ts, keyf) {
   }
   return [...m.values()].filter((e) => gById(e.t.groupId)).sort((a, b) => b.c - a.c || b.t.date.localeCompare(a.t.date));
 }
-function amtHits(v) {
+function amtHits(v, type) {
   if (!v) return null;
-  const ts = store.tx.filter((t) => t.amount === v);
+  const ts = store.tx.filter((t) => t.amount === v && t.type === type);
   if (ts.length < 3) return null;
   const items = collect(ts, (t) => t.groupId + '|' + t.note).slice(0, 5);
   return items.length ? { total: ts.length, items } : null;
 }
-function noteHits(q) {
+function noteHits(q, type) {
   q = dkey(q.trim());
   if (!q) return null;
-  const items = collect(store.tx.filter((t) => t.note && dkey(t.note).includes(q)), (t) => t.groupId + '|' + t.note + '|' + t.amount).slice(0, 6);
+  const items = collect(store.tx.filter((t) => t.type === type && t.note && dkey(t.note).includes(q)), (t) => t.groupId + '|' + t.note + '|' + t.amount).slice(0, 6);
   return items.length ? { items } : null;
 }
-const ddHtml = (head, items) => `<div class="dd" role="listbox"><div class="dd-h">${I('sparkles')}${head}</div>${items.map(({ t, c }, i) => {
+const ddHtml = (head, items) => `<div class="dd" role="listbox">${items.map(({ t, c }, i) => {
   const g = gById(t.groupId);
   return `<button type="button" role="option" data-pick="${i}">${tile(g, 36)}<span class="t"><b>${esc(t.note || g.name)}</b><small>${esc(g.name)}${c > 1 ? ' · đã dùng ' + c + ' lần' : ''}</small></span><span class="meta"><b class="${t.type === 'inc' ? 'inc' : ''}">${fmt(t.amount)} ₫</b>${dmy(t.date)}</span></button>`;
 }).join('')}</div>`;
@@ -137,8 +137,8 @@ export function openTxForm(tx, { compact = false, date } = {}) {
   };
   const drawDate = () => { el.querySelector('[data-dlabel]').textContent = dateLabel(st.date); dateIn.value = st.date; };
   const close = () => { dA.innerHTML = ''; dN.innerHTML = ''; hits = null; hi = -1; };
-  const showA = () => { dN.innerHTML = ''; const v = /[+−×÷]/.test(st.expr) ? 0 : amount(); const r = amtHits(v); hits = r?.items || null; hi = -1; dA.innerHTML = r ? ddHtml(`Số tiền này bạn đã nhập ${r.total} lần`, r.items) : ''; };
-  const showN = () => { dA.innerHTML = ''; const r = noteHits(note.value); hits = r?.items || null; hi = -1; dN.innerHTML = r ? ddHtml('Ghi chú bạn đã dùng', r.items) : ''; };
+  const showA = () => { dN.innerHTML = ''; const v = /[+−×÷]/.test(st.expr) ? 0 : amount(); const r = amtHits(v, st.type); hits = r?.items || null; hi = -1; dA.innerHTML = r ? ddHtml(`Số tiền này bạn đã nhập ${r.total} lần`, r.items) : ''; };
+  const showN = () => { dA.innerHTML = ''; const r = noteHits(note.value, st.type); hits = r?.items || null; hi = -1; dN.innerHTML = r ? ddHtml('Ghi chú bạn đã dùng', r.items) : ''; };
   const pick = (i, fromNote) => {
     const t = hits?.[i]?.t;
     if (!t) return;
@@ -157,8 +157,7 @@ export function openTxForm(tx, { compact = false, date } = {}) {
     const p = e.target.closest('[data-pick]');
     if (p) { pick(+p.dataset.pick, !!p.closest('[data-dd-note]')); return; }
     const ty = e.target.closest('[data-type]');
-    if (ty) { if (st.type !== ty.dataset.type) { st.type = ty.dataset.type; const g = gById(st.groupId); if (g && g.type !== st.type) st.groupId = ''; drawType(); drawGroup(); } return; }
-    if (e.target.closest('.dd-h')) { close(); return; }
+    if (ty) { if (st.type !== ty.dataset.type) { close(); st.type = ty.dataset.type; const g = gById(st.groupId); if (g && g.type !== st.type) st.groupId = ''; drawType(); drawGroup(); } return; }
     if (e.target.closest('[data-pickgroup]')) { chooseGroup(); return; }
     const ds = e.target.closest('[data-dshift]');
     if (ds) { const d = parseYmd(st.date); d.setDate(d.getDate() + +ds.dataset.dshift); st.date = ymd(d); drawDate(); return; }

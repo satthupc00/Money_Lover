@@ -54,8 +54,8 @@ export function heroHtml() {
 
 export const txRow = (t) => {
   const g = gById(t.groupId) || { name: 'Nhóm đã xoá', icon: 'receipt', color: 'brown' };
-  const p = g.parent ? gById(g.parent) : null;
-  return `<button type="button" class="tx" data-tx="${t.id}">${tile(g, 44)}<div class="t"><div>${esc(t.note || g.name)}</div><small>${p ? esc(p.name) + ' › ' : ''}${esc(g.name)}${t.exclude ? ' · không tính vào báo cáo' : ''}</small></div><div class="amt ${t.type === 'inc' ? 'inc' : ''}">${t.type === 'inc' ? '+' : '−'}${vnd(t.amount)}</div></button>`;
+  const sub = [t.note, t.exclude ? 'không tính vào báo cáo' : ''].filter(Boolean).join(' · ');
+  return `<button type="button" class="tx" data-tx="${t.id}">${tile(g, 44)}<div class="t"><div>${esc(g.name)}</div>${sub ? `<small>${esc(sub)}</small>` : ''}</div><div class="amt ${t.type === 'inc' ? 'inc' : ''}">${t.type === 'inc' ? '+' : '−'}${vnd(t.amount)}</div></button>`;
 };
 
 const sortTx = (a, b) => (b.date.localeCompare(a.date)) || ((b.createdAt || 0) - (a.createdAt || 0));

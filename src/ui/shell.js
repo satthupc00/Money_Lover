@@ -9,7 +9,7 @@ import { I } from '../icons.js';
 import { esc, shortM, dkey, ymd } from '../util.js';
 import { tile, placeTabs, dialog } from './common.js';
 import { heroHtml, listHtml, wireLedger, periodTabs, periodNav, groupFilterChip, range, txRow } from './ledger.js';
-import { mountTrend, breakdownHtml, wireBreakdown } from './trend.js';
+import { mountTrend, mountBreakdown } from './trend.js';
 import { openTxForm } from './add.js';
 import { groupsDeskHtml, wireGroupsDesk, groupsMobileHtml, wireGroupsMobile } from './groups.js';
 import { settingsHtml, wireSettings, updLabel } from './settings.js';
@@ -52,7 +52,7 @@ function deskHtml() {
   } else if (view.tab === 'report') {
     main = `<div class="bar">${monthNav()}<div class="spacer"></div><button class="btn primary" type="button" data-add>${I('plus')}Thêm giao dịch</button></div>
       <div class="page report"><div class="panel scroll card rise" data-key="rep1"><div class="trend"></div></div>
-      <div class="panel scroll card rise" data-key="rep2"><h3>Chi theo nhóm</h3><div class="sub">${monthLabel()} · % so với trung bình 3 tháng trước</div>${breakdownHtml()}</div></div>`;
+      <div class="panel scroll card brkcard rise" data-key="rep2"></div></div>`;
   } else if (view.tab === 'groups') main = groupsDeskHtml();
   else main = `<div class="bar"><h2 style="margin:0;font-size:18px;font-weight:900">Cài đặt</h2></div><div class="page settings scroll" data-key="set"><div>${settingsHtml()}</div></div>`;
   return `<div class="shell-desk desk">
@@ -76,7 +76,7 @@ const monthNav = () => `<div class="period"><button class="icb" type="button" da
 function mobileHtml(mode) {
   const BN = [['ledger', 'list', 'Sổ'], ['report', 'chart-line', 'Báo cáo'], null, ['groups', 'folder-tree', 'Nhóm'], ['settings', 'settings', 'Cài đặt']];
   const ledgerCol = `${heroHtml()}${periodTabs()}<div class="mperiod">${periodNav()}${groupFilterChip()}</div><div class="daylist">${listHtml()}</div>`;
-  const reportCards = `<div class="panel card"><div class="trend"></div></div><div class="panel card"><h3>Chi theo nhóm</h3><div class="sub">${monthLabel()} · % so với TB 3 tháng trước</div>${breakdownHtml()}</div>`;
+  const reportCards = `<div class="panel card"><div class="trend"></div></div><div class="panel card brkcard"></div>`;
   let body;
   if (view.tab === 'ledger' && mode === 'tab') body = `<div class="inner-grid"><div class="scroll" data-key="l">${ledgerCol}</div><div class="scroll" data-key="r">${reportCards}</div></div>`;
   else if (view.tab === 'ledger') body = `<div class="p-body scroll" data-key="p">${ledgerCol}</div>`;
@@ -120,14 +120,18 @@ export function render(root) {
   placeTabs(root);
 
   root.querySelectorAll('[data-tab]').forEach((b) => (b.onclick = () => setView({ tab: b.dataset.tab })));
-  root.querySelectorAll('[data-add]').forEach((b) => (b.onclick = openAdd));
+  root.querySelectorAll('[data-add]').forEach((b) => (b.onclick = () => {
+    if (b.classList.contains('fab')) { b.classList.remove('bounce'); void b.offsetWidth; b.classList.add('bounce'); setTimeout(openAdd, 140); }
+    else openAdd();
+  }));
+  swipePeriods(root);
   root.querySelectorAll('[data-search]').forEach((b) => (b.onclick = searchBox));
   root.querySelectorAll('[data-upd]').forEach((b) => (b.onclick = updateAction));
   root.querySelectorAll('[data-fg]').forEach((b) => (b.onclick = () => setView({ group: view.group === b.dataset.fg ? null : b.dataset.fg })));
   root.querySelectorAll('[data-mshift]').forEach((b) => (b.onclick = () => { const c = new Date(view.cursor); c.setMonth(c.getMonth() + +b.dataset.mshift, 1); setView({ cursor: c }); }));
   wireLedger(root, openTx);
   root.querySelectorAll('.trend').forEach((t) => mountTrend(t));
-  wireBreakdown(root);
+  root.querySelectorAll('.brkcard').forEach((b) => mountBreakdown(b));
   if (view.tab === 'groups') (mode === 'desk' ? wireGroupsDesk(root, () => render(root)) : wireGroupsMobile(root));
   if (view.tab === 'settings') wireSettings(root);
 }
@@ -144,3 +148,29 @@ export function shortcuts(root) {
   });
 }
 export { isElectron, isNative };
+
+// vuốt mạnh sang trái / phải trên sổ giao dịch hoặc báo cáo để xem kỳ sau / kỳ trước
+function swipePeriods(root) {
+  const zones = root.querySelectorAll('.shell-m .p-body, .shell-m .inner-grid > div:first-child, .shell-desk .list');
+  zones.forEach((z) => {
+    if (view.tab !== 'ledger' && view.tab !== 'report') return;
+    let x0 = 0, y0 = 0, t0 = 0, active = false;
+    z.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1 || e.target.closest('svg.tchart, .gmenu, .quick, input')) { active = false; return; }
+      active = true; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now();
+    }, { passive: true });
+    z.addEventListener('touchend', (e) => {
+      if (!active) return;
+      active = false;
+      const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0, dt = Date.now() - t0;
+      if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6 || dt > 600) return;
+      const k = dx < 0 ? 1 : -1;
+      const sel = view.tab === 'report' ? `[data-mshift="${k}"]` : `[data-shift="${k}"]`;
+      const btn = root.querySelector(sel);
+      if (!btn) return;
+      document.body.dataset.swipe = k > 0 ? 'next' : 'prev';
+      btn.click();
+      setTimeout(() => delete document.body.dataset.swipe, 400);
+    }, { passive: true });
+  });
+}

@@ -1,12 +1,17 @@
 // Biểu đồ xu hướng chi tiêu (đường cộng dồn chồng lên nhau) + phân bổ theo nhóm
-import { store, gById, tops, groupIds } from '../store.js';
+import { store, gById, tops, kids, groupIds } from '../store.js';
 import { view } from '../state.js';
 import { fmt, shortM, esc, daysIn } from '../util.js';
+import { I } from '../icons.js';
 import { tile } from './common.js';
 import { PAL } from '../defaults.js';
 
-export const trendState = { g: 'all', show: { cur: true, prev: false, avg: true } };
-const SER = { cur: ['Tháng này', '#E5383B'], prev: ['Tháng trước', '#F5A623'], avg: ['TB 3 tháng trước', '#C9B8AA'] };
+export const trendState = { g: 'all', show: { cur: true, prev: false, avg: true }, sel: null, key: '', menu: false };
+// bấm ra ngoài thì đóng menu chọn nhóm
+document.addEventListener('pointerdown', (e) => {
+  if (trendState.menu && !e.target.closest('.gsel')) { trendState.menu = false; document.querySelectorAll('.trend').forEach((t) => t._redraw && t._redraw()); }
+});
+const SER = { cur: ['Tháng này', '#E5383B'], prev: ['Tháng trước', '#F5A623'], avg: ['TB 3 tháng', '#C9B8AA'] };
 
 // tổng chi theo ngày của tháng (y, m: 0-11)
 function daily(y, m, ids) {
@@ -45,10 +50,12 @@ function niceStep(max) {
 
 // vẽ vào el; tự vẽ lại khi đổi cỡ
 export function mountTrend(el) {
-  let sel = null;
   const draw = () => {
     const y = view.cursor.getFullYear(), m = view.cursor.getMonth();
     if (trendState.g !== 'all' && !gById(trendState.g)) trendState.g = 'all';
+    const key = `${y}-${m}-${trendState.g}`;
+    if (trendState.key !== key) { trendState.key = key; trendState.sel = null; }
+    const sel = trendState.sel;
     const s = series(y, m, trendState.g), on = (k) => trendState.show[k];
     const W = Math.max(260, el.clientWidth || 400), H = Math.round(Math.min(300, Math.max(190, W * 0.58)));
     const d = Math.min(sel ?? (s.upto || s.n), s.n);
@@ -68,12 +75,10 @@ export function mountTrend(el) {
       const a = s.cur[s.upto - 1], b = s[ref[0]][s.upto - 1];
       if (b > 0) { const pc = (a - b) / b * 100; verdict = `<div class="verdict ${pc <= 0 ? 'good' : ''}">Đến ${s.upto}/${m + 1} bạn đã tiêu ${pc > 0 ? 'nhiều' : 'ít'} hơn ${Math.abs(pc).toFixed(0)}% so với ${ref[1]} cùng thời điểm.</div>`; }
     }
-    const lab = trendState.g === 'all' ? '' : ` · ${esc(gById(trendState.g)?.name)}`;
-    const chips = tops('exp');
-    el.innerHTML = `<div class="trend-h"><h3>Xu hướng chi tiêu${lab}</h3></div>
-      <div class="gchips">${['all', ...chips.map((c) => c.id)].map((id) => id === 'all'
-        ? `<button type="button" class="chip txt ${trendState.g === 'all' ? 'on' : ''}" data-g="all">Tất cả</button>`
-        : `<button type="button" class="chip ${trendState.g === id ? 'on' : ''}" data-g="${id}">${tile(gById(id), 24)}${esc(gById(id).name)}</button>`).join('')}</div>
+    const cg = trendState.g === 'all' ? null : gById(trendState.g);
+    const menu = trendState.menu ? `<div class="gmenu" role="listbox"><button type="button" data-g="all" class="${trendState.g === 'all' ? 'on' : ''}"><span class="allic">${I('layers')}</span>Tất cả nhóm</button>${tops('exp').flatMap((t) => [t, ...kids(t.id)]).map((g) => `<button type="button" data-g="${g.id}" class="${g.parent ? 'child' : ''} ${trendState.g === g.id ? 'on' : ''}">${tile(g, g.parent ? 26 : 30)}${esc(g.name)}</button>`).join('')}</div>` : '';
+    el.innerHTML = `<div class="trend-h"><h3>Xu hướng chi tiêu</h3>
+        <div class="gsel"><button type="button" class="chip ${cg ? '' : 'txt'} on" data-gmenu aria-expanded="${trendState.menu}">${cg ? tile(cg, 24) : ''}${cg ? esc(cg.name) : 'Tất cả'}${I('chevron-down')}</button>${menu}</div></div>
       <div class="tip">${on('cur') ? `<div class="l1">${dd}/${mm}/${y}: ${cv != null ? `<b>${fmt(cv)}</b>` : '<span style="color:var(--dim)">chưa tới ngày này</span>'}</div>` : `<div class="l1">Ngày ${dd}/${mm}</div>`}
         ${on('prev') ? `<div class="l2"><i class="sw" style="background:${SER.prev[1]}"></i>Tháng trước: <b>${fmt(s.prev[d - 1])}</b></div>` : ''}
         ${on('avg') ? `<div class="l2"><i class="sw" style="background:${SER.avg[1]}"></i>TB 3 tháng trước: <b>${fmt(s.avg[d - 1])}</b></div>` : ''}</div>
@@ -86,16 +91,19 @@ export function mountTrend(el) {
         ${on('cur') && cv != null ? `<circle cx="${x(d)}" cy="${yy(cv)}" r="7" fill="#fff" stroke="#E5383B" stroke-width="3.2"/>` : ''}
         <text x="${x(1)}" y="${H - 6}" text-anchor="start">01/${mm}</text><text x="${x(s.n)}" y="${H - 6}" text-anchor="end">${s.n}/${mm}</text>
         <rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/></svg>
-      <div class="tlegend">${Object.entries(SER).map(([k, [n, c]]) => `<label class="lchk" style="--c:${c}"><input type="checkbox" data-s="${k}" ${on(k) ? 'checked' : ''}>${n}</label>`).join('')}</div>
+      <div class="tlegend"><span class="lfix"><i style="background:${SER.cur[1]}"></i>Tháng này</span>${['prev', 'avg'].map((k) => `<label class="lchk" style="--c:${SER[k][1]}"><input type="checkbox" data-s="${k}" ${on(k) ? 'checked' : ''}>${SER[k][0]}</label>`).join('')}</div>
       ${verdict}`;
     const svg = el.querySelector('svg.tchart');
-    const pick = (e) => { const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) * (W / r.width); sel = Math.max(1, Math.min(s.n, Math.round((px - L) / ((W - L - R) / (s.n - 1))) + 1)); draw(); };
-    svg.onpointermove = pick; svg.onpointerdown = pick;
-    svg.onpointerleave = () => { sel = null; draw(); };
-    el.querySelectorAll('[data-g]').forEach((b) => (b.onclick = () => { trendState.g = b.dataset.g; sel = null; draw(); }));
+    // chọn ngày trên biểu đồ: điểm được giữ lại sau khi thả tay
+    const pick = (e) => { const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) * (W / r.width); const v = Math.max(1, Math.min(s.n, Math.round((px - L) / ((W - L - R) / (s.n - 1))) + 1)); if (v !== trendState.sel) { trendState.sel = v; draw(); } };
+    let down = false;
+    svg.onpointerdown = (e) => { down = true; pick(e); };
+    svg.onpointermove = (e) => { if (down || e.pointerType === 'mouse') pick(e); };
+    svg.onpointerup = svg.onpointercancel = () => { down = false; };
+    el.querySelector('[data-gmenu]').onclick = (e) => { e.stopPropagation(); trendState.menu = !trendState.menu; draw(); };
+    el.querySelectorAll('[data-g]').forEach((b) => (b.onclick = () => { trendState.g = b.dataset.g; trendState.menu = false; draw(); }));
     el.querySelectorAll('[data-s]').forEach((b) => (b.onchange = () => { trendState.show[b.dataset.s] = b.checked; draw(); }));
-    const gc = el.querySelector('.gchips .on');
-    if (gc) gc.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    el.querySelector('.gmenu .on')?.scrollIntoView({ block: 'nearest' });
   };
   draw();
   if (el._ro) el._ro.disconnect();
@@ -105,35 +113,71 @@ export function mountTrend(el) {
   el._redraw = draw;
 }
 
-// phân bổ chi theo nhóm cha trong tháng, so với TB 3 tháng trước
-export function breakdownHtml() {
+// ---------- Chi theo nhóm: vòng tròn tỷ lệ + danh sách, bấm để xem nhóm con ----------
+const DONUT = ['#E5383B', '#F5A623', '#3A7BEA', '#13A386', '#8A4FE0', '#E5487A', '#B06A2C', '#1FA463', '#5B4FE0', '#E07B12'];
+const OTHER = '#D8C8BA';
+const open = new Set();
+
+function monthSums() {
   const y = view.cursor.getFullYear(), m = view.cursor.getMonth();
-  const key = (yy, mm) => `${yy}-${String(mm + 1).padStart(2, '0')}`;
-  const months = [0, 1, 2, 3].map((k) => { const d = new Date(y, m - k, 1); return key(d.getFullYear(), d.getMonth()); });
-  const topOf = (gid) => { const g = gById(gid); return g ? (g.parent || g.id) : null; };
-  const sums = {};
+  const pre = `${y}-${String(m + 1).padStart(2, '0')}`;
+  const byGroup = {};
+  let total = 0;
   for (const t of store.tx) {
-    if (t.type !== 'exp' || t.exclude) continue;
-    const k = months.indexOf(t.date.slice(0, 7));
-    if (k < 0) continue;
-    const tg = topOf(t.groupId);
-    if (!tg) continue;
-    (sums[tg] ||= [0, 0, 0, 0])[k] += t.amount;
+    if (t.type !== 'exp' || t.exclude || !t.date.startsWith(pre)) continue;
+    byGroup[t.groupId] = (byGroup[t.groupId] || 0) + t.amount;
+    total += t.amount;
   }
-  const rows = Object.entries(sums).map(([id, a]) => ({ id, cur: a[0], avg: (a[1] + a[2] + a[3]) / 3 })).filter((r) => r.cur > 0).sort((a, b) => b.cur - a.cur);
-  if (!rows.length) return `<div class="empty"><b>Chưa có chi tiêu tháng này</b><span>Thêm giao dịch để xem phân bổ theo nhóm.</span></div>`;
-  const max = rows[0].cur;
-  return `<div class="brk">${rows.map((r) => {
-    const g = gById(r.id), c = (PAL[g.color] || PAL.red)[0];
-    const pc = r.avg > 0 ? (r.cur - r.avg) / r.avg * 100 : null;
-    return `<button type="button" data-brk="${r.id}">${tile(g, 40)}<div><div class="nm"><span>${esc(g.name)}</span><b>${fmt(r.cur)}</b></div><div class="track"><i style="width:${(r.cur / max * 100).toFixed(1)}%;background:${c}"></i></div></div>
-      <span class="d" style="color:${pc == null ? 'var(--dim)' : pc > 10 ? 'var(--red)' : pc < -5 ? 'var(--green)' : 'var(--muted)'}">${pc == null ? 'mới' : (pc > 0 ? '+' : '') + pc.toFixed(0) + '%'}</span></button>`;
-  }).join('')}</div>`;
+  const rows = [];
+  const seen = new Set();
+  for (const gid of Object.keys(byGroup)) {
+    const g = gById(gid);
+    const top = g ? (g.parent ? gById(g.parent) || g : g) : null;
+    const id = top ? top.id : '?';
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const ids = top ? groupIds(top.id) : [gid];
+    const children = ids.map((cid) => ({ id: cid, v: byGroup[cid] || 0 })).filter((c) => c.v > 0).sort((a, b) => b.v - a.v);
+    rows.push({ id, g: top, v: children.reduce((a, c) => a + c.v, 0), children });
+  }
+  rows.sort((a, b) => b.v - a.v);
+  rows.forEach((r, i) => (r.color = i < DONUT.length ? DONUT[i] : OTHER));
+  return { rows, total };
 }
 
-export function wireBreakdown(root) {
-  root.querySelectorAll('[data-brk]').forEach((b) => (b.onclick = () => {
-    trendState.g = b.dataset.brk;
-    root.querySelectorAll('.trend').forEach((t) => t._redraw && t._redraw());
-  }));
+function donutSvg(rows, total) {
+  const R = 70, r = 46, C = 90;
+  let a = -Math.PI / 2, segs = '';
+  const pt = (rad, ang) => `${(C + rad * Math.cos(ang)).toFixed(2)} ${(C + rad * Math.sin(ang)).toFixed(2)}`;
+  for (const row of rows) {
+    const frac = row.v / total;
+    if (frac <= 0) continue;
+    const b = a + Math.min(frac, 0.9999) * Math.PI * 2, large = b - a > Math.PI ? 1 : 0;
+    segs += `<path data-seg="${row.id}" d="M${pt(R, a)} A${R} ${R} 0 ${large} 1 ${pt(R, b)} L${pt(r, b)} A${r} ${r} 0 ${large} 0 ${pt(r, a)}Z" fill="${row.color}" stroke="#fff" stroke-width="2" class="${open.has(row.id) ? 'on' : ''}"><title>${esc(row.g?.name || '')}: ${(frac * 100).toFixed(1)}%</title></path>`;
+    a = b;
+  }
+  return `<svg class="donut" viewBox="0 0 180 180" role="img" aria-label="Tỷ lệ chi theo nhóm">${segs}
+    <text x="90" y="84" text-anchor="middle" class="dl">Tổng chi</text><text x="90" y="104" text-anchor="middle" class="dv">${shortM(total)}</text></svg>`;
+}
+
+export function mountBreakdown(el) {
+  const draw = () => {
+    const { rows, total } = monthSums();
+    const ml = `Tháng ${view.cursor.getMonth() + 1}/${view.cursor.getFullYear()}`;
+    if (!rows.length) { el.innerHTML = `<h3>Chi theo nhóm</h3><div class="empty"><b>Chưa có chi tiêu ${ml.toLowerCase()}</b><span>Thêm giao dịch để xem phân bổ theo nhóm.</span></div>`; return; }
+    const max = rows[0].v;
+    el.innerHTML = `<h3>Chi theo nhóm</h3><div class="sub">${ml} · bấm vào nhóm để xem nhóm con</div>
+      <div class="donutwrap">${donutSvg(rows, total)}<div class="dleg">${rows.slice(0, 6).map((r) => `<span><i style="background:${r.color}"></i>${esc(r.g?.name || '?')}<b>${(r.v / total * 100).toFixed(0)}%</b></span>`).join('')}${rows.length > 6 ? `<span class="more">+${rows.length - 6} nhóm khác</span>` : ''}</div></div>
+      <div class="brk">${rows.map((r) => {
+        const isOpen = open.has(r.id);
+        const hasKids = r.children.length > 1 || (r.children[0] && r.children[0].id !== r.id);
+        return `<div class="brkrow ${isOpen ? 'open' : ''}"><button type="button" data-brk="${r.id}" aria-expanded="${isOpen}">${tile(r.g, 40)}<div><div class="nm"><span>${esc(r.g?.name || 'Nhóm đã xoá')}</span><b>${fmt(r.v)}</b></div><div class="track"><i style="width:${(r.v / max * 100).toFixed(1)}%;background:${r.color}"></i></div></div>${hasKids ? I(isOpen ? 'chevron-up' : 'chevron-down', 'brkchev') : '<span></span>'}</button>
+          ${isOpen && hasKids ? `<div class="brkkids">${r.children.map((c) => { const cg = gById(c.id); return `<div class="brkkid">${tile(cg, 30)}<span>${esc(c.id === r.id ? r.g.name + ' (chung)' : cg?.name || '?')}</span><b>${fmt(c.v)}</b></div>`; }).join('')}<div class="brkkid sum"><span>Tổng ${esc(r.g?.name || '')} ${ml.toLowerCase()}</span><b>${fmt(r.v)}</b></div></div>` : ''}</div>`;
+      }).join('')}</div>`;
+    const toggle = (id) => { open.has(id) ? open.delete(id) : open.add(id); draw(); };
+    el.querySelectorAll('[data-brk]').forEach((b) => (b.onclick = () => toggle(b.dataset.brk)));
+    el.querySelectorAll('[data-seg]').forEach((p) => (p.onclick = () => { if (!open.has(p.dataset.seg)) toggle(p.dataset.seg); el.querySelector(`[data-brk="${p.dataset.seg}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }));
+  };
+  draw();
+  el._redraw = draw;
 }
