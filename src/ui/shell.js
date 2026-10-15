@@ -46,7 +46,7 @@ function deskHtml() {
   let main = '';
   if (view.tab === 'ledger') {
     main = `<div class="bar">${periodTabs()}${periodNav()}${groupFilterChip()}<div class="spacer"></div><button class="btn primary" type="button" data-add title="Thêm giao dịch (Ctrl+N)">${I('plus')}Thêm giao dịch</button></div>
-      <div class="grid2"><div class="panel scroll list rise" data-key="list">${heroHtml()}<div style="height:6px"></div>${listHtml()}</div>
+      <div class="grid2"><div class="scroll list daylist rise" data-key="list">${heroHtml()}${listHtml()}</div>
       <div class="panel scroll right rise" data-key="right"><div class="trend"></div></div></div>`;
   } else if (view.tab === 'report') {
     main = `<div class="bar">${monthNav()}<div class="spacer"></div><button class="btn primary" type="button" data-add>${I('plus')}Thêm giao dịch</button></div>
@@ -74,7 +74,7 @@ const monthNav = () => `<div class="period"><button class="icb" type="button" da
 
 function mobileHtml(mode) {
   const BN = [['ledger', 'list', 'Sổ'], ['report', 'chart-line', 'Báo cáo'], null, ['groups', 'folder-tree', 'Nhóm'], ['settings', 'settings', 'Cài đặt']];
-  const ledgerCol = `${heroHtml()}${periodTabs()}<div class="mperiod">${periodNav()}${groupFilterChip()}</div><div class="plist">${listHtml()}</div>`;
+  const ledgerCol = `${heroHtml()}${periodTabs()}<div class="mperiod">${periodNav()}${groupFilterChip()}</div><div class="daylist">${listHtml()}</div>`;
   const reportCards = `<div class="panel card"><div class="trend"></div></div><div class="panel card"><h3>Chi theo nhóm</h3><div class="sub">${monthLabel()} · % so với TB 3 tháng trước</div>${breakdownHtml()}</div>`;
   let body;
   if (view.tab === 'ledger' && mode === 'tab') body = `<div class="inner-grid"><div class="scroll" data-key="l">${ledgerCol}</div><div class="scroll" data-key="r">${reportCards}</div></div>`;

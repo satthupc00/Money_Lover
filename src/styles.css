@@ -374,3 +374,81 @@ svg.tchart text { fill: var(--muted); font: 800 11.5px var(--ui); }
 .maprow .lc { color: var(--dim); width: 14px; height: 14px; }
 .maprow b { font-weight: 900; } .maprow em { font-style: normal; text-align: right; color: var(--muted); }
 .maprow span, .maprow b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- sửa bố cục điện thoại ---------- */
+.p-body > *, .inner-grid > div > * { flex-shrink: 0; }
+.p-top > div:nth-child(2) { flex: 1; min-width: 0; }
+.p-top .brand-name { overflow: hidden; }
+.p-top .brand-name .a { overflow: hidden; text-overflow: ellipsis; }
+.p-top .brand-desc { overflow: hidden; text-overflow: ellipsis; }
+.p-top .spacer { display: none; }
+.p-top .icb { width: 38px; height: 38px; }
+@media (max-width: 420px) { .p-top .brand-name { font-size: 15px; } .p-top .latest { display: none; } }
+.yr { grid-template-columns: 70px minmax(40px, 1fr) auto auto; }
+.yr .r { min-width: 72px; }
+
+/* ---------- mỗi ngày 1 khối ---------- */
+.daylist { display: flex; flex-direction: column; gap: 10px; }
+.list.daylist { padding: 0 2px 12px; gap: 12px; }
+.dayblk { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 2px 8px 6px; box-shadow: 0 2px 8px rgba(130, 80, 40, .05); }
+.dayhd { display: flex; align-items: center; gap: 10px; padding: 10px 6px 8px; margin-bottom: 4px; border-bottom: 1.5px solid var(--soft2); }
+.dnum { font-size: 30px; font-weight: 900; line-height: 1; min-width: 38px; color: var(--text); }
+.dmeta { display: grid; line-height: 1.2; flex: 1; min-width: 0; }
+.dmeta b { font-size: 13.5px; font-weight: 900; }
+.dmeta small { font-size: 12px; color: var(--muted); font-weight: 700; }
+.dsum { font-weight: 900; white-space: nowrap; color: var(--muted); }
+.dsum.inc { color: var(--green); }
+.daylist > .empty { background: var(--surface); border-radius: 20px; border: 1px solid var(--line); }
+.daylist > .yr { background: var(--surface); }
+
+/* ---------- form nhập gọn ---------- */
+.tf-head { display: flex; align-items: center; gap: 6px; }
+.tf-head h3 { margin: 0; font-size: 17px; font-weight: 900; }
+.tf { display: grid; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 2px 12px; }
+.tf-row { display: flex; align-items: center; gap: 12px; min-height: 58px; border-bottom: 1px solid var(--soft2); position: relative; width: 100%; }
+.tf-row:last-child { border-bottom: 0; }
+.tf-btn { border: 0; border-bottom: 1px solid var(--soft2); background: none; cursor: pointer; text-align: left; padding: 0; }
+.tf-btn:hover { background: var(--soft); }
+.tf-ic { width: 40px; display: grid; place-items: center; color: var(--muted); flex: 0 0 auto; }
+.tf-ic .lc { width: 22px; height: 22px; }
+.tf-ic.cur { font-size: 11px; font-weight: 900; background: var(--soft2); border-radius: 8px; height: 26px; color: var(--muted); }
+.tf-amt { flex: 1; min-width: 0; font-size: 32px; font-weight: 900; color: var(--red); border: 0; border-bottom: 2.5px solid var(--red); background: none; outline: none; padding: 6px 0 4px; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
+.tf-amt::-webkit-scrollbar { display: none; }
+.is-inc .tf-amt { color: var(--green); border-color: var(--green); }
+.tf-gic { width: 40px; display: grid; place-items: center; flex: 0 0 auto; }
+.tf-empty { width: 38px; height: 38px; border-radius: 50%; background: var(--line2); display: block; }
+.tf-lbl { flex: 1; min-width: 0; display: grid; line-height: 1.2; }
+.tf-lbl b { font-size: 16px; font-weight: 900; }
+.tf-lbl small { color: var(--muted); font-weight: 700; font-size: 12px; }
+.tf-lbl .ph { font-size: 16px; color: var(--dim); font-weight: 800; }
+.tf-chev { width: 20px; height: 20px; color: var(--dim); }
+.tf-input { flex: 1; min-width: 0; border: 0; background: none; outline: none; font-size: 15px; font-weight: 800; height: 44px; }
+.tf-input::placeholder { color: var(--dim); }
+.tf-date { flex: 1; position: relative; text-align: center; background: var(--soft); border-radius: 14px; padding: 9px 8px; font-weight: 900; color: var(--text); cursor: pointer; }
+.tf-date:hover { background: var(--soft2); }
+.is-inc .tf-date { color: var(--green); }
+.tf-date input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; border: 0; }
+.tf-date input::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.tf .dd { left: 40px; right: 0; min-width: 0; }
+.quick { display: flex; gap: 6px; overflow-x: auto; flex: 0 0 auto; padding: 2px 0; }
+.quick .chip { height: 34px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.keypad.calc { grid-template-columns: repeat(4, 1fr); }
+.keypad.calc .op { color: var(--red); background: var(--soft2); }
+.is-inc .keypad.calc .op { color: var(--green); }
+.keypad.calc button { height: 52px; }
+.keypad.calc .ok { grid-row: span 2; height: auto; }
+.is-inc .keypad .ok { background: var(--green); box-shadow: 0 4px 0 #157A49; }
+.seg2 button.on.inc { color: var(--green); }
+.sheet.txsheet { max-height: 100%; height: 100%; border-radius: 0; padding-top: calc(10px + var(--sat)); }
+.sheet.txsheet > .grab { display: none; }
+.sheet.txsheet .tf { flex: 0 0 auto; }
+.sheet.txsheet .keypad { margin-top: auto; }
+.sheet.tall { height: 86%; }
+.sheet.tall .gpicklist { flex: 1; min-height: 0; }
+.gpicklist button > span:not(.tile) { flex: 1; min-width: 0; text-align: left; }
+.gpicklist button small { color: var(--muted); font-weight: 700; }
+.gpicklist button.on { background: var(--red-soft); border-color: var(--red); }
+.gpicklist button .lc { width: 18px; height: 18px; color: var(--red); }
+.pg-h { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 17px; font-weight: 900; }
+.pg-h .lc { width: 20px; height: 20px; }
+.dd-h { cursor: pointer; }

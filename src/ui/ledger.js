@@ -2,7 +2,7 @@
 import { store, gById, groupIds } from '../store.js';
 import { view, setView } from '../state.js';
 import { I } from '../icons.js';
-import { fmt, vnd, esc, ymd, dayLabel, shortM, daysIn } from '../util.js';
+import { fmt, vnd, esc, ymd, shortM, daysIn } from '../util.js';
 import { tile } from './common.js';
 
 export function range() {
@@ -71,7 +71,10 @@ export function listHtml() {
   let h = '';
   for (const [d, ts] of byDay) {
     const s = ts.reduce((a, t) => a + (t.exclude ? 0 : t.type === 'inc' ? t.amount : -t.amount), 0);
-    h += `<div class="day"><b>${dayLabel(d)}</b><span class="${s > 0 ? 'inc' : ''}">${s > 0 ? '+' : s < 0 ? '−' : ''}${vnd(s)}</span></div>` + ts.map(txRow).join('');
+    const dt = new Date(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10));
+    const today = ymd(), yd = new Date(); yd.setDate(yd.getDate() - 1);
+    const rel = d === today ? 'Hôm nay' : d === ymd(yd) ? 'Hôm qua' : ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'][dt.getDay()];
+    h += `<section class="dayblk"><header class="dayhd"><span class="dnum">${dt.getDate()}</span><span class="dmeta"><b>${rel}</b><small>tháng ${dt.getMonth() + 1} ${dt.getFullYear()}</small></span><span class="dsum ${s > 0 ? 'inc' : ''}">${s > 0 ? '+' : s < 0 ? '−' : ''}${vnd(s)}</span></header>${ts.map(txRow).join('')}</section>`;
   }
   return h;
 }
