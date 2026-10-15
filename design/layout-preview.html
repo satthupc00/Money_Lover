@@ -1,0 +1,560 @@
+<title>Mon Money Lover Layout</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: trang trình bày bản phác; mỗi màn hình là 1 "khung" cố định được scale vừa bề ngang. Dark Mondiro, một giao diện duy nhất. */
+:root{
+  color-scheme:dark;
+  --chrome:#1F2126;--panel:#26292F;--line:#363A42;--hover:#2F333A;--stage:#2B2D31;
+  --text:#E8E9EC;--muted:#8D929C;--dim:#6B707A;--red:#E5383B;--red-hi:#F04447;--warn:#F2B84B;
+  --selected-bg:#3A2426;--green:#3DBE7A;--blue:#8A9AB0;--slate:#66758A;--cream:#ECE8E0;
+  --page:#16181C;
+  --ease-out:cubic-bezier(.22,1,.36,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);--t-fast:.12s;--t-med:.22s;
+  --ui:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+}
+html,body{background:var(--page);color:var(--text)}
+body{font:14px/1.5 var(--ui);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.doc{max-width:1240px;margin:0 auto;display:grid;gap:40px}
+.intro{display:grid;gap:10px;max-width:760px}
+.intro h1{margin:0;font-size:26px;line-height:1.2;text-wrap:balance}
+.intro h1 .m{color:var(--red)}
+.intro p{margin:0;color:var(--muted)}
+.sec{display:grid;gap:14px}
+.sec-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:8px}
+.sec-h h2{margin:0;font-size:17px}
+.sec-h span{color:var(--muted);font-size:13px}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px 24px;margin:0;padding:0;list-style:none;color:var(--muted);font-size:13px}
+.notes b{color:var(--text);font-weight:600}
+.notes li{min-width:0}
+.fit{width:100%;position:relative;overflow:hidden}
+.fit>.frame{transform-origin:0 0;position:absolute;left:0;top:0}
+.row{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}
+.row>.cell{display:grid;gap:8px;min-width:0}
+.cap{font-size:12px;color:var(--muted)}
+.cap b{color:var(--text)}
+
+/* ===== Mondiro app UI (dùng chung desktop + mobile) ===== */
+.app{background:var(--chrome);color:var(--text);font:13px/1.4 var(--ui);user-select:none;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.45);font-variant-numeric:tabular-nums}
+.app button,.app input{font:inherit;color:inherit}
+.app :focus-visible{outline:2px solid var(--red);outline-offset:1px}
+.app button,.app input,.chip,.li{transition:background-color var(--t-fast) ease,border-color var(--t-fast) ease,color var(--t-fast) ease,box-shadow var(--t-med) var(--ease-out),transform var(--t-med) var(--ease-out)}
+.app button:not(:disabled):active{transform:scale(.95);transition-duration:.06s}
+.win{box-sizing:border-box;width:1180px;height:740px;border-radius:8px;border:1px solid var(--line)}
+.titlebar{height:30px;display:flex;align-items:center;justify-content:flex-end;padding:0 4px;background:#191B1F;color:var(--dim);font-size:12px;gap:2px}
+.titlebar span{flex:1;padding-left:10px}
+.titlebar i{width:40px;height:30px;display:grid;place-items:center;font-style:normal}
+.top{display:flex;align-items:center;gap:16px;padding:10px 14px;border-bottom:1px solid var(--line);flex:0 0 auto}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand-icon{width:34px;height:34px;flex:0 0 auto}
+.brand-name{font-size:17px;font-weight:700;line-height:1.15;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.brand-name .m{color:var(--red)} .brand-name .a{color:#fff}
+.latest{font-size:10.5px;font-weight:700;color:var(--green);border:1px solid rgba(61,190,122,.45);background:rgba(61,190,122,.1);border-radius:4px;padding:1px 5px;letter-spacing:.04em}
+.brand-desc{font-size:11.5px;color:var(--muted);margin-top:2px}
+.spacer{flex:1}
+.tools{display:flex;gap:8px;align-items:center}
+.btn{height:32px;padding:0 12px;border-radius:6px;border:1px solid var(--line);background:var(--panel);display:inline-flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--red);transform:translateY(-1px)}
+.btn svg{width:15px;height:15px}
+.btn.primary{background:var(--red);border-color:var(--red);color:#fff;font-weight:600;position:relative;overflow:hidden}
+.btn.primary:hover{background:var(--red-hi);box-shadow:0 6px 16px rgba(229,56,59,.35)}
+.sync{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px}
+.sync .dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--slate);display:grid;place-items:center;font-weight:700;font-size:12px}
+.body{flex:1;display:flex;min-height:0}
+.side{width:250px;flex:0 0 auto;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.nav{display:grid;padding:10px 8px;gap:2px}
+.nav .li{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:6px;cursor:pointer;color:var(--muted)}
+.nav .li svg{width:17px;height:17px}
+.li:hover{transform:translateX(3px);box-shadow:inset 3px 0 0 var(--red);color:var(--text)}
+.li.on{background:var(--selected-bg);box-shadow:inset 3px 0 0 var(--red);color:var(--text)}
+.side h4{margin:8px 18px 6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.tree{overflow:auto;padding:0 8px 10px;display:grid;gap:1px}
+.tree .li{display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:6px;cursor:pointer;font-size:12.5px}
+.tree .li.child{padding-left:30px;color:var(--muted)}
+.tree .li em{margin-left:auto;font-style:normal;color:var(--muted);font-size:12px}
+.tree .caret{width:10px;color:var(--dim);font-size:9px}
+.gi{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;flex:0 0 auto}
+.gi svg{width:15px;height:15px}
+.tree .child .gi{width:20px;height:20px;border-radius:6px}
+.tree .child .gi svg{width:12px;height:12px}
+.addgrp{margin:6px 8px 10px;height:30px;border:1px dashed var(--line);border-radius:6px;background:none;color:var(--muted);cursor:pointer}
+.addgrp:hover{border-color:var(--red);color:var(--text)}
+.main{flex:1;background:var(--stage);display:flex;flex-direction:column;min-width:0}
+.bar{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.tabs{position:relative;display:flex;background:var(--chrome);border-radius:6px;padding:2px}
+.tabs button{height:28px;padding:0 14px;border:0;background:none;color:var(--muted);cursor:pointer;border-radius:5px}
+.tabs button:hover{color:var(--text)}
+.tabs button.on{color:#fff}
+.tabs .ind{position:absolute;bottom:2px;height:2px;background:var(--red);border-radius:2px;transition:left var(--t-med) var(--ease-out),width var(--t-med) var(--ease-out)}
+.period{display:flex;align-items:center;gap:4px;font-weight:600}
+.period button{width:26px;height:26px;border-radius:6px;border:1px solid transparent;background:none;cursor:pointer;color:var(--muted)}
+.period button:hover{border-color:var(--red);color:var(--text)}
+.chip{height:28px;padding:0 10px;border-radius:14px;border:1px solid var(--line);background:var(--panel);display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text)}
+.chip:hover{border-color:var(--red);transform:translateY(-1px)}
+.chip.on{background:var(--selected-bg);border-color:var(--red)}
+.grid{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 400px;min-height:0}
+.list{overflow:auto;padding:10px 16px 16px;min-width:0}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.sum div{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.sum small{display:block;color:var(--muted);font-size:11px}
+.sum b{font-size:16px}
+.inc{color:var(--green)} .exp{color:var(--red)}
+.day{display:flex;justify-content:space-between;padding:10px 4px 6px;color:var(--muted);font-size:12px;border-bottom:1px solid var(--line)}
+.day b{color:var(--text);font-weight:600}
+.tx{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:6px;cursor:pointer}
+.tx:hover{background:var(--hover);transform:translateX(3px);box-shadow:inset 3px 0 0 var(--red)}
+.tx .gi{width:32px;height:32px;border-radius:9px}
+.tx .gi svg{width:18px;height:18px}
+.tx .t{flex:1;min-width:0}
+.tx .t div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx .t small{color:var(--muted);font-size:11.5px}
+.tx .amt{font-weight:600;white-space:nowrap}
+.yr{display:grid;grid-template-columns:70px 1fr 110px 110px;gap:10px;align-items:center;padding:8px 6px;border-bottom:1px solid var(--line);font-size:12.5px}
+.yr .track{height:8px;border-radius:4px;background:var(--chrome);position:relative;overflow:hidden}
+.yr .track i{position:absolute;inset:0 auto 0 0;background:var(--red);border-radius:4px}
+.yr .r{text-align:right}
+.right{border-left:1px solid var(--line);padding:12px 14px;overflow-y:auto;overflow-x:hidden;display:grid;gap:12px;align-content:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px}
+.card h3{margin:0 0 2px;font-size:13px}
+.card .sub{color:var(--muted);font-size:11.5px;margin-bottom:8px}
+.seg{display:flex;gap:4px;margin-bottom:8px}
+.seg .chip{height:24px;font-size:11.5px}
+.legend{display:flex;gap:12px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.kpi div{background:var(--chrome);border-radius:6px;padding:6px 8px}
+.kpi small{display:block;font-size:10.5px;color:var(--muted)}
+.kpi b{font-size:13px}
+.delta{font-size:11px;font-weight:600}
+.up{color:var(--red)} .down{color:var(--green)}
+svg.chart text{fill:var(--muted);font:10.5px var(--ui)}
+.foot{display:flex;align-items:center;gap:14px;padding:8px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;flex:0 0 auto}
+.foot svg{width:14px;height:14px;vertical-align:-2px}
+.credit{color:var(--dim);font-size:11px;white-space:nowrap;margin-left:auto}
+.toggle{width:28px;height:16px;border-radius:8px;background:var(--red);position:relative;display:inline-block;vertical-align:-3px}
+.toggle::after{content:"";position:absolute;right:2px;top:2px;width:12px;height:12px;border-radius:50%;background:#fff}
+
+/* dialog thêm giao dịch */
+.scrim{position:absolute;inset:0;background:rgba(10,11,13,.55);display:grid;place-items:center;animation:fade .2s ease}
+.dlg{width:460px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;display:grid;gap:12px;box-shadow:0 24px 50px rgba(0,0,0,.5);animation:pop .32s var(--ease-spring)}
+@keyframes fade{from{opacity:0}}
+@keyframes pop{from{transform:translateY(10px) scale(.96);opacity:0}}
+.dlg h3{margin:0;font-size:15px;display:flex;justify-content:space-between;align-items:center}
+.seg2{display:grid;grid-template-columns:1fr 1fr;background:var(--chrome);border-radius:6px;padding:2px}
+.seg2 button{height:30px;border:0;border-radius:5px;background:none;cursor:pointer;color:var(--muted)}
+.seg2 button.on{background:var(--selected-bg);color:var(--text);box-shadow:inset 0 -2px 0 var(--red)}
+.field{display:grid;gap:4px}
+.field label{font-size:11.5px;color:var(--muted)}
+.inp{height:36px;border-radius:6px;border:1px solid var(--line);background:var(--chrome);padding:0 10px;outline:none;width:100%;box-sizing:border-box}
+.inp:hover{border-color:#4A4F58}
+.inp:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(229,56,59,.18)}
+.inp.big{height:46px;font-size:22px;font-weight:700}
+.suggest{border:1px solid rgba(242,184,75,.4);background:rgba(242,184,75,.08);border-radius:8px;padding:8px 10px;display:grid;gap:6px;animation:pop .3s var(--ease-spring)}
+.suggest small{color:var(--warn);font-size:11.5px;display:flex;gap:6px;align-items:center}
+.suggest .opts{display:flex;gap:6px;flex-wrap:wrap}
+.grpPick{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.grpPick button{border:1px solid var(--line);background:var(--chrome);border-radius:8px;padding:6px 2px;display:grid;justify-items:center;gap:4px;font-size:10.5px;cursor:pointer;color:var(--muted)}
+.grpPick button:hover{border-color:var(--red);transform:translateY(-1px)}
+.grpPick button.on{border-color:var(--red);background:var(--selected-bg);color:var(--text);animation:chipPop .3s var(--ease-spring)}
+@keyframes chipPop{from{transform:scale(.9)}}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.actions{display:flex;justify-content:flex-end;gap:8px}
+
+/* ===== Android ===== */
+.phone{box-sizing:border-box;border-radius:28px;border:8px solid #0E0F11;position:relative}
+.p-outer{width:412px;height:916px}
+.p-inner{width:820px;height:740px}
+.p-top{display:flex;align-items:center;gap:8px;padding:14px 16px 10px}
+.p-top .brand-icon{width:30px;height:30px}
+.p-top .brand-name{font-size:16px}
+.p-top .brand-desc{font-size:11px}
+.icbtn{width:40px;height:40px;border-radius:20px;border:0;background:none;display:grid;place-items:center;cursor:pointer;color:var(--muted)}
+.icbtn:hover{background:var(--hover);color:var(--text)}
+.icbtn svg{width:20px;height:20px}
+.p-body{flex:1;overflow:hidden;padding:0 14px;display:flex;flex-direction:column;gap:10px;min-height:0}
+.hero{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.hero small{color:var(--muted);font-size:11.5px}
+.hero .bal{font-size:26px;font-weight:700;margin:2px 0 8px}
+.hero .io{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hero .io div{background:var(--chrome);border-radius:10px;padding:8px 10px}
+.mtabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--panel);border-radius:10px;padding:3px;position:relative}
+.mtabs button{height:36px;border:0;background:none;color:var(--muted);border-radius:8px;cursor:pointer}
+.mtabs button.on{color:#fff;background:var(--selected-bg);box-shadow:inset 0 -2px 0 var(--red)}
+.plist{flex:1;overflow:hidden;min-height:0}
+.plist .tx{padding:9px 4px}
+.bnav{display:grid;grid-template-columns:repeat(5,1fr);align-items:center;height:64px;border-top:1px solid var(--line);background:var(--chrome);position:relative;flex:0 0 auto}
+.bnav button{border:0;background:none;color:var(--muted);display:grid;justify-items:center;gap:2px;font-size:10.5px;cursor:pointer;height:56px}
+.bnav button svg{width:20px;height:20px}
+.bnav button.on{color:var(--text)}
+.bnav button.on svg{color:var(--red)}
+.fab{width:54px;height:54px;border-radius:27px;background:var(--red)!important;color:#fff!important;display:grid!important;place-items:center;margin:-22px auto 0;box-shadow:0 8px 20px rgba(229,56,59,.4)}
+.fab svg{width:26px!important;height:26px!important}
+.p-credit{position:absolute;right:14px;bottom:70px;font-size:10px;color:var(--dim)}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--panel);border-radius:18px 18px 0 0;border-top:1px solid var(--line);padding:10px 16px 16px;display:grid;gap:10px;animation:sheetUp .35s var(--ease-out)}
+@keyframes sheetUp{from{transform:translateY(40px);opacity:0}}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto}
+.keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.keypad button{height:46px;border-radius:10px;border:0;background:var(--chrome);font-size:17px;cursor:pointer}
+.keypad button:hover{background:var(--hover)}
+.keypad .ok{background:var(--red);color:#fff;font-weight:700;grid-row:span 2;height:auto}
+.notif{position:absolute;left:10px;right:10px;top:10px;background:#2C2F36;border-radius:16px;padding:12px;display:flex;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);animation:pop .4s var(--ease-spring)}
+.notif .brand-icon{width:28px;height:28px}
+.notif small{color:var(--muted);font-size:11px}
+.notif .acts{display:flex;gap:14px;margin-top:6px;font-size:12px;font-weight:600;color:var(--red)}
+.inner-grid{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:0 14px 0;min-height:0}
+.inner-grid>div{display:flex;flex-direction:column;gap:10px;min-height:0}
+.rail{display:flex;gap:6px;overflow:hidden}
+
+/* icon concepts */
+.icons{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.ic{border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:10px;background:#1B1D21}
+.ic.rec{border-color:var(--red)}
+.ic .big{display:flex;gap:14px;align-items:flex-end}
+.ic .big svg{width:110px;height:110px}
+.ic .tb{display:flex;gap:10px;align-items:center;padding:6px 10px;border-radius:6px}
+.ic .tb.dark{background:#202020}.ic .tb.light{background:#F3F3F3}
+.ic .tb svg{flex:0 0 auto}
+.ic h3{margin:0;font-size:14px;display:flex;gap:8px;align-items:center}
+.ic h3 em{font-style:normal;font-size:10.5px;color:var(--red);border:1px solid var(--red);border-radius:4px;padding:0 5px}
+.ic p{margin:0;color:var(--muted);font-size:12.5px}
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.feat div{border-top:2px solid var(--line);padding-top:8px;min-width:0}
+.feat h4{margin:0 0 4px;font-size:13.5px}
+.feat p{margin:0;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="logo" viewBox="0 0 512 512"><defs><linearGradient id="bP" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E4ECF7"/></linearGradient><linearGradient id="bK" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7B5CFF"/><stop offset="1" stop-color="#4B2BD6"/></linearGradient><linearGradient id="bRing" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4F6FA"/><stop offset=".5" stop-color="#9AA5B8"/><stop offset="1" stop-color="#5D677A"/></linearGradient><radialGradient id="bR" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#FF7E80"/><stop offset=".55" stop-color="#EE2F33"/><stop offset="1" stop-color="#A3161A"/></radialGradient><linearGradient id="bRim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C21E22"/><stop offset="1" stop-color="#7A0F12"/></linearGradient></defs><ellipse cx="250" cy="492" rx="200" ry="14" fill="#000" opacity=".28"/><rect x="56" y="30" width="336" height="448" rx="38" fill="url(#bK)"/><rect x="40" y="16" width="336" height="440" rx="36" fill="url(#bP)"/><rect x="40" y="16" width="336" height="440" rx="36" fill="none" stroke="#C9D5E8" stroke-width="4"/><g fill="url(#bRing)"><rect x="16" y="76" width="70" height="30" rx="15"/><rect x="16" y="166" width="70" height="30" rx="15"/><rect x="16" y="256" width="70" height="30" rx="15"/><rect x="16" y="346" width="70" height="30" rx="15"/></g><g stroke-width="22" stroke-linecap="round"><path d="M122 104h186" stroke="#2F8BFF"/><path d="M122 180h186" stroke="#22C3A6"/><path d="M122 256h110" stroke="#FFB020"/></g><circle cx="362" cy="380" r="130" fill="url(#bRim)"/><circle cx="362" cy="362" r="128" fill="url(#bR)"/><circle cx="362" cy="362" r="98" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="10"/><path d="M362 314v96M314 362h96" stroke="#8E1216" stroke-width="32" stroke-linecap="round" transform="translate(0 6)" opacity=".5"/><path d="M362 314v96M314 362h96" stroke="#fff" stroke-width="32" stroke-linecap="round"/><ellipse cx="318" cy="290" rx="44" ry="22" transform="rotate(-30 318 290)" fill="#fff" opacity=".35"/></symbol>
+    <symbol id="logoA" viewBox="0 0 512 512"><defs><linearGradient id="aB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3D9BFF"/><stop offset="1" stop-color="#1747B8"/></linearGradient><linearGradient id="aS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B4FB8"/><stop offset="1" stop-color="#0E2F7A"/></linearGradient><linearGradient id="aC" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE27A"/><stop offset="1" stop-color="#F5A623"/></linearGradient><linearGradient id="aT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7CC0FF"/><stop offset="1" stop-color="#3478E0"/></linearGradient><radialGradient id="aR" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FF8A8C"/><stop offset=".55" stop-color="#E5383B"/><stop offset="1" stop-color="#A3161A"/></radialGradient></defs><ellipse cx="256" cy="488" rx="200" ry="16" fill="#000" opacity=".28"/><rect x="80" y="30" width="300" height="170" rx="26" transform="rotate(-10 230 115)" fill="url(#aC)"/><rect x="110" y="66" width="120" height="18" rx="9" transform="rotate(-10 230 115)" fill="#fff" opacity=".55"/><rect x="20" y="136" width="472" height="342" rx="60" fill="url(#aS)"/><rect x="20" y="118" width="472" height="336" rx="60" fill="url(#aB)"/><rect x="52" y="134" width="408" height="40" rx="20" fill="#fff" opacity=".22"/><rect x="290" y="236" width="206" height="150" rx="46" fill="#123C99"/><rect x="290" y="226" width="206" height="146" rx="46" fill="url(#aT)"/><circle cx="362" cy="299" r="38" fill="#8E1216"/><circle cx="362" cy="293" r="36" fill="url(#aR)"/><ellipse cx="350" cy="280" rx="14" ry="9" fill="#fff" opacity=".7"/></symbol>
+    <symbol id="logoC" viewBox="0 0 512 512"><defs><radialGradient id="cF" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#FFE680"/><stop offset=".6" stop-color="#FFC21A"/><stop offset="1" stop-color="#E8930A"/></radialGradient><linearGradient id="cE" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D98208"/><stop offset="1" stop-color="#9A5604"/></linearGradient><linearGradient id="cBl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4FA3FF"/><stop offset="1" stop-color="#1E5FD6"/></linearGradient><linearGradient id="cRd" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FF6A6D"/><stop offset="1" stop-color="#C81E22"/></linearGradient></defs><ellipse cx="256" cy="496" rx="190" ry="12" fill="#000" opacity=".28"/><circle cx="256" cy="268" r="238" fill="url(#cE)"/><circle cx="256" cy="250" r="238" fill="url(#cF)"/><circle cx="256" cy="250" r="194" fill="none" stroke="#E08A06" stroke-width="12"/><circle cx="256" cy="250" r="194" fill="none" stroke="#FFF1B0" stroke-width="4" transform="translate(0 7)" opacity=".7"/><g><rect x="132" y="252" width="70" height="128" rx="16" fill="#123E99" transform="translate(8 8)"/><rect x="132" y="252" width="70" height="128" rx="16" fill="url(#cBl)"/><rect x="221" y="190" width="70" height="190" rx="16" fill="#123E99" transform="translate(8 8)"/><rect x="221" y="190" width="70" height="190" rx="16" fill="url(#cBl)"/><rect x="310" y="120" width="70" height="260" rx="16" fill="#8E1216" transform="translate(8 8)"/><rect x="310" y="120" width="70" height="260" rx="16" fill="url(#cRd)"/></g><g fill="#fff" opacity=".45"><rect x="142" y="262" width="14" height="80" rx="7"/><rect x="231" y="200" width="14" height="130" rx="7"/><rect x="320" y="130" width="14" height="190" rx="7"/></g><path d="M90 160a190 190 0 0 1 120-110" stroke="#fff" stroke-width="18" stroke-linecap="round" fill="none" opacity=".45"/></symbol>
+    <!-- UI icons (stroke) -->
+    <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-update" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4zM10 21h4"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 18a5 5 0 1 1 1-9.9A6 6 0 0 1 19 10a4 4 0 0 1-1 8z"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 6.3L21 9l-5.2 4.1L17.6 20 12 16.3 6.4 20l1.8-6.9L3 9l6.8-.7z"/></symbol>
+    <!-- group icons (filled, white) -->
+    <symbol id="g-food" viewBox="0 0 24 24" fill="currentColor"><path d="M3 11h18a9 9 0 0 1-18 0zM8 3v6M12 2v7M16 3v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="g-coffee" viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 10h1.5a2.5 2.5 0 0 1 0 5H17z"/><path d="M8 2v3M12 2v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="g-noodle" viewBox="0 0 24 24" fill="currentColor"><path d="M2 12h20a10 9 0 0 1-20 0z"/><path d="M6 10L17 2M9 10l10-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="g-car" viewBox="0 0 24 24" fill="currentColor"><path d="M5 11l2-5h10l2 5h1a1 1 0 0 1 1 1v5h-2v2h-3v-2H8v2H5v-2H3v-5a1 1 0 0 1 1-1zm2.5 0h9l-1.2-3H8.7zM7 13.5a1.5 1.5 0 1 0 0 .01zM17 13.5a1.5 1.5 0 1 0 0 .01z"/></symbol>
+    <symbol id="g-fuel" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v17H4zm2 2v4h6V6zM15 8l3 3v7a1 1 0 0 0 2 0V9l-3-3"/></symbol>
+    <symbol id="g-bike" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="5.5" cy="16" r="3.5"/><circle cx="18.5" cy="16" r="3.5"/><path d="M5.5 16l4-7h6l3 7M9 6h3" stroke-linecap="round"/></symbol>
+    <symbol id="g-house" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l10 8h-3v10h-5v-6h-4v6H5V11H2z"/></symbol>
+    <symbol id="g-bolt" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></symbol>
+    <symbol id="g-drop" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2s7 8 7 13a7 7 0 0 1-14 0c0-5 7-13 7-13z"/></symbol>
+    <symbol id="g-wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M2 9a15 15 0 0 1 20 0M5.5 12.5a10 10 0 0 1 13 0M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="19.5" r="1.3" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="g-bag" viewBox="0 0 24 24" fill="currentColor"><path d="M5 8h14l-1 13H6zM9 8V6a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="2" fill-rule="evenodd"/></symbol>
+    <symbol id="g-heart" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-9-5.5-9-12a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-9 12-9 12z"/></symbol>
+    <symbol id="g-game" viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10a5 5 0 0 1 4.6 7l-1 2.4a2.5 2.5 0 0 1-4.3.4L15 15H9l-1.3 1.8a2.5 2.5 0 0 1-4.3-.4l-1-2.4A5 5 0 0 1 7 7z"/></symbol>
+    <symbol id="g-brief" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" stroke="currentColor" stroke-width="2" fill-rule="evenodd"/></symbol>
+    <symbol id="g-brush" viewBox="0 0 24 24" fill="currentColor"><path d="M20 3l1 1-9 10-2-2zM9 13l2 2c0 3-2 5-6 5 1-1 1-2 1-3 0-2 1-4 3-4z"/></symbol>
+    <symbol id="g-gift" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9h18v4H3zM5 13h14v8H5zM11 9h2v12h-2zM12 9C9 9 7 4 9.5 4S12 9 12 9zm0 0c3 0 5-5 2.5-5S12 9 12 9z"/></symbol>
+  </defs>
+</svg>
+
+<div class="doc">
+  <header class="intro">
+    <h1><span class="m">Mondiro</span> Mon Money Lover · bản phác layout</h1>
+    <p>Bản xem trước giao diện trước khi build. Dữ liệu là ví dụ. Bấm thử tab Ngày / Tháng / Năm, nút "Thêm giao dịch", và gõ số tiền 35000 trong hộp nhập để xem gợi ý tự động.</p>
+  </header>
+
+  <section class="sec">
+    <div class="sec-h"><h2>1 · Icon app: 3 phương án</h2><span>Phong cách khối 3D, màu rực · thử trên taskbar tối và sáng ở cỡ 32 / 24 / 16px</span></div>
+    <div class="icons" id="icons"></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>2 · PC (Windows, Electron)</h2><span>Cửa sổ 1180 × 740, thu nhỏ cho vừa trang</span></div>
+    <div class="fit" data-w="1180" data-h="740"><div class="frame">
+      <div class="app win" id="desk">
+        <div class="titlebar"><span>Mondiro Mon Money Lover</span><i>–</i><i>▢</i><i>✕</i></div>
+        <header class="top">
+          <div class="brand">
+            <svg class="brand-icon"><use href="#logo"/></svg>
+            <div class="brand-text">
+              <div class="brand-name"><span class="m">Mondiro</span> <span class="a">Mon Money Lover</span> <span class="latest" title="Đang dùng bản mới nhất">LATEST</span></div>
+              <div class="brand-desc">Ghi chi tiêu, thu nhập · đồng bộ PC và điện thoại</div>
+            </div>
+          </div>
+          <div class="spacer"></div>
+          <div class="tools">
+            <span class="sync" title="Dữ liệu đã lưu lên Firebase"><span class="dot"></span>Đã đồng bộ · 20:41</span>
+            <button class="btn" type="button" title="Tìm giao dịch (Ctrl+F)"><svg><use href="#i-search"/></svg>Tìm</button>
+            <button class="btn" type="button" title="Kiểm tra bản cập nhật"><svg><use href="#i-update"/></svg>Kiểm tra bản cập nhật</button>
+            <span class="avatar" title="mondiro@…">M</span>
+          </div>
+        </header>
+        <div class="body">
+          <aside class="side">
+            <nav class="nav">
+              <div class="li on"><svg><use href="#i-list"/></svg>Sổ giao dịch</div>
+              <div class="li"><svg><use href="#i-chart"/></svg>Báo cáo &amp; so sánh</div>
+              <div class="li"><svg><use href="#i-folder"/></svg>Quản lý nhóm</div>
+              <div class="li"><svg><use href="#i-gear"/></svg>Cài đặt</div>
+            </nav>
+            <h4>Nhóm · tháng 10</h4>
+            <div class="tree" id="tree"></div>
+            <button class="addgrp" type="button">+ Tạo nhóm mới</button>
+          </aside>
+          <main class="main">
+            <div class="bar">
+              <div class="tabs" id="dTabs"><button type="button" data-v="day">Ngày</button><button type="button" class="on" data-v="month">Tháng</button><button type="button" data-v="year">Năm</button><span class="ind"></span></div>
+              <div class="period"><button type="button" title="Kỳ trước (←)">‹</button><span id="dPeriod">Tháng 10 / 2026</span><button type="button" title="Kỳ sau (→)">›</button></div>
+              <span class="chip on" id="dFilter">Tất cả nhóm ▾</span>
+              <div class="spacer"></div>
+              <button class="btn primary" type="button" id="openAdd" title="Thêm giao dịch (Ctrl+N)"><svg><use href="#i-plus"/></svg>Thêm giao dịch</button>
+            </div>
+            <div class="grid">
+              <div class="list" id="dList"></div>
+              <div class="right">
+                <div class="card">
+                  <h3>So sánh chi tiêu</h3>
+                  <div class="sub">Tháng 10 so với tháng 9 và trung bình 3 tháng (7–9)</div>
+                  <div class="seg"><span class="chip on">Chi tiêu</span><span class="chip">Thu nhập</span></div>
+                  <div class="kpi" id="kpi"></div>
+                  <div id="dChart"></div>
+                  <div class="legend"><span><i style="background:var(--red)"></i>Tháng này</span><span><i style="background:var(--blue)"></i>Tháng trước</span><span><i style="background:#4A4F58"></i>TB 3 tháng</span></div>
+                </div>
+                <div class="card">
+                  <h3>Chi tiêu theo tuần</h3>
+                  <div class="sub">Đường mờ là tháng trước</div>
+                  <div id="dLine"></div>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+        <footer class="foot"><span><svg><use href="#i-bell"/></svg> Nhắc nhập chi tiêu 20:00 hằng ngày <span class="toggle"></span></span><span><svg><use href="#i-cloud"/></svg> Firebase · 1.284 giao dịch</span><span class="credit">Created by Mondiro</span></footer>
+        <div id="dlgHost"></div>
+      </div>
+    </div></div>
+    <ul class="notes">
+      <li><b>Cột trái</b>: cây nhóm cha/con, mỗi nhóm có icon và tổng tháng. Bấm nhóm để lọc giao dịch theo nhóm đó.</li>
+      <li><b>Giữa</b>: sổ giao dịch, đổi kiểu xem Ngày / Tháng / Năm, mũi tên ‹ › để lùi tới kỳ trước.</li>
+      <li><b>Phải</b>: biểu đồ so sánh tháng này với tháng trước và trung bình 3 tháng, theo từng nhóm.</li>
+      <li><b>Chân</b>: trạng thái nhắc 20:00 và đồng bộ Firebase; PC chạy nền ở khay hệ thống để vẫn nhắc được.</li>
+    </ul>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>3 · Điện thoại: Z Fold 7 màn ngoài</h2><span>1 cột, nút + lớn ở giữa thanh dưới</span></div>
+    <div class="row" id="outerRow">
+      <div class="cell" style="flex:1 1 300px"><div class="fit" data-w="412" data-h="916" data-max="1"><div class="frame">
+        <div class="app phone p-outer">
+          <div class="p-top">
+            <svg class="brand-icon"><use href="#logo"/></svg>
+            <div style="min-width:0"><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Money</span> <span class="latest">LATEST</span></div><div class="brand-desc">Đã đồng bộ · 20:41</div></div>
+            <div class="spacer"></div>
+            <button class="icbtn" type="button" title="Kiểm tra bản cập nhật"><svg><use href="#i-update"/></svg></button>
+            <button class="icbtn" type="button" title="Tìm"><svg><use href="#i-search"/></svg></button>
+          </div>
+          <div class="p-body">
+            <div class="hero"><small>Còn lại tháng 10</small><div class="bal" id="mBal"></div><div class="io" id="mIO"></div></div>
+            <div class="mtabs"><button type="button">Ngày</button><button type="button" class="on">Tháng</button><button type="button">Năm</button></div>
+            <div class="plist" id="mList"></div>
+          </div>
+          <span class="p-credit">Created by Mondiro</span>
+          <nav class="bnav"><button type="button" class="on"><svg><use href="#i-list"/></svg>Sổ</button><button type="button"><svg><use href="#i-chart"/></svg>Báo cáo</button><button type="button" class="fab" title="Thêm giao dịch"><svg><use href="#i-plus"/></svg></button><button type="button"><svg><use href="#i-folder"/></svg>Nhóm</button><button type="button"><svg><use href="#i-gear"/></svg>Cài đặt</button></nav>
+        </div>
+      </div></div><div class="cap"><b>Trang chính</b>: số dư, thu/chi tháng, danh sách theo ngày</div></div>
+
+      <div class="cell" style="flex:1 1 300px"><div class="fit" data-w="412" data-h="916" data-max="1"><div class="frame">
+        <div class="app phone p-outer">
+          <div class="p-top"><svg class="brand-icon"><use href="#logo"/></svg><div><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Money</span></div></div></div>
+          <div class="p-body" style="opacity:.35"><div class="hero"><small>Còn lại tháng 10</small><div class="bal">4.120.000 ₫</div></div></div>
+          <div class="sheet" id="mSheet"></div>
+        </div>
+      </div></div><div class="cap"><b>Thêm giao dịch</b>: bàn phím số lớn, gợi ý hiện ngay khi số tiền đã nhập ≥ 3 lần</div></div>
+
+      <div class="cell" style="flex:1 1 300px"><div class="fit" data-w="412" data-h="916" data-max="1"><div class="frame">
+        <div class="app phone p-outer" style="background:#101114">
+          <div style="padding:40px 20px;color:var(--muted);text-align:center;font-size:44px;font-weight:300">20:00</div>
+          <div class="notif" style="top:150px">
+            <svg class="brand-icon"><use href="#logo"/></svg>
+            <div style="flex:1"><small>Mon Money Lover · bây giờ</small><div><b>Hôm nay bạn tiêu gì rồi?</b></div><div style="color:var(--muted);font-size:12px">Mới ghi 2 giao dịch hôm nay. Nhập nốt trước khi quên nhé.</div><div class="acts"><span>Nhập ngay</span><span style="color:var(--muted)">Nhắc lại 30 phút</span></div></div>
+          </div>
+        </div>
+      </div></div><div class="cap"><b>Nhắc 20:00</b>: thông báo hằng ngày, đổi giờ được trong Cài đặt</div></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>4 · Điện thoại: Z Fold 7 mở ra (màn trong)</h2><span>Gần vuông → chia 2 cột: sổ giao dịch | biểu đồ</span></div>
+    <div class="fit" data-w="820" data-h="740" data-max="1"><div class="frame">
+      <div class="app phone p-inner">
+        <div class="p-top">
+          <svg class="brand-icon"><use href="#logo"/></svg>
+          <div><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Mon Money Lover</span> <span class="latest">LATEST</span></div><div class="brand-desc">Ghi chi tiêu, thu nhập · đồng bộ PC và điện thoại</div></div>
+          <div class="spacer"></div>
+          <button class="icbtn" type="button" title="Kiểm tra bản cập nhật"><svg><use href="#i-update"/></svg></button>
+          <button class="btn primary" type="button"><svg><use href="#i-plus"/></svg>Thêm</button>
+        </div>
+        <div class="inner-grid">
+          <div>
+            <div class="mtabs"><button type="button">Ngày</button><button type="button" class="on">Tháng</button><button type="button">Năm</button></div>
+            <div class="rail" id="iRail"></div>
+            <div class="plist" id="iList"></div>
+          </div>
+          <div>
+            <div class="card"><h3>So sánh chi tiêu</h3><div class="sub">Tháng 10 · tháng 9 · TB 3 tháng</div><div class="kpi" id="iKpi"></div><div id="iChart"></div></div>
+          </div>
+        </div>
+        <span class="p-credit">Created by Mondiro</span>
+        <nav class="bnav"><button type="button" class="on"><svg><use href="#i-list"/></svg>Sổ</button><button type="button"><svg><use href="#i-chart"/></svg>Báo cáo</button><button type="button" class="fab"><svg><use href="#i-plus"/></svg></button><button type="button"><svg><use href="#i-folder"/></svg>Nhóm</button><button type="button"><svg><use href="#i-gear"/></svg>Cài đặt</button></nav>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>5 · Cách hoạt động</h2><span>Phần chạy ngầm phía sau giao diện</span></div>
+    <div class="feat">
+      <div><h4>Đồng bộ Firebase</h4><p>Đăng nhập bằng email + mật khẩu. Dữ liệu lưu trên Firestore, PC và điện thoại thấy nhau ngay. Mất mạng vẫn nhập được, có mạng lại tự đẩy lên.</p></div>
+      <div><h4>Nhóm lồng nhau</h4><p>Có sẵn khoảng 25 nhóm kèm icon (Ăn uống › Cà phê, Đi lại › Xăng…). Tạo nhóm mới: chọn tên, icon, màu, nhóm cha. Tổng nhóm cha cộng cả nhóm con.</p></div>
+      <div><h4>Gợi ý theo số tiền</h4><p>Khi một số tiền đã được nhập từ 3 lần trở lên, app gợi ý các cặp nhóm + ghi chú hay dùng nhất với số đó. Chạm 1 lần là điền xong.</p></div>
+      <div><h4>Nhắc 20:00</h4><p>Android: thông báo hằng ngày kể cả khi app đóng. PC: app thu nhỏ xuống khay hệ thống và hiện thông báo Windows.</p></div>
+      <div><h4>Tự cập nhật</h4><p>Bản mới phát hành trên GitHub Releases. Bấm "Kiểm tra bản cập nhật": nếu đã mới nhất, chữ LATEST xanh hiện cạnh tên app.</p></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+const fmt=n=>Math.abs(n).toLocaleString('vi-VN')+' ₫';
+const short=n=>{n=Math.abs(n);return n>=1e6?(n/1e6).toLocaleString('vi-VN',{maximumFractionDigits:1})+'tr':Math.round(n/1e3)+'k'};
+// nhóm: [id, tên, icon, màu, cha]
+const G=[
+ ['an','Ăn uống','g-food','#E5383B'],['cf','Cà phê','g-coffee','#E5383B','an'],['sang','Ăn sáng','g-noodle','#E5383B','an'],
+ ['di','Đi lại','g-car','#5B8FD9'],['xang','Xăng xe','g-fuel','#5B8FD9','di'],['grab','Grab','g-bike','#5B8FD9','di'],
+ ['nha','Nhà cửa','g-house','#C98F2A'],['dien','Điện','g-bolt','#C98F2A','nha'],['nuoc','Nước','g-drop','#C98F2A','nha'],['net','Internet','g-wifi','#C98F2A','nha'],
+ ['mua','Mua sắm','g-bag','#9B6BD6'],['art','Đồ vẽ, phần mềm','g-brush','#9B6BD6','mua'],
+ ['gt','Giải trí','g-game','#3BAFB0'],['sk','Sức khoẻ','g-heart','#D96B9B'],
+ ['luong','Lương','g-brief','#3DBE7A','','inc'],['free','Freelance','g-brush','#3DBE7A','','inc'],['qua','Được tặng','g-gift','#3DBE7A','','inc'],
+];
+const gm=Object.fromEntries(G.map(g=>[g[0],{id:g[0],name:g[1],ic:g[2],c:g[3],p:g[4]||'',inc:g[5]==='inc'}]));
+const gi=(id,s)=>{const g=gm[id];return `<span class="gi" style="background:${g.c}"><svg style="color:#fff"><use href="#${g.ic}"/></svg></span>`};
+// giao dịch ví dụ
+const TX=[
+ [15,'cf',-35000,'cf sáng Highlands'],[15,'grab',-42000,'Grab về nhà'],
+ [14,'sang',-30000,'Phở bò'],[14,'free',2500000,'Spine anim cho game Bắn cá'],[14,'cf',-35000,'cf sáng Highlands'],[14,'art',-890000,'Gia hạn Spine Essential'],
+ [13,'xang',-80000,'Đổ xăng Vision'],[13,'an',-185000,'Lẩu với nhóm'],[13,'cf',-35000,'cf sáng Highlands'],
+ [12,'gt',-220000,'Vé xem phim'],[12,'sang',-35000,'Bánh mì + sữa'],
+ [10,'dien',-612000,'Tiền điện T9'],[10,'net',-220000,'FPT tháng 10'],[10,'luong',18000000,'Lương tháng 9'],
+ [8,'sk',-150000,'Thuốc cảm'],[8,'cf',-29000,'Trà sữa'],
+];
+const day=d=>{const w=['CN','T2','T3','T4','T5','T6','T7'][new Date(2026,9,d).getDay()];return `${w}, ${d}/10`};
+function txRow(t){const g=gm[t[1]];const par=g.p?gm[g.p].name+' › ':'';return `<div class="tx">${gi(t[1])}<div class="t"><div>${t[3]}</div><small>${par}${g.name}</small></div><div class="amt ${t[2]>0?'inc':''}">${t[2]>0?'+':'−'}${fmt(t[2])}</div></div>`}
+function monthList(limitDays){let h='',days=[...new Set(TX.map(t=>t[0]))];if(limitDays)days=days.slice(0,limitDays);
+ for(const d of days){const ts=TX.filter(t=>t[0]===d);const s=ts.reduce((a,t)=>a+t[2],0);
+  h+=`<div class="day"><b>${day(d)}</b><span class="${s>0?'inc':''}">${s>0?'+':'−'}${fmt(s)}</span></div>`+ts.map(txRow).join('')}
+ return h}
+const SUM={inc:20500000,exp:8420000};
+function summary(){return `<div class="sum"><div><small>Thu nhập</small><b class="inc">+${fmt(SUM.inc)}</b></div><div><small>Chi tiêu</small><b class="exp">−${fmt(SUM.exp)}</b></div><div><small>Còn lại</small><b>${fmt(SUM.inc-SUM.exp)}</b></div></div>`}
+const YEAR=[[1,7.1,15],[2,9.8,15],[3,7.4,16.2],[4,8.0,15],[5,7.6,19],[6,8.9,15],[7,8.3,17.5],[8,7.6,15],[9,8.0,18],[10,8.42,20.5]];
+function yearList(){return summary().replace('Thu nhập','Thu nhập 2026')+YEAR.slice().reverse().map(r=>`<div class="yr"><b>Tháng ${r[0]}</b><div class="track"><i style="width:${r[1]/10*100}%"></i></div><span class="r exp">−${r[1].toLocaleString('vi-VN')}tr</span><span class="r inc">+${r[2].toLocaleString('vi-VN')}tr</span></div>`).join('')}
+// desktop list + tabs
+const dList=document.getElementById('dList'),dPeriod=document.getElementById('dPeriod');
+function setView(v){
+ if(v==='day'){dPeriod.textContent='Thứ 5, 15/10/2026';dList.innerHTML=`<div class="sum"><div><small>Thu hôm nay</small><b class="inc">+0 ₫</b></div><div><small>Chi hôm nay</small><b class="exp">−77.000 ₫</b></div><div><small>TB mỗi ngày tháng này</small><b>561.000 ₫</b></div></div>`+monthList(1)}
+ else if(v==='year'){dPeriod.textContent='Năm 2026';dList.innerHTML=yearList()}
+ else{dPeriod.textContent='Tháng 10 / 2026';dList.innerHTML=summary()+monthList()}
+}
+function tabs(el,cb){const ind=el.querySelector('.ind');const btns=[...el.querySelectorAll('button')];
+ const place=b=>{if(ind){ind.style.left=b.offsetLeft+8+'px';ind.style.width=b.offsetWidth-16+'px'}};
+ btns.forEach(b=>b.addEventListener('click',()=>{btns.forEach(x=>x.classList.toggle('on',x===b));place(b);cb&&cb(b.dataset.v)}));
+ requestAnimationFrame(()=>place(el.querySelector('.on')))}
+tabs(document.getElementById('dTabs'),setView);setView('month');
+// tree
+const spent={cf:612000,sang:845000,an:2150000,xang:400000,grab:388000,di:788000,dien:612000,nuoc:120000,net:220000,nha:952000,art:890000,mua:1650000,gt:520000,sk:360000,luong:18000000,free:2500000,qua:0};
+const tree=document.getElementById('tree');let th='';
+G.forEach(g=>{const o=gm[g[0]];const kids=G.filter(k=>k[4]===o.id).length;
+ th+=`<div class="li${o.p?' child':''}${o.id==='an'?'':''}" data-g="${o.id}">${o.p?'':`<span class="caret">${kids?'▼':''}</span>`}${gi(o.id)}<span>${o.name}</span><em class="${o.inc?'inc':''}">${spent[o.id]?short(spent[o.id]):'–'}</em></div>`});
+tree.innerHTML=th;
+tree.addEventListener('click',e=>{const li=e.target.closest('.li');if(!li)return;const on=li.classList.contains('on');tree.querySelectorAll('.li').forEach(x=>x.classList.remove('on'));
+ const f=document.getElementById('dFilter');if(on){f.textContent='Tất cả nhóm ▾';setView(document.querySelector('#dTabs .on').dataset.v);return}
+ li.classList.add('on');const id=li.dataset.g;f.textContent=gm[id].name+' ✕';
+ const ids=[id,...G.filter(k=>k[4]===id).map(k=>k[0])];const ts=TX.filter(t=>ids.includes(t[1]));
+ dList.innerHTML=`<div class="sum"><div><small>${gm[id].name} · tháng 10</small><b>${fmt(spent[id]||0)}</b></div><div><small>Tháng 9</small><b>${fmt((spent[id]||0)*.86)}</b></div><div><small>Số giao dịch</small><b>${ts.length}</b></div></div>`+ts.map(t=>`<div class="day"><b>${day(t[0])}</b></div>`+txRow(t)).join('')});
+// chart: so sánh theo nhóm
+const CMP=[['an',2150000,1890000,2010000],['di',788000,820000,760000],['nha',952000,930000,945000],['mua',1650000,640000,880000],['gt',520000,610000,560000],['sk',360000,120000,180000]];
+function kpiHtml(){const cur=8420000,prev=7980000,avg=8130000;const d1=(cur-prev)/prev*100,d2=(cur-avg)/avg*100;
+ return `<div><small>Tháng này</small><b class="exp">${short(cur)}</b></div><div><small>So tháng trước</small><b>${short(prev)}</b> <span class="delta up">▲${d1.toFixed(1)}%</span></div><div><small>So TB 3 tháng</small><b>${short(avg)}</b> <span class="delta up">▲${d2.toFixed(1)}%</span></div>`}
+function barChart(w){const rowH=34,lab=70,h=CMP.length*rowH+18,max=2400000,sx=v=>(w-lab-44)*v/max;let s=`<svg class="chart" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;
+ [0,1e6,2e6].forEach(v=>{const x=lab+sx(v);s+=`<line x1="${x}" x2="${x}" y1="0" y2="${h-16}" stroke="#363A42"/><text x="${x}" y="${h-4}" text-anchor="middle">${v?v/1e6+'tr':'0'}</text>`});
+ CMP.forEach((r,i)=>{const y=i*rowH+3;const g=gm[r[0]];
+  s+=`<text x="0" y="${y+16}" style="fill:#E8E9EC">${g.name}</text>`;
+  s+=`<rect x="${lab}" y="${y}" width="${sx(r[1])}" height="9" rx="2" fill="#E5383B"/>`;
+  s+=`<rect x="${lab}" y="${y+10}" width="${sx(r[2])}" height="7" rx="2" fill="#8A9AB0"/>`;
+  s+=`<rect x="${lab}" y="${y+18}" width="${sx(r[3])}" height="7" rx="2" fill="#4A4F58"/>`;
+  const d=(r[1]-r[3])/r[3]*100;s+=`<text x="${lab+sx(Math.max(r[1],r[2],r[3]))+5}" y="${y+10}" style="fill:${d>10?'#E5383B':d<-5?'#3DBE7A':'#8D929C'};font-weight:600">${d>0?'+':''}${d.toFixed(0)}%</text>`});
+ return s+'</svg>'}
+function lineChart(w){const h=110,cur=[1.9,2.3,2.6,1.62],prev=[1.7,2.0,2.4,1.88],pad=22,sx=i=>pad+i*(w-pad*2)/3,sy=v=>h-20-(v/3)*(h-30);
+ const path=a=>a.map((v,i)=>(i?'L':'M')+sx(i)+' '+sy(v)).join(' ');
+ let s=`<svg class="chart" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;[1,2,3].forEach(v=>s+=`<line x1="${pad}" x2="${w-pad}" y1="${sy(v)}" y2="${sy(v)}" stroke="#363A42"/><text x="0" y="${sy(v)+3}">${v}tr</text>`);
+ s+=`<path d="${path(cur)} L${sx(3)} ${h-20} L${sx(0)} ${h-20}Z" fill="rgba(229,56,59,.12)"/><path d="${path(prev)}" fill="none" stroke="#8A9AB0" stroke-dasharray="4 4" stroke-width="1.5"/><path d="${path(cur)}" fill="none" stroke="#E5383B" stroke-width="2"/>`;
+ cur.forEach((v,i)=>s+=`<text x="${sx(i)}" y="${h-4}" text-anchor="middle">Tuần ${i+1}</text>`);s+=`<circle cx="${sx(3)}" cy="${sy(cur[3])}" r="4" fill="#E5383B"/>`;return s+'</svg>'}
+document.getElementById('kpi').innerHTML=kpiHtml();document.getElementById('dChart').innerHTML=barChart(360);document.getElementById('dLine').innerHTML=lineChart(360);
+// mobile
+document.getElementById('mBal').textContent=fmt(SUM.inc-SUM.exp);
+document.getElementById('mIO').innerHTML=`<div><small>Thu</small><div class="inc"><b>+${fmt(SUM.inc)}</b></div></div><div><small>Chi</small><div class="exp"><b>−${fmt(SUM.exp)}</b></div></div>`;
+document.getElementById('mList').innerHTML=monthList(3);
+document.getElementById('iList').innerHTML=monthList(3);
+document.getElementById('iKpi').innerHTML=kpiHtml();document.getElementById('iChart').innerHTML=barChart(360);
+document.getElementById('iRail').innerHTML=['Tất cả','Ăn uống','Đi lại','Nhà cửa','Mua sắm'].map((n,i)=>`<span class="chip${i?'':' on'}">${n}</span>`).join('');
+// gợi ý theo số tiền (≥3 lần)
+function suggestFor(v){const hits={};TX.filter(t=>Math.abs(t[2])===v).forEach(t=>{const k=t[1]+'|'+t[3];hits[k]=(hits[k]||0)+1});
+ const total=Object.values(hits).reduce((a,b)=>a+b,0);if(total<3)return '';
+ const opts=Object.entries(hits).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,c])=>{const [g,n]=k.split('|');return `<button type="button" class="chip" data-g="${g}" data-n="${n}">${gi(g)}${gm[g].name} · ${n} <small style="color:var(--muted)">×${c}</small></button>`}).join('');
+ return `<div class="suggest"><small><svg width="12" height="12"><use href="#i-spark"/></svg>Số tiền này bạn đã nhập ${total} lần. Dùng lại?</small><div class="opts">${opts}</div></div>`}
+const pick=['an','cf','sang','di','xang','grab','nha','dien','mua','gt','sk','art'];
+function grpPick(sel){return `<div class="grpPick">${pick.map(id=>`<button type="button" data-g="${id}" class="${id===sel?'on':''}">${gi(id)}${gm[id].name}</button>`).join('')}</div>`}
+function wireForm(root){
+ const amt=root.querySelector('[data-amt]'),sg=root.querySelector('[data-sg]'),note=root.querySelector('[data-note]');
+ const upd=()=>{const v=parseInt((amt.value||amt.textContent).replace(/\D/g,''))||0;sg.innerHTML=suggestFor(v)};
+ if(amt.tagName==='INPUT')amt.addEventListener('input',()=>{const v=amt.value.replace(/\D/g,'');amt.value=v?(+v).toLocaleString('vi-VN'):'';upd()});
+ root.addEventListener('click',e=>{const b=e.target.closest('button[data-g]');if(!b)return;
+  root.querySelectorAll('.grpPick button').forEach(x=>x.classList.toggle('on',x.dataset.g===b.dataset.g));
+  if(b.dataset.n&&note)note.value=b.dataset.n});
+ upd();return upd}
+document.getElementById('openAdd').addEventListener('click',()=>{const host=document.getElementById('dlgHost');
+ host.innerHTML=`<div class="scrim"><div class="dlg" role="dialog" aria-label="Thêm giao dịch"><h3>Thêm giao dịch <button class="icbtn" type="button" data-x title="Đóng (Esc)">✕</button></h3>
+ <div class="seg2"><button type="button" class="on">Chi tiêu</button><button type="button">Thu nhập</button></div>
+ <div class="field"><label for="dAmt">Số tiền (thử gõ 35000)</label><input id="dAmt" class="inp big" data-amt inputmode="numeric" placeholder="0 ₫"></div>
+ <div data-sg></div>
+ <div class="field"><label>Nhóm</label>${grpPick('')}</div>
+ <div class="two"><div class="field"><label for="dNote">Ghi chú</label><input id="dNote" class="inp" data-note placeholder="Vd: cf sáng"></div><div class="field"><label for="dDate">Ngày</label><input id="dDate" class="inp" value="15/10/2026"></div></div>
+ <div class="actions"><button class="btn" type="button" data-x>Huỷ</button><button class="btn primary" type="button" data-x>Lưu (Enter)</button></div></div></div>`;
+ wireForm(host);host.querySelector('#dAmt').focus();
+ host.querySelectorAll('[data-x]').forEach(b=>b.addEventListener('click',()=>host.innerHTML=''));
+ host.querySelector('.scrim').addEventListener('click',e=>{if(e.target.classList.contains('scrim'))host.innerHTML=''})});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('dlgHost').innerHTML=''});
+// mobile sheet
+const sh=document.getElementById('mSheet');
+sh.innerHTML=`<div class="grab"></div><div class="seg2"><button type="button" class="on">Chi tiêu</button><button type="button">Thu nhập</button></div>
+<div style="text-align:center;font-size:34px;font-weight:700" data-amt>35.000 ₫</div>
+<div data-sg></div>
+${grpPick('cf')}
+<input class="inp" data-note value="cf sáng Highlands" aria-label="Ghi chú">
+<div class="keypad">${['1','2','3','⌫','4','5','6','000','7','8','9','','.','0','Hôm nay'].map(k=>k===''?`<button type="button" class="ok">Lưu</button>`:`<button type="button" style="${k==='Hôm nay'?'font-size:12px':''}">${k}</button>`).join('')}</div>`;
+wireForm(sh);
+// icon concepts
+const IC=[['logoA','A · Ví tiền','Ví xanh dương bóng, khoá đỏ. Dễ hiểu nhưng giống nhiều app tài chính khác.'],
+ ['logo','B · Sổ ghi + đồng xu','Cuốn sổ ghi chú và đồng xu đỏ có dấu cộng: đúng tinh thần "ghi nhanh một khoản". Đang dùng trong bản phác.',1],
+ ['logoC','C · Đồng xu biểu đồ','Đồng xu vàng nổi khối, 3 cột so sánh, cột đỏ là tháng này. Rõ nhất ở cỡ 16px.']];
+document.getElementById('icons').innerHTML=IC.map(c=>`<div class="ic${c[3]?' rec':''}"><h3>${c[1]}${c[3]?'<em>ĐỀ XUẤT</em>':''}</h3>
+<div class="big"><svg><use href="#${c[0]}"/></svg></div>
+<div class="tb dark">${[32,24,16].map(s=>`<svg width="${s}" height="${s}"><use href="#${c[0]}"/></svg>`).join('')}<span style="color:#aaa;font-size:11px;margin-left:auto">taskbar tối</span></div>
+<div class="tb light">${[32,24,16].map(s=>`<svg width="${s}" height="${s}"><use href="#${c[0]}"/></svg>`).join('')}<span style="color:#555;font-size:11px;margin-left:auto">taskbar sáng</span></div>
+<p>${c[2]}</p></div>`).join('');
+// scale frames
+function fit(){document.querySelectorAll('.fit').forEach(f=>{const w=+f.dataset.w,h=+f.dataset.h;const s=Math.min(f.dataset.max?1:9,f.clientWidth/w);f.style.height=h*s+'px';f.firstElementChild.style.transform=`scale(${s})`})}
+addEventListener('resize',fit);fit();
+})();
+</script>
