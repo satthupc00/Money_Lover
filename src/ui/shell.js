@@ -31,7 +31,7 @@ function updButton(desk) {
 function miniTree() {
   const [a, b] = range();
   const sums = {};
-  for (const t of store.tx) if (t.type === 'exp' && t.date >= a && t.date <= b) sums[t.groupId] = (sums[t.groupId] || 0) + t.amount;
+  for (const t of store.tx) if (t.type === 'exp' && !t.exclude && t.date >= a && t.date <= b) sums[t.groupId] = (sums[t.groupId] || 0) + t.amount;
   const total = (id) => groupIds(id).reduce((s, i) => s + (sums[i] || 0), 0);
   return tops('exp').map((g) => {
     const v = total(g.id);

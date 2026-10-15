@@ -13,7 +13,7 @@ function daily(y, m, ids) {
   const n = daysIn(y, m), arr = Array(n).fill(0), pre = `${y}-${String(m + 1).padStart(2, '0')}-`;
   const set = ids ? new Set(ids) : null;
   for (const t of store.tx) {
-    if (t.type !== 'exp' || !t.date?.startsWith(pre)) continue;
+    if (t.type !== 'exp' || t.exclude || !t.date?.startsWith(pre)) continue;
     if (set && !set.has(t.groupId)) continue;
     arr[+t.date.slice(8, 10) - 1] += t.amount;
   }
@@ -113,7 +113,7 @@ export function breakdownHtml() {
   const topOf = (gid) => { const g = gById(gid); return g ? (g.parent || g.id) : null; };
   const sums = {};
   for (const t of store.tx) {
-    if (t.type !== 'exp') continue;
+    if (t.type !== 'exp' || t.exclude) continue;
     const k = months.indexOf(t.date.slice(0, 7));
     if (k < 0) continue;
     const tg = topOf(t.groupId);

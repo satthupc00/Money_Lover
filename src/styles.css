@@ -369,3 +369,8 @@ svg.tchart text { fill: var(--muted); font: 800 11.5px var(--ui); }
 .dd { grid-template-columns: minmax(0, 1fr); min-width: min(340px, calc(100vw - 48px)); }
 .dd button { min-width: 0; }
 .tabs button { white-space: nowrap; }
+.maprow { display: grid; grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1.3fr) 48px; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 10px; font-size: 13px; font-weight: 700; }
+.maprow:nth-child(odd) { background: var(--soft); }
+.maprow .lc { color: var(--dim); width: 14px; height: 14px; }
+.maprow b { font-weight: 900; } .maprow em { font-style: normal; text-align: right; color: var(--muted); }
+.maprow span, .maprow b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

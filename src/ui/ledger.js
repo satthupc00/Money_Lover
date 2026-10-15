@@ -42,7 +42,7 @@ export function periodTx() {
 export function heroHtml() {
   const txs = periodTx();
   let inc = 0, exp = 0;
-  for (const t of txs) t.type === 'inc' ? (inc += t.amount) : (exp += t.amount);
+  for (const t of txs) { if (t.exclude) continue; t.type === 'inc' ? (inc += t.amount) : (exp += t.amount); }
   const k = view.heroKind, v = k === 'exp' ? exp : inc, rest = inc - exp;
   const pw = view.period === 'day' ? 'hôm đó' : periodWord();
   return `<div class="hero ${k === 'inc' ? 'inc' : ''}">
@@ -55,7 +55,7 @@ export function heroHtml() {
 export const txRow = (t) => {
   const g = gById(t.groupId) || { name: 'Nhóm đã xoá', icon: 'receipt', color: 'brown' };
   const p = g.parent ? gById(g.parent) : null;
-  return `<button type="button" class="tx" data-tx="${t.id}">${tile(g, 44)}<div class="t"><div>${esc(t.note || g.name)}</div><small>${p ? esc(p.name) + ' › ' : ''}${esc(g.name)}</small></div><div class="amt ${t.type === 'inc' ? 'inc' : ''}">${t.type === 'inc' ? '+' : '−'}${vnd(t.amount)}</div></button>`;
+  return `<button type="button" class="tx" data-tx="${t.id}">${tile(g, 44)}<div class="t"><div>${esc(t.note || g.name)}</div><small>${p ? esc(p.name) + ' › ' : ''}${esc(g.name)}${t.exclude ? ' · không tính vào báo cáo' : ''}</small></div><div class="amt ${t.type === 'inc' ? 'inc' : ''}">${t.type === 'inc' ? '+' : '−'}${vnd(t.amount)}</div></button>`;
 };
 
 const sortTx = (a, b) => (b.date.localeCompare(a.date)) || ((b.createdAt || 0) - (a.createdAt || 0));
@@ -70,7 +70,7 @@ export function listHtml() {
   for (const t of txs.sort(sortTx)) { if (!byDay.has(t.date)) byDay.set(t.date, []); byDay.get(t.date).push(t); }
   let h = '';
   for (const [d, ts] of byDay) {
-    const s = ts.reduce((a, t) => a + (t.type === 'inc' ? t.amount : -t.amount), 0);
+    const s = ts.reduce((a, t) => a + (t.exclude ? 0 : t.type === 'inc' ? t.amount : -t.amount), 0);
     h += `<div class="day"><b>${dayLabel(d)}</b><span class="${s > 0 ? 'inc' : ''}">${s > 0 ? '+' : s < 0 ? '−' : ''}${vnd(s)}</span></div>` + ts.map(txRow).join('');
   }
   return h;
@@ -79,7 +79,7 @@ export function listHtml() {
 function yearHtml(txs) {
   const y = view.cursor.getFullYear();
   const months = Array.from({ length: 12 }, () => ({ inc: 0, exp: 0 }));
-  for (const t of txs) months[+t.date.slice(5, 7) - 1][t.type] += t.amount;
+  for (const t of txs) if (!t.exclude) months[+t.date.slice(5, 7) - 1][t.type] += t.amount;
   const max = Math.max(1, ...months.map((m) => m.exp));
   const now = new Date();
   const rows = months.map((m, i) => ({ ...m, i })).filter((m) => m.inc || m.exp || (y === now.getFullYear() && m.i <= now.getMonth())).reverse();

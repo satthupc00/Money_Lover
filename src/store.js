@@ -147,6 +147,28 @@ export function deleteGroup(id) {
   return '';
 }
 
+// nhập hàng loạt (từ file CSV): ghi đè theo id nên nhập lại không bị trùng
+export function importData(groups, tx, renames = new Map()) {
+  let order = Math.max(0, ...store.groups.map((g) => g.order ?? 0));
+  const ops = [
+    ...groups.map((g) => ({ type: 'set', col: 'groups', id: g.id, data: { name: g.name, icon: g.icon, color: g.color, type: g.type, parent: g.parent || null, order: ++order } })),
+    ...[...renames].map(([id, name]) => ({ type: 'update', col: 'groups', id, data: { name } })),
+    ...tx.map((t) => ({ type: 'set', col: 'tx', id: t.id, data: strip(t) })),
+  ];
+  if (store.mode === 'cloud' && store.user) { cloud(fb.batch(store.user.uid, ops)); return; }
+  const gi = new Map(store.groups.map((g, i) => [g.id, i]));
+  const ti = new Map(store.tx.map((t, i) => [t.id, i]));
+  for (const o of ops) {
+    const arr = o.col === 'groups' ? store.groups : store.tx, idx = o.col === 'groups' ? gi : ti;
+    const i = idx.get(o.id);
+    if (o.type === 'update') { if (i != null) arr[i] = { ...arr[i], ...o.data }; continue; }
+    const row = { ...o.data, id: o.id };
+    if (i != null) arr[i] = row; else { idx.set(o.id, arr.length); arr.push(row); }
+  }
+  saveLocal();
+  emit();
+}
+
 // ---------- tài khoản ----------
 export async function signIn(email, pass) { await fb.signIn(email, pass); }
 export async function signUp(email, pass) { await fb.signUp(email, pass); }

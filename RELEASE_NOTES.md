@@ -1,11 +1,12 @@
-## Mon Money Lover 1.0.1 · sửa lỗi khoá trên Android
+## Mon Money Lover 1.0.2 · nhập dữ liệu từ app Money Lover cũ
 
 **Tải về**
-- **Điện thoại Android:** file `MonMoneyLover-1.0.1.apk` (cài đè lên bản cũ, dữ liệu giữ nguyên)
-- **Máy tính Windows:** file `MonMoneyLover-Setup-1.0.1.exe`
+- **Điện thoại Android:** `MonMoneyLover-1.0.2.apk` (cài đè lên bản cũ, dữ liệu giữ nguyên)
+- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.2.exe`
 
-**Đã sửa**
-- Lần đầu đặt mã PIN trên Android: nhập lại mã xong bị đứng ở màn hình nhập PIN, không vào được app. Giờ app chuyển sang bước hỏi bật vân tay rồi vào màn hình chính.
-- Thêm giới hạn thời gian cho các bước kiểm tra vân tay để app không bao giờ bị kẹt ở màn khoá.
+**Mới**
+- **Cài đặt → Nhập từ app Money Lover:** chọn file CSV xuất từ Money Lover. App tự xếp nhóm cũ vào nhóm cha phù hợp, hiện bảng xếp nhóm để xem trước rồi mới nhập.
+- Nhập lại nhiều lần không bị trùng: giao dịch đã có sẽ được cập nhật thay vì thêm mới.
+- Giao dịch được đánh dấu "Exclude Report" bên Money Lover (vd các khoản cho vay) vẫn hiện trong sổ nhưng không tính vào tổng chi và biểu đồ.
 
 Created by Mondiro

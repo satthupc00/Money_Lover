@@ -9,6 +9,9 @@ import { I } from '../icons.js';
 import { esc, ymd } from '../util.js';
 import { dialog, toast, confirmBox } from './common.js';
 import { gById } from '../store.js';
+import { planImport, runImport, targetName } from '../importer.js';
+import { setView } from '../state.js';
+import { dmy, fmt } from '../util.js';
 
 let bioOk = null;
 let prefs = null;
@@ -47,7 +50,9 @@ export function settingsHtml() {
       ${row('laptop', 'Mở cùng Windows', '', `<input type="checkbox" class="switch" data-pref="autostart" ${prefs.autostart ? 'checked' : ''} aria-label="Mở cùng Windows">`)}</div>` : ''}
     <div class="set-h">Cập nhật</div><div class="set-group">
       ${row('refresh-cw', `Phiên bản ${APP_VERSION}`, updLabel(), updBtn)}</div>
-    ${!isNative ? `<div class="set-h">Dữ liệu</div><div class="set-group">${row('receipt', 'Xuất file Excel (CSV)', `${store.tx.length} giao dịch`, '<button class="btn" type="button" data-csv>Xuất CSV</button>')}</div>` : ''}
+    <div class="set-h">Dữ liệu</div><div class="set-group">
+      ${row('folder-input', 'Nhập từ app Money Lover', 'Chọn file CSV xuất từ Money Lover. Nhập lại nhiều lần không bị trùng.', '<button class="btn" type="button" data-import>Chọn file</button><input type="file" accept=".csv,text/csv,text/comma-separated-values,text/plain" data-importfile hidden>')}
+      ${!isNative ? row('receipt', 'Xuất file Excel (CSV)', `${store.tx.length.toLocaleString('vi-VN')} giao dịch`, '<button class="btn" type="button" data-csv>Xuất CSV</button>') : ''}</div>
     <div class="credit" style="text-align:center;padding:18px 0 6px">Created by Mondiro</div>`;
 }
 
@@ -95,6 +100,9 @@ export function wireSettings(root) {
   $('[data-check]') && ($('[data-check]').onclick = checkUpdate);
   $('[data-install]') && ($('[data-install]').onclick = installUpdate);
   $('[data-csv]') && ($('[data-csv]').onclick = exportCsv);
+  const fi = $('[data-importfile]');
+  $('[data-import]').onclick = () => fi.click();
+  fi.onchange = async () => { const f = fi.files[0]; fi.value = ''; if (f) importFlow(await f.text()); };
 }
 
 function authErr(e) {
@@ -161,4 +169,22 @@ function exportCsv() {
   a.download = `MonMoneyLover-${ymd()}.csv`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+function importFlow(text) {
+  let plan;
+  try { plan = planImport(text); } catch (e) { toast(e.message || 'Không đọc được file'); return; }
+  if (!plan.tx.length) { toast('File không có giao dịch nào'); return; }
+  const fresh = plan.tx.length - plan.dup;
+  const d = dialog(`<h3>${I('folder-input')}Nhập từ Money Lover</h3>
+    <p><b>${fmt(plan.tx.length)}</b> giao dịch từ ${dmy(plan.min)} đến ${dmy(plan.max)}${plan.dup ? ` · ${fmt(plan.dup)} giao dịch đã có sẽ được ghi đè, không bị trùng` : ''}${plan.bad ? ` · bỏ qua ${plan.bad} dòng lỗi` : ''}.
+    ${plan.groups.length ? `Sẽ tạo thêm <b>${plan.groups.length}</b> nhóm.` : ''} Nhóm cũ được xếp như sau (sửa, chuyển, gộp lại được trong Quản lý nhóm):</p>
+    <div class="pick" style="max-height:46vh">${plan.stats.map((s) => `<div class="maprow"><span>${esc(s.cat)}</span>${I('arrow-right')}<b>${esc(targetName(plan, s.target))}</b><em>${fmt(s.n)}</em></div>`).join('')}</div>
+    <div class="actions"><button class="btn" type="button" data-x>Huỷ</button><button class="btn primary" type="button" data-go>${I('check')}Nhập ${fmt(plan.tx.length)} giao dịch</button></div>`, { wide: true });
+  d.el.querySelector('[data-go]').onclick = () => {
+    runImport(plan);
+    d.close();
+    toast(`Đã nhập ${fmt(fresh)} giao dịch mới${plan.dup ? `, cập nhật ${fmt(plan.dup)}` : ''}`);
+    setView({ tab: 'ledger' });
+  };
 }
