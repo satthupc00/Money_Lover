@@ -527,3 +527,24 @@ body[data-swipe=prev] .daylist, body[data-swipe=prev] .hero { animation: swPrev 
 .brkkid b { font-weight: 900; }
 .brkkid.sum { border-bottom: 0; color: var(--muted); }
 .brkkid.sum b { color: var(--red); }
+
+/* sửa: mở nhóm con không làm tràn khung */
+.brk { grid-template-columns: minmax(0, 1fr); }
+.brkrow, .brk button, .brkkids, .brkkid { min-width: 0; max-width: 100%; }
+.brk button > div { min-width: 0; }
+.brkkids { padding: 0 6px 8px 50px; }
+.brkkid b { flex: 0 0 auto; }
+/* chú thích vòng tròn */
+.dleg span em { font-style: normal; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dleg.all { flex-basis: 100%; }
+.dleg .more { border: 0; background: var(--soft); color: var(--muted); font-weight: 900; font-size: 12.5px; border-radius: 999px; padding: 5px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; justify-self: start; }
+.dleg .more .lc { width: 15px; height: 15px; }
+.dleg .more:hover { background: var(--soft2); color: var(--text); }
+/* chú thích biểu đồ: 2 nút bằng nhau */
+.tlegend.two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tlegend.two .lchk { justify-content: center; padding: 7px 10px; }
+/* vuốt: chỉ phần danh sách + chữ tháng/năm chạy, thẻ tổng đứng yên */
+body[data-swipe=next] .hero, body[data-swipe=prev] .hero { animation: none !important; }
+body[data-swipe=next] .period > span, body[data-swipe=next] .card, body[data-swipe=next] .shell-m .p-body > .plist, body[data-swipe=next] .gm-list { animation: swNext .32s var(--ease-out); }
+body[data-swipe=prev] .period > span, body[data-swipe=prev] .card, body[data-swipe=prev] .shell-m .p-body > .plist, body[data-swipe=prev] .gm-list { animation: swPrev .32s var(--ease-out); }
+body[data-swipe] .hero .bal { animation: none !important; }

@@ -153,7 +153,7 @@ export { isElectron, isNative };
 function swipePeriods(root) {
   const zones = root.querySelectorAll('.shell-m .p-body, .shell-m .inner-grid > div:first-child, .shell-desk .list');
   zones.forEach((z) => {
-    if (view.tab !== 'ledger' && view.tab !== 'report') return;
+    if (!['ledger', 'report', 'groups'].includes(view.tab)) return;
     let x0 = 0, y0 = 0, t0 = 0, active = false;
     z.addEventListener('touchstart', (e) => {
       if (e.touches.length !== 1 || e.target.closest('svg.tchart, .gmenu, .quick, input')) { active = false; return; }
@@ -165,6 +165,15 @@ function swipePeriods(root) {
       const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0, dt = Date.now() - t0;
       if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6 || dt > 600) return;
       const k = dx < 0 ? 1 : -1;
+      if (view.tab === 'groups') {
+        // vuốt để đổi qua lại nhóm chi / nhóm thu
+        const next = k > 0 ? 'inc' : 'exp';
+        if (next === view.gmType) return;
+        document.body.dataset.swipe = k > 0 ? 'next' : 'prev';
+        setView({ gmType: next });
+        setTimeout(() => delete document.body.dataset.swipe, 400);
+        return;
+      }
       const sel = view.tab === 'report' ? `[data-mshift="${k}"]` : `[data-shift="${k}"]`;
       const btn = root.querySelector(sel);
       if (!btn) return;

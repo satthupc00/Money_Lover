@@ -11,7 +11,7 @@ export const trendState = { g: 'all', show: { cur: true, prev: false, avg: true 
 document.addEventListener('pointerdown', (e) => {
   if (trendState.menu && !e.target.closest('.gsel')) { trendState.menu = false; document.querySelectorAll('.trend').forEach((t) => t._redraw && t._redraw()); }
 });
-const SER = { cur: ['Tháng này', '#E5383B'], prev: ['Tháng trước', '#F5A623'], avg: ['TB 3 tháng', '#C9B8AA'] };
+const SER = { cur: ['Tháng này', '#E5383B'], prev: ['Tháng trước', '#5B8DEF'], avg: ['Trung bình 3 tháng', '#B3A396'] };
 
 // tổng chi theo ngày của tháng (y, m: 0-11)
 function daily(y, m, ids) {
@@ -84,14 +84,14 @@ export function mountTrend(el) {
         ${on('avg') ? `<div class="l2"><i class="sw" style="background:${SER.avg[1]}"></i>TB 3 tháng trước: <b>${fmt(s.avg[d - 1])}</b></div>` : ''}</div>
       <svg class="tchart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Biểu đồ chi tiêu cộng dồn">
         <defs><linearGradient id="trArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E5383B" stop-opacity=".28"/><stop offset="1" stop-color="#E5383B" stop-opacity="0"/></linearGradient></defs>${g}
-        ${on('avg') ? line(s.avg, SER.avg[1], 3.2) : ''}${on('prev') ? line(s.prev, SER.prev[1], 2.8, 1) : ''}
-        ${on('cur') && s.upto ? `<path d="${path(s.cur)}L${x(s.upto)} ${yy(0)}L${x(1)} ${yy(0)}Z" fill="url(#trArea)"/>` + line(s.cur, SER.cur[1], 3.4) : ''}
+        ${on('avg') ? line(s.avg, SER.avg[1], 1.8) : ''}${on('prev') ? line(s.prev, SER.prev[1], 1.8) : ''}
+        ${on('cur') && s.upto ? `<path d="${path(s.cur)}L${x(s.upto)} ${yy(0)}L${x(1)} ${yy(0)}Z" fill="url(#trArea)"/>` + line(s.cur, SER.cur[1], 2.4) : ''}
         <line x1="${x(d)}" x2="${x(d)}" y1="${T}" y2="${yy(0)}" stroke="#D9C6B5" stroke-width="1.4"/>
         ${on('avg') ? dot(s.avg[d - 1], SER.avg[1], 4.5) : ''}${on('prev') ? dot(s.prev[d - 1], SER.prev[1], 4.5) : ''}
-        ${on('cur') && cv != null ? `<circle cx="${x(d)}" cy="${yy(cv)}" r="7" fill="#fff" stroke="#E5383B" stroke-width="3.2"/>` : ''}
+        ${on('cur') && cv != null ? `<circle cx="${x(d)}" cy="${yy(cv)}" r="6" fill="#fff" stroke="#E5383B" stroke-width="2.6"/>` : ''}
         <text x="${x(1)}" y="${H - 6}" text-anchor="start">01/${mm}</text><text x="${x(s.n)}" y="${H - 6}" text-anchor="end">${s.n}/${mm}</text>
         <rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/></svg>
-      <div class="tlegend"><span class="lfix"><i style="background:${SER.cur[1]}"></i>Tháng này</span>${['prev', 'avg'].map((k) => `<label class="lchk" style="--c:${SER[k][1]}"><input type="checkbox" data-s="${k}" ${on(k) ? 'checked' : ''}>${SER[k][0]}</label>`).join('')}</div>
+      <div class="tlegend two">${['prev', 'avg'].map((k) => `<label class="lchk" style="--c:${SER[k][1]}"><input type="checkbox" data-s="${k}" ${on(k) ? 'checked' : ''}>${SER[k][0]}</label>`).join('')}</div>
       ${verdict}`;
     const svg = el.querySelector('svg.tchart');
     // chọn ngày trên biểu đồ: điểm được giữ lại sau khi thả tay
@@ -117,6 +117,7 @@ export function mountTrend(el) {
 const DONUT = ['#E5383B', '#F5A623', '#3A7BEA', '#13A386', '#8A4FE0', '#E5487A', '#B06A2C', '#1FA463', '#5B4FE0', '#E07B12'];
 const OTHER = '#D8C8BA';
 const open = new Set();
+let legAll = false;
 
 function monthSums() {
   const y = view.cursor.getFullYear(), m = view.cursor.getMonth();
@@ -167,15 +168,17 @@ export function mountBreakdown(el) {
     if (!rows.length) { el.innerHTML = `<h3>Chi theo nhóm</h3><div class="empty"><b>Chưa có chi tiêu ${ml.toLowerCase()}</b><span>Thêm giao dịch để xem phân bổ theo nhóm.</span></div>`; return; }
     const max = rows[0].v;
     el.innerHTML = `<h3>Chi theo nhóm</h3><div class="sub">${ml} · bấm vào nhóm để xem nhóm con</div>
-      <div class="donutwrap">${donutSvg(rows, total)}<div class="dleg">${rows.slice(0, 6).map((r) => `<span><i style="background:${r.color}"></i>${esc(r.g?.name || '?')}<b>${(r.v / total * 100).toFixed(0)}%</b></span>`).join('')}${rows.length > 6 ? `<span class="more">+${rows.length - 6} nhóm khác</span>` : ''}</div></div>
+      <div class="donutwrap">${donutSvg(rows, total)}<div class="dleg ${legAll ? 'all' : ''}">${(legAll ? rows : rows.slice(0, 6)).map((r) => `<span><i style="background:${r.color}"></i><em>${esc(r.g?.name || '?')}</em><b>${(r.v / total * 100).toFixed(r.v / total < 0.01 ? 1 : 0)}%</b></span>`).join('')}${rows.length > 6 ? `<button type="button" class="more" data-legall>${legAll ? I('chevron-up') + 'Thu gọn' : `+${rows.length - 6} nhóm khác` + I('chevron-down')}</button>` : ''}</div></div>
       <div class="brk">${rows.map((r) => {
         const isOpen = open.has(r.id);
         const hasKids = r.children.length > 1 || (r.children[0] && r.children[0].id !== r.id);
         return `<div class="brkrow ${isOpen ? 'open' : ''}"><button type="button" data-brk="${r.id}" aria-expanded="${isOpen}">${tile(r.g, 40)}<div><div class="nm"><span>${esc(r.g?.name || 'Nhóm đã xoá')}</span><b>${fmt(r.v)}</b></div><div class="track"><i style="width:${(r.v / max * 100).toFixed(1)}%;background:${r.color}"></i></div></div>${hasKids ? I(isOpen ? 'chevron-up' : 'chevron-down', 'brkchev') : '<span></span>'}</button>
-          ${isOpen && hasKids ? `<div class="brkkids">${r.children.map((c) => { const cg = gById(c.id); return `<div class="brkkid">${tile(cg, 30)}<span>${esc(c.id === r.id ? r.g.name + ' (chung)' : cg?.name || '?')}</span><b>${fmt(c.v)}</b></div>`; }).join('')}<div class="brkkid sum"><span>Tổng ${esc(r.g?.name || '')} ${ml.toLowerCase()}</span><b>${fmt(r.v)}</b></div></div>` : ''}</div>`;
+          ${isOpen && hasKids ? `<div class="brkkids">${r.children.map((c) => { const cg = gById(c.id); return `<div class="brkkid">${tile(cg, 30)}<span>${esc(c.id === r.id ? r.g.name + ' (chung)' : cg?.name || '?')}</span><b>${fmt(c.v)}</b></div>`; }).join('')}<div class="brkkid sum"><span>Tổng nhóm trong tháng</span><b>${fmt(r.v)}</b></div></div>` : ''}</div>`;
       }).join('')}</div>`;
     const toggle = (id) => { open.has(id) ? open.delete(id) : open.add(id); draw(); };
     el.querySelectorAll('[data-brk]').forEach((b) => (b.onclick = () => toggle(b.dataset.brk)));
+    const la = el.querySelector('[data-legall]');
+    if (la) la.onclick = () => { legAll = !legAll; draw(); };
     el.querySelectorAll('[data-seg]').forEach((p) => (p.onclick = () => { if (!open.has(p.dataset.seg)) toggle(p.dataset.seg); el.querySelector(`[data-brk="${p.dataset.seg}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }));
   };
   draw();

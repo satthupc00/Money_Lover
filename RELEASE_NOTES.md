@@ -1,22 +1,17 @@
-## Mon Money Lover 1.0.8 · biểu đồ tròn, vuốt đổi tháng
+## Mon Money Lover 1.0.9 · chỉnh báo cáo và hiệu ứng vuốt
 
 **Tải về**
-- **Điện thoại Android:** `MonMoneyLover-1.0.8.apk`
-- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.8.exe`
-
-**Sổ giao dịch**
-- Sửa lỗi nội dung bị lệch sang trái: bỏ thanh cuộn trên điện thoại (thanh cuộn chiếm chỗ bên phải).
-- Mỗi giao dịch ghi tên nhóm ở trên, ghi chú ở dưới, giống Money Lover.
-- Vuốt mạnh sang trái / phải để xem tháng (hoặc ngày, năm) sau / trước.
-- Nút **+** nhún khi bấm.
-
-**Nhập giao dịch**
-- Menu gợi ý gọn hơn (bỏ dòng tiêu đề) và chỉ gợi ý đúng loại đang nhập: đang nhập khoản chi thì không hiện khoản thu.
+- **Điện thoại Android:** `MonMoneyLover-1.0.9.apk`
+- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.9.exe`
 
 **Báo cáo**
-- Biểu đồ: chỉ còn 1 nút "Tất cả", bấm vào mới hiện menu chọn nhóm (có cả nhóm con).
-- Chọn 1 ngày trên biểu đồ rồi thả tay, điểm đó được giữ lại.
-- Đường "Tháng này" luôn hiện; chỉ bật / tắt "Tháng trước" và "TB 3 tháng".
-- Chi theo nhóm: thêm vòng tròn tỷ lệ các nhóm trong tháng; bỏ phần %; bấm vào nhóm để xổ ra các nhóm con kèm số tiền và tổng của nhóm.
+- Sửa lỗi mở nhóm con trong "Chi theo nhóm" làm tràn khung.
+- Biểu đồ: đường tháng này mảnh hơn; tháng trước (xanh) và trung bình 3 tháng (xám nâu) là nét liền, mảnh. Bỏ chú thích "Tháng này", chỉ còn 2 nút bật / tắt chia đều.
+- Vòng tròn tỷ lệ: bấm "+n nhóm khác" để xem đủ tất cả nhóm, có nút "Thu gọn".
+- Vuốt trái / phải để đổi tháng, các bảng chạy theo hướng vuốt.
+
+**Vuốt**
+- Sổ giao dịch: khi vuốt chỉ danh sách và chữ tháng / năm chạy, thẻ tổng chi đứng yên.
+- Tab Nhóm: vuốt trái / phải để đổi giữa Nhóm chi và Nhóm thu.
 
 Created by Mondiro
