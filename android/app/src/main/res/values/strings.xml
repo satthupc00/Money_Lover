@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Mon Money Lover</string>
+    <string name="title_activity_main">Mon Money Lover</string>
+    <string name="package_name">com.mondiro.monmoneylover</string>
+    <string name="custom_url_scheme">com.mondiro.monmoneylover</string>
+</resources>

@@ -1,0 +1,73 @@
+name: Build và phát hành
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+    paths-ignore: ['design/**', 'docs/**', '*.md']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    name: APK Android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - name: Cài thư viện
+        run: npm ci
+        env: { ELECTRON_SKIP_BINARY_DOWNLOAD: '1' }
+      - name: Build web + đồng bộ Android
+        run: npm run build && npx cap sync android
+      - name: Build APK
+        working-directory: android
+        run: chmod +x gradlew && ./gradlew assembleRelease --no-daemon --stacktrace
+      - name: Đặt tên file
+        run: |
+          V=$(node -p "require('./package.json').version")
+          mkdir -p out && cp android/app/build/outputs/apk/release/app-release.apk "out/MonMoneyLover-$V.apk"
+      - uses: actions/upload-artifact@v4
+        with: { name: android, path: out/*.apk, if-no-files-found: error }
+
+  windows:
+    name: Bản cài Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - name: Cài thư viện
+        run: npm ci
+      - name: Build file cài
+        run: npm run dist:win
+        env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          if-no-files-found: error
+          path: |
+            release/*.exe
+            release/*.blockmap
+            release/latest.yml
+
+  release:
+    name: Phát hành trên GitHub
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [android, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { path: dist-release, merge-multiple: true }
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: Mon Money Lover ${{ github.ref_name }}
+          body_path: RELEASE_NOTES.md
+          make_latest: true
+          files: dist-release/*

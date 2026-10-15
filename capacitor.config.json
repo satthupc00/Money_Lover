@@ -1,0 +1,16 @@
+{
+  "appId": "com.mondiro.monmoneylover",
+  "appName": "Mon Money Lover",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false,
+    "adjustMarginsForEdgeToEdge": "force"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_notify",
+      "iconColor": "#E5383B"
+    }
+  },
+  "backgroundColor": "#FFF6EC"
+}
