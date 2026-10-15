@@ -178,11 +178,12 @@ function importFlow(text) {
   const fresh = plan.tx.length - plan.dup;
   const d = dialog(`<h3>${I('folder-input')}Nhập từ Money Lover</h3>
     <p><b>${fmt(plan.tx.length)}</b> giao dịch từ ${dmy(plan.min)} đến ${dmy(plan.max)}${plan.dup ? ` · ${fmt(plan.dup)} giao dịch đã có sẽ được ghi đè, không bị trùng` : ''}${plan.bad ? ` · bỏ qua ${plan.bad} dòng lỗi` : ''}.
-    ${plan.groups.length ? `Sẽ tạo thêm <b>${plan.groups.length}</b> nhóm.` : ''} Nhóm cũ được xếp như sau (sửa, chuyển, gộp lại được trong Quản lý nhóm):</p>
+    Nhóm được dựng theo đúng cấu trúc của Money Lover (sửa, chuyển, gộp lại được trong Quản lý nhóm):</p>
     <div class="pick" style="max-height:46vh">${plan.stats.map((s) => `<div class="maprow"><span>${esc(s.cat)}</span>${I('arrow-right')}<b>${esc(targetName(plan, s.target))}</b><em>${fmt(s.n)}</em></div>`).join('')}</div>
+    ${plan.remove.length ? `<label class="lchk" style="--c:var(--red);border:0;padding:4px 0"><input type="checkbox" data-clean checked>Xoá ${plan.remove.length} nhóm trống không có trong Money Lover (${esc(plan.remove.slice(0, 4).map((g) => g.name).join(', '))}${plan.remove.length > 4 ? '…' : ''})</label>` : ''}
     <div class="actions"><button class="btn" type="button" data-x>Huỷ</button><button class="btn primary" type="button" data-go>${I('check')}Nhập ${fmt(plan.tx.length)} giao dịch</button></div>`, { wide: true });
   d.el.querySelector('[data-go]').onclick = () => {
-    runImport(plan);
+    runImport(plan, d.el.querySelector('[data-clean]')?.checked ?? true);
     d.close();
     toast(`Đã nhập ${fmt(fresh)} giao dịch mới${plan.dup ? `, cập nhật ${fmt(plan.dup)}` : ''}`);
     setView({ tab: 'ledger' });

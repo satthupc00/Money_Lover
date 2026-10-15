@@ -2,100 +2,115 @@
 // Nhóm cũ được xếp vào nhóm cha của app mới theo bảng MAP. Nhập lại nhiều lần không bị trùng (id cố định theo dòng CSV).
 import { store, gById, importData } from './store.js';
 import { dkey } from './util.js';
-import { DEFAULT_GROUPS } from './defaults.js';
 
-// tên nhóm cũ -> [id nhóm đích, tên, icon, màu, id nhóm cha]
-// id bắt đầu bằng "g_" là nhóm có sẵn của app; còn lại tạo mới khi cần
-const P = {
-  k: ['mg_k', 'Chi cho K', 'heart', 'pink', null],
-  work: ['mg_work', 'Công việc', 'briefcase', 'indigo', null],
-  debt: ['mg_debt', 'Vay, trả nợ', 'hand-coins', 'brown', null],
-  back: ['mg_back', 'Được trả lại', 'hand-coins', 'teal', null, 'inc'],
-};
-const MAP = {
-  // Ăn uống
-  'ăn uống': ['g_an'], 'ăn sáng': ['g_sang'],
-  'ăn trưa': ['mg_antrua', 'Ăn trưa', 'sandwich', 'orange', 'g_an'],
-  'ăn tối': ['mg_antoi', 'Ăn tối', 'drumstick', 'red', 'g_an'],
-  'cafe sáng': ['g_cf', 'Cafe sáng'],
-  'cafe trưa': ['mg_cafetrua', 'Cafe trưa', 'cup-soda', 'teal', 'g_an'],
-  'nước dừa': ['mg_nuocdua', 'Nước dừa', 'cup-soda', 'green', 'g_an'],
-  'ăn uống với nhà': ['mg_anvoinha', 'Ăn uống với nhà', 'users', 'honey', 'g_an'],
-  'bao ăn ún': ['mg_baoan', 'Bao ăn uống', 'gift', 'pink', 'g_an'], 'ku an': ['mg_baoan'],
-  'đồ ăn uống ở nhà': ['mg_nauan', 'Đồ ăn nấu ở nhà', 'salad', 'green', 'g_an'],
-  'nguyên liệu nấu ăn': ['mg_nauan'], 'gia vị nấu ăn': ['mg_nauan'],
-  'ăn vặt trong cty': ['mg_anvat', 'Ăn vặt', 'cookie', 'orange', 'g_an'], 'đồ ăn vặt': ['mg_anvat'],
-  // K
-  'chi phí cho k': ['mg_kchi', 'Chi phí cho K', 'heart', 'pink', 'mg_k'],
-  'ăn uống với k': ['mg_kan', 'Ăn uống với K', 'utensils', 'red', 'mg_k'],
-  'k phát sinh linh tinh': ['mg_klt', 'K phát sinh linh tinh', 'receipt', 'brown', 'mg_k'],
-  'cho k mượn': ['mg_kmuon', 'Cho K mượn', 'hand-coins', 'teal', 'mg_k'],
-  'k mua đồ': ['mg_kmua', 'K mua đồ', 'shopping-bag', 'purple', 'mg_k'],
-  'k bệnh cái cổ': ['mg_kco', 'K bệnh cái cổ', 'stethoscope', 'pink', 'mg_k'],
-  'k bệnh linh tinh': ['mg_kbenh', 'K bệnh linh tinh', 'pill', 'pink', 'mg_k'],
-  'trả nợ cho k': ['mg_kno', 'Trả nợ cho K', 'banknote', 'green', 'mg_k'],
-  'k học hành': ['mg_khoc', 'K học hành', 'graduation-cap', 'indigo', 'mg_k'],
-  'về quê k': ['mg_kque', 'Về quê K', 'bus', 'blue', 'mg_k'], 'k và quê k': ['mg_kque'],
-  'tiền thuê trọ cho k': ['mg_ktro', 'Tiền thuê trọ cho K', 'key-round', 'honey', 'mg_k'],
-  'k cho ba': ['mg_kba', 'K cho ba', 'gift', 'orange', 'mg_k'],
-  'lì xì bên k': ['mg_ktet', 'Tết, lì xì bên K', 'party-popper', 'red', 'mg_k'], 'tiền tết k': ['mg_ktet'],
-  'phí tổng của k': ['mg_kphi', 'Phí tổng của K', 'wallet', 'brown', 'mg_k'],
-  // Đi lại
-  'đổ xăng': ['g_xang'],
-  'bảo dưỡng xe': ['mg_baoduong', 'Bảo dưỡng xe', 'wrench', 'blue', 'g_di'],
-  'gửi xe': ['mg_guixe', 'Gửi xe', 'key-round', 'teal', 'g_di'],
-  // Nhà cửa
-  'thuê nhà': ['mg_thuenha', 'Thuê nhà', 'key-round', 'honey', 'g_nha'],
-  'tiền điện': ['g_dien'], 'tiền nước': ['g_nuoc'],
-  'tiền internet': ['g_net'], 'tiền điện thoại, 3g': ['g_net'],
-  'tiền truyền hình cáp': ['mg_cap', 'Truyền hình cáp', 'tv', 'indigo', 'g_nha'],
-  'chi phí cố định cho nhà': ['mg_codinh', 'Chi phí cố định nhà', 'house', 'honey', 'g_nha'],
-  'sửa nhà': ['mg_suanha', 'Sửa nhà', 'wrench', 'brown', 'g_nha'],
-  'đồ dùng linh tinh trong nhà': ['mg_dodung', 'Đồ dùng trong nhà', 'sofa', 'orange', 'g_nha'],
-  // Mua sắm
-  'mua sắm': ['g_mua'], 'quần áo': ['g_ao'], 'phần mềm': ['g_art'],
-  'đồ dùng cá nhân': ['mg_canhan', 'Đồ dùng cá nhân', 'shopping-cart', 'purple', 'g_mua'],
-  'đồ điện tử': ['mg_dientu', 'Đồ điện tử', 'smartphone', 'blue', 'g_mua'],
-  'linh kiện pc': ['mg_pc', 'Linh kiện PC', 'laptop', 'indigo', 'g_mua'],
-  'decor pc': ['mg_decor', 'Decor PC', 'lamp', 'honey', 'g_mua'],
-  'figure': ['mg_figure', 'Figure', 'gem', 'pink', 'g_mua'],
-  'trả góp': ['mg_tragop', 'Trả góp', 'credit-card', 'brown', 'g_mua'],
-  // Giải trí
-  'xem phim': ['g_phim'],
-  'game gủng': ['mg_game', 'Game', 'gamepad-2', 'teal', 'g_gt'],
-  'youtube': ['mg_youtube', 'YouTube, dịch vụ', 'tv', 'red', 'g_gt'],
-  'du lịch': ['mg_dulich', 'Du lịch', 'plane', 'blue', 'g_gt'],
-  'vũng tàu': ['mg_vungtau', 'Vũng Tàu', 'umbrella', 'teal', 'g_gt'],
-  'trung quốc': ['mg_tq', 'Trung Quốc', 'plane-takeoff', 'red', 'g_gt'],
-  // Sức khoẻ
-  'sức khỏe': ['g_sk'], 'sức khoẻ': ['g_sk'],
-  'thể dục thể thao': ['mg_theduc', 'Thể dục thể thao', 'dumbbell', 'teal', 'g_sk'],
-  'cắt tóc, gội đầu': ['mg_cattoc', 'Cắt tóc, gội đầu', 'scissors', 'purple', 'g_sk'],
-  'chăm sóc cơ thể': ['mg_chamsoc', 'Chăm sóc cơ thể', 'flower-2', 'pink', 'g_sk'],
-  'bảo hiểm': ['mg_baohiem', 'Bảo hiểm', 'heart', 'red', 'g_sk'],
-  // Thú cưng, quà
-  'bi bo': ['mg_bibo', 'Bi Bo', 'cat', 'orange', 'g_pet'],
-  'tết': ['mg_tet', 'Tết', 'party-popper', 'red', 'g_qua'],
-  // Công việc
-  'outsource': ['mg_outsource', 'Outsource', 'pen-tool', 'indigo', 'mg_work'],
-  'lương cm': ['mg_luongcm', 'Lương cM', 'banknote', 'green', 'mg_work'],
-  'đồ linh tinh trong cty': ['mg_docty', 'Đồ linh tinh cty', 'briefcase', 'brown', 'mg_work'],
-  // Vay, trả nợ
-  'cho vay': ['mg_chovay', 'Cho vay', 'hand-coins', 'teal', 'mg_debt'],
-  'trả nợ': ['mg_trano', 'Trả nợ', 'banknote', 'brown', 'mg_debt'],
-  'ghi nợ an': ['mg_noan', 'Ghi nợ An', 'receipt', 'orange', 'mg_debt'],
-  // Khác
-  'các chi phí khác': ['g_khac'],
-  'linh tinh': ['mg_linhtinh', 'Linh tinh', 'receipt', 'brown', 'g_khac'],
-  'chi phí khác': ['mg_cpkhac', 'Chi phí khác', 'wallet', 'orange', 'g_khac'],
-  // Thu nhập
-  'lương': ['g_luong'], 'thu nhập khác': ['g_thukhac'], 'job': ['g_free', 'Job, freelance'],
-  'thu lãi': ['mg_lai', 'Tiền lãi', 'piggy-bank', 'honey', null, 'inc'],
-  'tiền cho thuê nhà': ['mg_chothue', 'Cho thuê nhà', 'house', 'green', null, 'inc'],
-  'k trả lại': ['mg_ktra', 'K trả lại', 'hand-coins', 'pink', 'mg_back', 'inc'],
-  'an trả lại': ['mg_antra', 'An trả lại', 'hand-coins', 'teal', 'mg_back', 'inc'],
-  'k đưa giữ dùm': ['mg_kgiu', 'K đưa giữ dùm', 'wallet', 'pink', 'mg_back', 'inc'],
-};
+// Cấu trúc nhóm giống hệt app Money Lover cũ (thứ tự, tên, nhóm con).
+// Mỗi dòng: [id, tên, icon, màu, kiểu]; dòng bắt đầu bằng ' ' (thụt vào) là nhóm con của nhóm cha ngay phía trên.
+const STRUCT = `
+an|Ăn uống|utensils|red
+ an_sang|Ăn sáng|soup|red
+ an_toi|Ăn tối|drumstick|red
+ an_trua|Ăn trưa|sandwich|orange
+ an_vatcty|ăn vặt trong cty|cookie|orange
+ an_bao|Bao ăn ún|gift|pink
+ an_cfsang|cafe sáng|coffee|brown
+ an_cftrua|cafe trưa|cup-soda|teal
+ an_nglieu|nguyên liệu nấu ăn|salad|green
+ an_dua|nước dừa|cup-soda|green
+ an_onha|đồ ăn uống ở nhà|soup|honey
+anvk|ăn uống với K|utensils|pink
+anvnha|Ăn uống với nhà|house|honey
+baoduong|Bảo dưỡng xe|wrench|blue
+baohiem|Bảo hiểm|heart-pulse|red
+bibo|Bi Bo|cat|orange
+cpkhac2|Các chi phí khác|receipt|brown
+cattoc|Cắt tóc, gội đầu|scissors|purple
+codinh|Chi phí cố định cho nhà|house|honey
+ luongcm|Lương cM|banknote|green
+ thuenha|Thuê nhà|key-round|honey
+ internet|Tiền internet|wifi|indigo
+ nuoc|Tiền Nước|droplet|blue
+ cap|Tiền truyền hình cáp|tv|indigo
+ dien|Tiền điện|zap|honey
+ youtube|youtube|tv|red
+cpkhac|Chi phí khác|wallet|orange
+dichuyen|Di chuyển|bus|blue
+canhan|Đồ dùng cá nhân|shopping-cart|purple
+ chamsoc|chăm sóc cơ thể|flower-2|pink
+ decor|Decor PC|lamp|honey
+ dientu|Đồ điện tử|smartphone|blue
+ docty|đồ linh tinh trong cty|briefcase|brown
+ figure|Figure|gem|pink
+ game|Game gủng|gamepad-2|teal
+ pc|Linh kiện PC|laptop|indigo
+ linhtinh|Linh tinh|receipt|brown
+ phanmem|Phần mềm|palette|indigo
+ quanao|Quần áo|shirt|pink
+xang|Đổ xăng|fuel|blue
+dulich|Du lịch|plane|blue
+ tq|Trung Quốc|plane-takeoff|red
+ vungtau|Vũng Tàu|umbrella|teal
+noan|ghi nợ An|receipt|orange
+guixe|gửi xe|key-round|teal
+ktrano|K trả nợ|hand-coins|pink
+ cdmuon|trả nợ cD mượn 20tr|banknote|pink
+kuan|ku An|baby|teal
+muasam|Mua sắm|shopping-bag|purple
+outsource|Outsource|pen-tool|indigo
+kphi|Phí tổng của K|heart|pink
+ kchi|Chi phí cho K|heart|pink
+ kmuon|cho K mượn|hand-coins|teal
+ kco|K bệnh cái cổ|stethoscope|pink
+ kbenh|K bệnh linh tinh|pill|pink
+ kba|K cho ba|gift|orange
+ khoc|K học hành|graduation-cap|indigo
+ kmua|K mua đồ|shopping-bag|purple
+ klt|K phát sinh linh tinh|receipt|brown
+ kque|K và quê K|bus|blue
+ ktro|tiền thuê trọ cho K|key-round|honey
+ kno|trả nợ cho K|banknote|green
+suanha|Sửa nhà|wrench|brown
+suckhoe|Sức khỏe|heart-pulse|pink
+tet|Tết|party-popper|red
+ lixi|lì xì bên K|gift|red
+ tetk|tiền tết K|coins|honey
+theduc|Thể dục thể thao|dumbbell|teal
+chuyendi|Tiền chuyển đi|banknote|brown
+dt3g|Tiền điện thoại, 3G|phone|indigo
+tragop|trả góp|credit-card|brown
+tralai|Trả lãi|piggy-bank|honey
+vequek|về quê K|bus|orange
+phim|Xem phim|film|purple
+dodung|Đồ dùng linh tinh trong nhà|sofa|orange
+ anvat|đồ ăn vặt|cookie|orange
+ giavi|Gia vị nấu ăn|flame|red
+vayno|Vay, trả nợ|hand-coins|brown
+ chovay|Cho vay|hand-coins|teal
+ trano|Trả nợ|banknote|brown
+luong|Lương|briefcase|green|inc
+thukhac|Thu nhập khác|wallet|green|inc
+job|Job|pen-tool|teal|inc
+lai|Thu lãi|piggy-bank|honey|inc
+chothue|tiền cho thuê nhà|house|green|inc
+ktra|K trả lại|hand-coins|pink|inc
+antra|An trả lại|hand-coins|teal|inc
+kgiu|K đưa giữ dùm|wallet|pink|inc
+`;
+const keyOf = (name) => dkey(String(name || '').trim().normalize('NFC')).replace(/\s+/g, ' ');
+const LAYOUT = (() => {
+  const out = [];
+  let parent = null;
+  for (const line of STRUCT.split('\n')) {
+    if (!line.trim()) continue;
+    const child = line.startsWith(' ');
+    const [id, name, icon, color, type = 'exp'] = line.trim().split('|');
+    const g = { id: 'ml_' + id, name, icon, color, type, parent: child ? parent : null };
+    if (!child) parent = g.id;
+    out.push(g);
+  }
+  return out;
+})();
+const BY_NAME = new Map(LAYOUT.map((g) => [keyOf(g.name), g]));
+export const LAYOUT_IDS = new Set(LAYOUT.map((g) => g.id));
 
 export function parseCsv(text) {
   text = text.replace(/^﻿/, '');
@@ -116,41 +131,18 @@ export function parseCsv(text) {
 }
 
 function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); }
-const keyOf = (name) => String(name || '').trim().toLowerCase().normalize('NFC');
 
 // Đọc CSV -> kế hoạch nhập (chưa ghi gì)
 export function planImport(text) {
   const rows = parseCsv(text);
   if (!rows.length) throw new Error('File trống');
-  const head = rows[0].map((h) => h.trim().toLowerCase());
+  const head = rows[0].map((x) => x.trim().toLowerCase());
   const col = (n) => head.indexOf(n);
   const iId = col('id'), iNote = col('note'), iAmt = col('amount'), iCat = col('category'), iDate = col('date'), iEx = col('exclude report');
   if (iAmt < 0 || iCat < 0 || iDate < 0) throw new Error('Không phải file xuất từ Money Lover (thiếu cột Amount / Category / Date)');
-  const groups = new Map(); // id -> group mới cần tạo
-  const renames = new Map(); // id có sẵn -> tên mới
-  const stats = new Map(); // tên cũ -> {target, n, type}
+  const extra = new Map(); // nhóm cũ không có trong bảng: tạo nhóm cha cùng tên
+  const stats = new Map();
   const tx = [];
-  // bảo đảm nhóm (và nhóm cha) tồn tại: nhóm có sẵn bị xoá thì tạo lại, nhóm mới thì thêm vào kế hoạch
-  const ensureId = (id, type) => {
-    if (!id || gById(id) || groups.has(id)) return;
-    const d = DEFAULT_GROUPS.find((g) => g.id === id);
-    if (d) { ensureId(d.parent, type); groups.set(id, { ...d }); return; }
-    const ps = Object.values(P).find((p) => p[0] === id);
-    if (ps) groups.set(id, { id, name: ps[1], icon: ps[2], color: ps[3], type: ps[5] || type, parent: null });
-  };
-  const ensure = (spec, type) => {
-    const [id, name, icon, color, parent, t] = spec;
-    const gtype = t || type;
-    if (id.startsWith('g_')) {
-      ensureId(id, gtype);
-      const cur = gById(id) || groups.get(id);
-      if (name && cur && cur.name !== name) renames.set(id, name);
-      return id;
-    }
-    ensureId(parent, gtype);
-    if (!groups.has(id) && !gById(id)) groups.set(id, { id, name, icon, color, type: gtype, parent: parent || null });
-    return id;
-  };
   let min = '9999', max = '0000', bad = 0;
   for (const r of rows.slice(1)) {
     const amt = Math.round(parseFloat(String(r[iAmt]).replace(/[^\d.-]/g, '')));
@@ -159,32 +151,45 @@ export function planImport(text) {
     const date = `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
     const type = amt > 0 ? 'inc' : 'exp';
     const cat = String(r[iCat] || '').trim() || 'Khác';
-    let spec = MAP[keyOf(cat)];
-    if (spec && spec.length === 1) { // trỏ tới nhóm đã khai báo ở dòng khác hoặc nhóm có sẵn
-      const ref = Object.values(MAP).find((s) => s[0] === spec[0] && s.length > 1);
-      spec = ref || spec;
+    let g = BY_NAME.get(keyOf(cat));
+    if (!g || g.type !== type) {
+      const id = 'ml_x' + hash(keyOf(cat) + type);
+      g = extra.get(id) || { id, name: cat, icon: type === 'inc' ? 'wallet' : 'receipt', color: 'brown', type, parent: null };
+      extra.set(id, g);
     }
-    if (!spec) spec = ['mg_' + hash(dkey(cat) + type), cat, type === 'inc' ? 'wallet' : 'receipt', 'brown', type === 'inc' ? 'g_thukhac' : 'g_khac'];
-    const gid = ensure(spec, type);
-    const st = stats.get(cat) || { cat, target: gid, n: 0, type };
+    const st = stats.get(cat) || { cat, target: g.id, n: 0, type };
     st.n++; stats.set(cat, st);
     const id = 'ml' + hash([r[iId], date, amt, cat, r[iNote]].join('|'));
-    tx.push({ id, amount: Math.abs(amt), type, groupId: gid, note: String(r[iNote] || '').trim(), date, exclude: String(r[iEx]).toLowerCase() === 'true', createdAt: Date.now() - tx.length, updatedAt: Date.now(), src: 'moneylover' });
-    if (date < min) min = date; if (date > max) max = date;
+    tx.push({ id, amount: Math.abs(amt), type, groupId: g.id, note: String(r[iNote] || '').trim(), date, exclude: String(r[iEx]).toLowerCase() === 'true', cat, createdAt: Date.now() - tx.length, updatedAt: Date.now(), src: 'moneylover' });
+    if (date < min) min = date;
+    if (date > max) max = date;
   }
+  const groups = [...LAYOUT, ...extra.values()].map((g, i) => ({ ...g, order: i }));
+  // nhóm sẽ xoá: nhóm trống (sau khi nhập) không thuộc cấu trúc Money Lover
+  const used = new Set(tx.map((t) => t.groupId));
+  const imported = new Set(tx.map((t) => t.id));
+  for (const t of store.tx) if (!imported.has(t.id)) used.add(t.groupId);
+  const keep = new Set(groups.map((g) => g.id));
+  const remove = store.groups.filter((g) => !keep.has(g.id) && !used.has(g.id));
+  const removed = new Set(remove.map((g) => g.id));
+  // nhóm còn giao dịch nhập tay mà nhóm cha bị xoá: chuyển vào nhóm cha cùng tên trong cấu trúc mới, không có thì thành nhóm cha
+  const reparent = store.groups.filter((g) => !removed.has(g.id) && !keep.has(g.id) && g.parent && removed.has(g.parent)).map((g) => {
+    const old = store.groups.find((x) => x.id === g.parent);
+    const to = BY_NAME.get(keyOf(old?.name));
+    return [g.id, to && !to.parent && to.type === g.type ? to.id : null];
+  });
   const existing = new Set(store.tx.map((t) => t.id));
-  return { tx, groups: [...groups.values()], renames, stats: [...stats.values()].sort((a, b) => b.n - a.n), min, max, bad, dup: tx.filter((t) => existing.has(t.id)).length };
+  return { tx, groups, remove, reparent, stats: [...stats.values()].sort((a, b) => b.n - a.n), min, max, bad, dup: tx.filter((t) => existing.has(t.id)).length };
 }
 
-export function runImport(plan) {
-  importData(plan.groups, plan.tx, plan.renames);
+export function runImport(plan, clean = true) {
+  importData(plan.groups, plan.tx, clean ? plan.remove.map((g) => g.id) : [], clean ? plan.reparent : []);
 }
 
 // tên hiển thị của nhóm đích (kể cả nhóm sắp tạo)
 export function targetName(plan, id) {
   const g = plan.groups.find((x) => x.id === id) || gById(id);
   if (!g) return id;
-  const nm = plan.renames.get(id) || g.name;
   const p = g.parent ? (plan.groups.find((x) => x.id === g.parent) || gById(g.parent)) : null;
-  return (p ? (plan.renames.get(p.id) || p.name) + ' › ' : '') + nm;
+  return (p ? p.name + ' › ' : '') + g.name;
 }
