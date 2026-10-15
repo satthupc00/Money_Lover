@@ -1,559 +1,698 @@
 <title>Mon Money Lover Layout</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap">
 <style>
-/* Layout: trang trình bày bản phác; mỗi màn hình là 1 "khung" cố định được scale vừa bề ngang. Dark Mondiro, một giao diện duy nhất. */
+/* Layout: trang trình bày bản phác v2; mỗi màn hình là một khung cố định, scale cho vừa bề ngang. Tông sáng, ấm, dễ thương (riêng app này). */
 :root{
-  color-scheme:dark;
-  --chrome:#1F2126;--panel:#26292F;--line:#363A42;--hover:#2F333A;--stage:#2B2D31;
-  --text:#E8E9EC;--muted:#8D929C;--dim:#6B707A;--red:#E5383B;--red-hi:#F04447;--warn:#F2B84B;
-  --selected-bg:#3A2426;--green:#3DBE7A;--blue:#8A9AB0;--slate:#66758A;--cream:#ECE8E0;
-  --page:#16181C;
+  color-scheme:light;
+  --bg:#FFF6EC;--surface:#FFFFFF;--soft:#FFF1E3;--soft2:#FFE9D6;--line:#F1DECB;--line2:#E6CBB2;
+  --text:#4A3328;--muted:#9A7D6B;--dim:#B8A08F;
+  --red:#E5383B;--red-hi:#F04447;--red-soft:#FFE4E1;--green:#1FA463;--green-soft:#DDF5E7;--honey:#F5A623;
+  --cocoa:#3E2A22;--cocoa2:#56392D;--brand-red:#FF5458;
+  --page:#F7EADB;
+  --shadow:0 6px 18px rgba(130,80,40,.10);--shadow-lg:0 22px 60px rgba(110,60,30,.22);
   --ease-out:cubic-bezier(.22,1,.36,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);--t-fast:.12s;--t-med:.22s;
-  --ui:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+  --ui:"Nunito","Segoe UI Rounded","Segoe UI",system-ui,sans-serif;
 }
 html,body{background:var(--page);color:var(--text)}
-body{font:14px/1.5 var(--ui);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
-.doc{max-width:1240px;margin:0 auto;display:grid;gap:40px}
-.intro{display:grid;gap:10px;max-width:760px}
-.intro h1{margin:0;font-size:26px;line-height:1.2;text-wrap:balance}
+body{font:15px/1.5 var(--ui);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.doc{max-width:1260px;margin:0 auto;display:grid;gap:44px}
+.intro{display:grid;gap:8px;max-width:780px}
+.intro h1{margin:0;font-size:28px;line-height:1.2;font-weight:900;text-wrap:balance}
 .intro h1 .m{color:var(--red)}
 .intro p{margin:0;color:var(--muted)}
+.changes{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 0;padding:0;list-style:none}
+.changes li{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700}
+.changes b{color:var(--red)}
 .sec{display:grid;gap:14px}
-.sec-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:8px}
-.sec-h h2{margin:0;font-size:17px}
-.sec-h span{color:var(--muted);font-size:13px}
-.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px 24px;margin:0;padding:0;list-style:none;color:var(--muted);font-size:13px}
-.notes b{color:var(--text);font-weight:600}
+.sec-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:2px dashed var(--line2);padding-bottom:8px}
+.sec-h h2{margin:0;font-size:19px;font-weight:900}
+.sec-h span{color:var(--muted);font-size:13.5px}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px 24px;margin:0;padding:0;list-style:none;color:var(--muted);font-size:13.5px}
+.notes b{color:var(--text)}
 .notes li{min-width:0}
 .fit{width:100%;position:relative;overflow:hidden}
 .fit>.frame{transform-origin:0 0;position:absolute;left:0;top:0}
-.row{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}
-.row>.cell{display:grid;gap:8px;min-width:0}
-.cap{font-size:12px;color:var(--muted)}
+.row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.row>.cell{display:grid;gap:8px;min-width:0;flex:1 1 260px}
+.cap{font-size:13px;color:var(--muted)}
 .cap b{color:var(--text)}
 
-/* ===== Mondiro app UI (dùng chung desktop + mobile) ===== */
-.app{background:var(--chrome);color:var(--text);font:13px/1.4 var(--ui);user-select:none;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.45);font-variant-numeric:tabular-nums}
-.app button,.app input{font:inherit;color:inherit}
-.app :focus-visible{outline:2px solid var(--red);outline-offset:1px}
-.app button,.app input,.chip,.li{transition:background-color var(--t-fast) ease,border-color var(--t-fast) ease,color var(--t-fast) ease,box-shadow var(--t-med) var(--ease-out),transform var(--t-med) var(--ease-out)}
+/* ========== APP ========== */
+.app{background:var(--bg);color:var(--text);font:14px/1.4 var(--ui);user-select:none;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg);font-variant-numeric:tabular-nums;position:relative;box-sizing:border-box}
+.app *{box-sizing:border-box}
+.app button,.app input,.app select{font:inherit;color:inherit}
+.app :focus-visible{outline:2.5px solid var(--red);outline-offset:2px}
+.app button,.app input,.chip,.li,.tx,.grow{transition:background-color var(--t-fast) ease,border-color var(--t-fast) ease,color var(--t-fast) ease,box-shadow var(--t-med) var(--ease-out),transform var(--t-med) var(--ease-out)}
 .app button:not(:disabled):active{transform:scale(.95);transition-duration:.06s}
-.win{box-sizing:border-box;width:1180px;height:740px;border-radius:8px;border:1px solid var(--line)}
-.titlebar{height:30px;display:flex;align-items:center;justify-content:flex-end;padding:0 4px;background:#191B1F;color:var(--dim);font-size:12px;gap:2px}
-.titlebar span{flex:1;padding-left:10px}
-.titlebar i{width:40px;height:30px;display:grid;place-items:center;font-style:normal}
-.top{display:flex;align-items:center;gap:16px;padding:10px 14px;border-bottom:1px solid var(--line);flex:0 0 auto}
+.lc{width:1em;height:1em;flex:0 0 auto;display:block}
+.tile{display:grid;place-items:center;border-radius:32%;background:var(--bg-t);color:var(--fg-t);flex:0 0 auto;box-shadow:inset 0 -3px 0 rgba(0,0,0,.05),inset 0 2px 0 rgba(255,255,255,.7)}
+.tile .lc{width:56%;height:56%}
+
+.win{width:1200px;height:780px;border-radius:14px;border:1px solid var(--line2)}
+.top{display:flex;align-items:center;gap:16px;padding:10px 14px;background:var(--cocoa);color:#fff;flex:0 0 auto}
+.titlebar{height:30px;display:flex;align-items:center;background:var(--cocoa);color:#C9B3A6;font-size:12px;border-bottom:1px solid var(--cocoa2)}
+.titlebar span{flex:1;padding-left:12px}
+.titlebar i{width:44px;height:30px;display:grid;place-items:center;font-style:normal}
 .brand{display:flex;align-items:center;gap:10px;min-width:0}
 .brand-icon{width:34px;height:34px;flex:0 0 auto}
-.brand-name{font-size:17px;font-weight:700;line-height:1.15;white-space:nowrap;display:flex;align-items:center;gap:6px}
-.brand-name .m{color:var(--red)} .brand-name .a{color:#fff}
-.latest{font-size:10.5px;font-weight:700;color:var(--green);border:1px solid rgba(61,190,122,.45);background:rgba(61,190,122,.1);border-radius:4px;padding:1px 5px;letter-spacing:.04em}
-.brand-desc{font-size:11.5px;color:var(--muted);margin-top:2px}
+.brand-name{font-size:17px;font-weight:800;line-height:1.15;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.brand-name .m{color:var(--brand-red)} .brand-name .a{color:#fff}
+.latest{font-size:10.5px;font-weight:900;color:#3DDC8A;border:1.5px solid rgba(61,220,138,.55);border-radius:6px;padding:0 6px;letter-spacing:.05em}
+.brand-desc{font-size:11.5px;color:#CDB7A9;margin-top:2px}
 .spacer{flex:1}
 .tools{display:flex;gap:8px;align-items:center}
-.btn{height:32px;padding:0 12px;border-radius:6px;border:1px solid var(--line);background:var(--panel);display:inline-flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap}
+.top .btn{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);color:#fff}
+.sync{display:flex;align-items:center;gap:6px;color:#CDB7A9;font-size:12.5px}
+.sync .dot{width:8px;height:8px;border-radius:50%;background:#3DDC8A}
+.avatar{width:34px;height:34px;border-radius:50%;background:#FFB37A;color:var(--cocoa);display:grid;place-items:center;font-weight:900}
+.btn{height:36px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line2);background:var(--surface);display:inline-flex;align-items:center;gap:7px;cursor:pointer;white-space:nowrap;font-weight:700}
 .btn:hover{border-color:var(--red);transform:translateY(-1px)}
-.btn svg{width:15px;height:15px}
-.btn.primary{background:var(--red);border-color:var(--red);color:#fff;font-weight:600;position:relative;overflow:hidden}
-.btn.primary:hover{background:var(--red-hi);box-shadow:0 6px 16px rgba(229,56,59,.35)}
-.sync{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px}
-.sync .dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
-.avatar{width:30px;height:30px;border-radius:50%;background:var(--slate);display:grid;place-items:center;font-weight:700;font-size:12px}
+.btn .lc{width:17px;height:17px}
+.btn.primary{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 4px 0 #B8262A}
+.btn.primary:hover{background:var(--red-hi);box-shadow:0 4px 0 #B8262A,0 8px 18px rgba(229,56,59,.35)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
 .body{flex:1;display:flex;min-height:0}
-.side{width:250px;flex:0 0 auto;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
-.nav{display:grid;padding:10px 8px;gap:2px}
-.nav .li{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:6px;cursor:pointer;color:var(--muted)}
-.nav .li svg{width:17px;height:17px}
-.li:hover{transform:translateX(3px);box-shadow:inset 3px 0 0 var(--red);color:var(--text)}
-.li.on{background:var(--selected-bg);box-shadow:inset 3px 0 0 var(--red);color:var(--text)}
-.side h4{margin:8px 18px 6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:600}
-.tree{overflow:auto;padding:0 8px 10px;display:grid;gap:1px}
-.tree .li{display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:6px;cursor:pointer;font-size:12.5px}
-.tree .li.child{padding-left:30px;color:var(--muted)}
-.tree .li em{margin-left:auto;font-style:normal;color:var(--muted);font-size:12px}
-.tree .caret{width:10px;color:var(--dim);font-size:9px}
-.gi{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;flex:0 0 auto}
-.gi svg{width:15px;height:15px}
-.tree .child .gi{width:20px;height:20px;border-radius:6px}
-.tree .child .gi svg{width:12px;height:12px}
-.addgrp{margin:6px 8px 10px;height:30px;border:1px dashed var(--line);border-radius:6px;background:none;color:var(--muted);cursor:pointer}
-.addgrp:hover{border-color:var(--red);color:var(--text)}
-.main{flex:1;background:var(--stage);display:flex;flex-direction:column;min-width:0}
-.bar{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
-.tabs{position:relative;display:flex;background:var(--chrome);border-radius:6px;padding:2px}
-.tabs button{height:28px;padding:0 14px;border:0;background:none;color:var(--muted);cursor:pointer;border-radius:5px}
-.tabs button:hover{color:var(--text)}
-.tabs button.on{color:#fff}
-.tabs .ind{position:absolute;bottom:2px;height:2px;background:var(--red);border-radius:2px;transition:left var(--t-med) var(--ease-out),width var(--t-med) var(--ease-out)}
-.period{display:flex;align-items:center;gap:4px;font-weight:600}
-.period button{width:26px;height:26px;border-radius:6px;border:1px solid transparent;background:none;cursor:pointer;color:var(--muted)}
-.period button:hover{border-color:var(--red);color:var(--text)}
-.chip{height:28px;padding:0 10px;border-radius:14px;border:1px solid var(--line);background:var(--panel);display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text)}
+.side{width:250px;flex:0 0 auto;background:var(--soft);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.nav{display:grid;padding:12px 10px;gap:4px}
+.nav .li{display:flex;align-items:center;gap:12px;height:42px;padding:0 12px;border-radius:12px;cursor:pointer;color:var(--muted);font-weight:700}
+.nav .li .lc{width:20px;height:20px}
+.li:hover{background:var(--surface);color:var(--text);transform:translateX(3px)}
+.li.on{background:var(--surface);color:var(--text);box-shadow:inset 4px 0 0 var(--red),var(--shadow)}
+.li.on .lc{color:var(--red)}
+.side h4{margin:6px 20px 6px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:800}
+.mini{overflow:auto;padding:0 10px 12px;display:grid;gap:2px;align-content:start}
+.mini .li{display:flex;align-items:center;gap:10px;min-height:42px;padding:4px 8px;border-radius:12px;cursor:pointer;font-weight:700;font-size:13.5px}
+.mini .li.child{padding-left:26px;font-weight:600;color:var(--muted);min-height:36px}
+.mini .li em{margin-left:auto;font-style:normal;color:var(--muted);font-size:12.5px;font-weight:700}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.bar{display:flex;align-items:center;gap:12px;padding:12px 18px}
+.tabs{position:relative;display:flex;background:var(--soft2);border-radius:14px;padding:3px}
+.tabs button{height:32px;padding:0 16px;border:0;background:none;color:var(--muted);cursor:pointer;border-radius:11px;font-weight:800;position:relative;z-index:1}
+.tabs button.on{color:var(--text)}
+.tabs .ind{position:absolute;top:3px;bottom:3px;background:var(--surface);border-radius:11px;box-shadow:var(--shadow);transition:left var(--t-med) var(--ease-out),width var(--t-med) var(--ease-out)}
+.tabs .ind::after{content:"";position:absolute;left:30%;right:30%;bottom:3px;height:3px;border-radius:2px;background:var(--red)}
+.period{display:flex;align-items:center;gap:4px;font-weight:800;font-size:15px}
+.icb{width:36px;height:36px;border-radius:12px;border:1.5px solid transparent;background:none;cursor:pointer;color:var(--muted);display:grid;place-items:center}
+.icb:hover{border-color:var(--red);color:var(--text);background:var(--surface)}
+.icb .lc{width:20px;height:20px}
+.chip{height:34px;padding:0 12px 0 6px;border-radius:999px;border:1.5px solid var(--line2);background:var(--surface);display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:700;color:var(--text);white-space:nowrap}
+.chip.txt{padding:0 12px}
 .chip:hover{border-color:var(--red);transform:translateY(-1px)}
-.chip.on{background:var(--selected-bg);border-color:var(--red)}
-.grid{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 400px;min-height:0}
-.list{overflow:auto;padding:10px 16px 16px;min-width:0}
-.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
-.sum div{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
-.sum small{display:block;color:var(--muted);font-size:11px}
-.sum b{font-size:16px}
+.chip.on{background:var(--red-soft);border-color:var(--red);color:#B3242A;animation:chipPop .3s var(--ease-spring)}
+@keyframes chipPop{from{transform:scale(.9)}}
+.grid{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:14px;padding:0 18px 14px;min-height:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);min-width:0;min-height:0}
+.list{overflow:auto;padding:12px 14px}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.sum div{background:var(--soft);border-radius:14px;padding:8px 12px}
+.sum small{display:block;color:var(--muted);font-size:12px;font-weight:700}
+.sum b{font-size:15.5px;font-weight:900;white-space:nowrap}
 .inc{color:var(--green)} .exp{color:var(--red)}
-.day{display:flex;justify-content:space-between;padding:10px 4px 6px;color:var(--muted);font-size:12px;border-bottom:1px solid var(--line)}
-.day b{color:var(--text);font-weight:600}
-.tx{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:6px;cursor:pointer}
-.tx:hover{background:var(--hover);transform:translateX(3px);box-shadow:inset 3px 0 0 var(--red)}
-.tx .gi{width:32px;height:32px;border-radius:9px}
-.tx .gi svg{width:18px;height:18px}
+.day{display:flex;justify-content:space-between;padding:12px 6px 4px;color:var(--muted);font-size:12.5px;font-weight:700}
+.day b{color:var(--text);font-weight:900}
+.tx{display:flex;align-items:center;gap:12px;padding:7px 8px;border-radius:14px;cursor:pointer}
+.tx:hover{background:var(--soft);transform:translateX(3px)}
 .tx .t{flex:1;min-width:0}
-.tx .t div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tx .t small{color:var(--muted);font-size:11.5px}
-.tx .amt{font-weight:600;white-space:nowrap}
-.yr{display:grid;grid-template-columns:70px 1fr 110px 110px;gap:10px;align-items:center;padding:8px 6px;border-bottom:1px solid var(--line);font-size:12.5px}
-.yr .track{height:8px;border-radius:4px;background:var(--chrome);position:relative;overflow:hidden}
-.yr .track i{position:absolute;inset:0 auto 0 0;background:var(--red);border-radius:4px}
-.yr .r{text-align:right}
-.right{border-left:1px solid var(--line);padding:12px 14px;overflow-y:auto;overflow-x:hidden;display:grid;gap:12px;align-content:start}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px}
-.card h3{margin:0 0 2px;font-size:13px}
-.card .sub{color:var(--muted);font-size:11.5px;margin-bottom:8px}
-.seg{display:flex;gap:4px;margin-bottom:8px}
-.seg .chip{height:24px;font-size:11.5px}
-.legend{display:flex;gap:12px;font-size:11px;color:var(--muted);flex-wrap:wrap}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
-.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
-.kpi div{background:var(--chrome);border-radius:6px;padding:6px 8px}
-.kpi small{display:block;font-size:10.5px;color:var(--muted)}
-.kpi b{font-size:13px}
-.delta{font-size:11px;font-weight:600}
-.up{color:var(--red)} .down{color:var(--green)}
-svg.chart text{fill:var(--muted);font:10.5px var(--ui)}
-.foot{display:flex;align-items:center;gap:14px;padding:8px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;flex:0 0 auto}
-.foot svg{width:14px;height:14px;vertical-align:-2px}
-.credit{color:var(--dim);font-size:11px;white-space:nowrap;margin-left:auto}
-.toggle{width:28px;height:16px;border-radius:8px;background:var(--red);position:relative;display:inline-block;vertical-align:-3px}
-.toggle::after{content:"";position:absolute;right:2px;top:2px;width:12px;height:12px;border-radius:50%;background:#fff}
+.tx .t div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
+.tx .t small{color:var(--muted);font-size:12px;font-weight:600}
+.tx .amt{font-weight:900;white-space:nowrap}
+.right{padding:16px;overflow:auto}
+.foot{display:flex;align-items:center;gap:16px;padding:8px 16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;font-weight:600;flex:0 0 auto;background:var(--soft)}
+.foot .lc{width:15px;height:15px;display:inline-block;vertical-align:-3px}
+.credit{color:var(--dim);font-size:11.5px;white-space:nowrap;margin-left:auto}
+.toggle{width:30px;height:18px;border-radius:9px;background:var(--red);position:relative;display:inline-block;vertical-align:-4px}
+.toggle::after{content:"";position:absolute;right:2px;top:2px;width:14px;height:14px;border-radius:50%;background:#fff}
 
-/* dialog thêm giao dịch */
-.scrim{position:absolute;inset:0;background:rgba(10,11,13,.55);display:grid;place-items:center;animation:fade .2s ease}
-.dlg{width:460px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;display:grid;gap:12px;box-shadow:0 24px 50px rgba(0,0,0,.5);animation:pop .32s var(--ease-spring)}
+/* ===== Trend chart ===== */
+.trend{display:grid;gap:10px}
+.trend-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.trend-h h3{margin:0;font-size:16px;font-weight:900;flex:1;white-space:nowrap}
+.seg{display:flex;background:var(--soft2);border-radius:12px;padding:3px}
+.seg button{height:28px;padding:0 10px;border:0;border-radius:9px;background:none;cursor:pointer;font-weight:800;font-size:12px;color:var(--muted)}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.gchips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.gchips::-webkit-scrollbar{display:none}
+.gchips .tile{width:24px;height:24px}
+.tip{background:var(--soft);border-radius:14px;padding:8px 14px;justify-self:start;min-width:70%}
+.tip .l1{font-size:15px;color:var(--muted);font-weight:700}
+.tip .l1 b{color:var(--red);font-size:22px;font-weight:900}
+.tip .l2{font-size:13.5px;color:var(--muted);font-weight:700}
+.tip .l2 b{color:#7C665A;font-weight:900}
+svg.tchart{display:block;touch-action:none;cursor:crosshair}
+svg.tchart text{fill:var(--muted);font:700 11.5px var(--ui)}
+.tlegend{display:flex;gap:16px;font-size:13px;color:var(--muted);font-weight:700;flex-wrap:wrap}
+.tlegend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.verdict{font-size:13px;font-weight:700;background:var(--red-soft);color:#A3262A;border-radius:12px;padding:8px 12px}
+.verdict.good{background:var(--green-soft);color:#17804D}
+
+/* ===== Group manager ===== */
+.gm{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:14px;padding:0 18px 14px;min-height:0}
+.gm-list{overflow-y:auto;overflow-x:hidden;padding:12px;display:grid;gap:10px;align-content:start}
+.dropTop{border:2px dashed var(--line2);border-radius:14px;padding:10px;text-align:center;color:var(--muted);font-size:13px;font-weight:700}
+.dropTop.over{border-color:var(--red);background:var(--red-soft);color:#A3262A}
+.gcard{border:1.5px solid var(--line);border-radius:18px;padding:6px;background:var(--surface)}
+.grow{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:14px;cursor:grab;position:relative}
+.grow:hover{background:var(--soft)}
+.grow.child{margin-left:34px}
+.grow.child::before{content:"";position:absolute;left:-18px;top:-6px;bottom:50%;width:12px;border-left:2px solid var(--line2);border-bottom:2px solid var(--line2);border-bottom-left-radius:8px}
+.grow.over{background:var(--red-soft);box-shadow:inset 0 0 0 2px var(--red)}
+.grow.dragging{opacity:.4}
+.grow .grip{color:var(--dim);width:16px;height:16px}
+.grow .nm{flex:1;min-width:0}
+.grow .nm b{display:block;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grow .nm small{color:var(--muted);font-weight:600;font-size:12px}
+.grow .acts{display:flex;gap:2px;opacity:.55}
+.grow:hover .acts{opacity:1}
+.grow .acts button{height:30px;padding:0 7px;border-radius:10px;border:1.5px solid transparent;background:none;cursor:pointer;font-size:12px;font-weight:800;color:var(--muted);display:flex;align-items:center;gap:4px}
+.grow .acts button:hover{border-color:var(--red);color:var(--text);background:var(--surface)}
+.grow .acts .lc{width:15px;height:15px}
+input[type=checkbox]{appearance:none;width:20px;height:20px;margin:0;border:2px solid var(--line2);border-radius:7px;background:var(--surface);display:inline-grid;place-content:center;cursor:pointer;flex:0 0 auto}
+input[type=checkbox]::after{content:"";width:10px;height:5px;border:2.5px solid #fff;border-top:0;border-right:0;transform:translateY(-1px) rotate(-45deg) scale(0);transition:transform var(--t-med) var(--ease-spring)}
+input[type=checkbox]:hover{border-color:var(--red)}
+input[type=checkbox]:checked{background:var(--red);border-color:var(--red)}
+input[type=checkbox]:checked::after{transform:translateY(-1px) rotate(-45deg) scale(1)}
+.editor{padding:16px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.editor h3{margin:0;font-size:16px;font-weight:900}
+.prevrow{display:flex;gap:12px;align-items:center;background:var(--soft);border-radius:16px;padding:10px}
+.prevrow .tile{width:58px;height:58px}
+.field{display:grid;gap:5px}
+.field label{font-size:12px;color:var(--muted);font-weight:800}
+.inp{height:42px;border-radius:12px;border:1.5px solid var(--line2);background:var(--surface);padding:0 12px;outline:none;width:100%;font-weight:700}
+.inp:hover{border-color:#D7B79B}
+.inp:focus{border-color:var(--red);box-shadow:0 0 0 4px rgba(229,56,59,.15)}
+.inp.big{height:54px;font-size:26px;font-weight:900}
+.swatches{display:flex;gap:6px;flex-wrap:wrap}
+.swatches button{width:25px;height:25px;border-radius:50%;border:3px solid var(--surface);box-shadow:0 0 0 1.5px var(--line2);cursor:pointer}
+.swatches button.on{box-shadow:0 0 0 2.5px var(--red);transform:scale(1.1)}
+.libtabs{display:flex;gap:4px;flex-wrap:wrap}
+.libtabs button{height:28px;padding:0 10px;border-radius:999px;border:0;background:var(--soft2);cursor:pointer;font-weight:800;font-size:12px;color:var(--muted)}
+.libtabs button.on{background:var(--cocoa);color:#fff}
+.lib{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;overflow:auto;min-height:0;flex:1;align-content:start;padding:2px}
+.lib button{aspect-ratio:1;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);display:grid;place-items:center;cursor:pointer;color:var(--text)}
+.lib button .lc{width:24px;height:24px}
+.lib button:hover{border-color:var(--red);transform:translateY(-2px)}
+.lib button.on{background:var(--red-soft);border-color:var(--red);color:var(--red);animation:chipPop .3s var(--ease-spring)}
+.scrim{position:absolute;inset:0;background:rgba(62,42,34,.35);display:grid;place-items:center;animation:fade .2s ease;z-index:5}
+.dlg{width:440px;max-height:86%;background:var(--surface);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow-lg);animation:pop .32s var(--ease-spring)}
 @keyframes fade{from{opacity:0}}
 @keyframes pop{from{transform:translateY(10px) scale(.96);opacity:0}}
-.dlg h3{margin:0;font-size:15px;display:flex;justify-content:space-between;align-items:center}
-.seg2{display:grid;grid-template-columns:1fr 1fr;background:var(--chrome);border-radius:6px;padding:2px}
-.seg2 button{height:30px;border:0;border-radius:5px;background:none;cursor:pointer;color:var(--muted)}
-.seg2 button.on{background:var(--selected-bg);color:var(--text);box-shadow:inset 0 -2px 0 var(--red)}
-.field{display:grid;gap:4px}
-.field label{font-size:11.5px;color:var(--muted)}
-.inp{height:36px;border-radius:6px;border:1px solid var(--line);background:var(--chrome);padding:0 10px;outline:none;width:100%;box-sizing:border-box}
-.inp:hover{border-color:#4A4F58}
-.inp:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(229,56,59,.18)}
-.inp.big{height:46px;font-size:22px;font-weight:700}
-.suggest{border:1px solid rgba(242,184,75,.4);background:rgba(242,184,75,.08);border-radius:8px;padding:8px 10px;display:grid;gap:6px;animation:pop .3s var(--ease-spring)}
-.suggest small{color:var(--warn);font-size:11.5px;display:flex;gap:6px;align-items:center}
-.suggest .opts{display:flex;gap:6px;flex-wrap:wrap}
-.grpPick{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-.grpPick button{border:1px solid var(--line);background:var(--chrome);border-radius:8px;padding:6px 2px;display:grid;justify-items:center;gap:4px;font-size:10.5px;cursor:pointer;color:var(--muted)}
-.grpPick button:hover{border-color:var(--red);transform:translateY(-1px)}
-.grpPick button.on{border-color:var(--red);background:var(--selected-bg);color:var(--text);animation:chipPop .3s var(--ease-spring)}
-@keyframes chipPop{from{transform:scale(.9)}}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dlg h3{margin:0;font-size:17px;font-weight:900}
+.dlg p{margin:0;color:var(--muted);font-size:13px}
+.pick{display:grid;gap:4px;overflow:auto}
+.pick button{display:flex;align-items:center;gap:10px;padding:8px;border-radius:14px;border:1.5px solid transparent;background:none;cursor:pointer;text-align:left;font-weight:800}
+.pick button:hover{border-color:var(--red);background:var(--soft)}
+.pick button.child{padding-left:30px;font-weight:700}
+.pick .tile{width:34px;height:34px}
 .actions{display:flex;justify-content:flex-end;gap:8px}
+.toast{position:absolute;left:50%;bottom:52px;transform:translateX(-50%);background:var(--cocoa);color:#fff;border-radius:14px;padding:10px 16px;font-weight:700;font-size:13.5px;box-shadow:var(--shadow-lg);border-left:4px solid var(--red);animation:pop .3s var(--ease-spring);z-index:6;white-space:nowrap}
+.suggest{border:1.5px dashed #F2B65A;background:#FFF6E2;border-radius:16px;padding:10px 12px;display:grid;gap:8px;animation:pop .3s var(--ease-spring)}
+.suggest small{color:#B67A0F;font-size:12.5px;font-weight:800;display:flex;gap:6px;align-items:center}
+.suggest small .lc{width:15px;height:15px}
+.suggest .opts{display:flex;gap:6px;flex-wrap:wrap}
+.gpick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.gpick button{border:1.5px solid var(--line);background:var(--surface);border-radius:16px;padding:8px 2px;display:grid;justify-items:center;gap:4px;font-size:11.5px;font-weight:800;cursor:pointer;color:var(--muted)}
+.gpick button .tile{width:44px;height:44px}
+.gpick button:hover{border-color:var(--red);transform:translateY(-2px)}
+.gpick button.on{border-color:var(--red);background:var(--red-soft);color:var(--text);animation:chipPop .3s var(--ease-spring)}
 
 /* ===== Android ===== */
-.phone{box-sizing:border-box;border-radius:28px;border:8px solid #0E0F11;position:relative}
+.phone{border-radius:34px;border:9px solid #2B201B}
 .p-outer{width:412px;height:916px}
-.p-inner{width:820px;height:740px}
-.p-top{display:flex;align-items:center;gap:8px;padding:14px 16px 10px}
-.p-top .brand-icon{width:30px;height:30px}
+.p-inner{width:860px;height:760px}
+.p-top{display:flex;align-items:center;gap:8px;padding:16px 16px 8px}
 .p-top .brand-name{font-size:16px}
-.p-top .brand-desc{font-size:11px}
-.icbtn{width:40px;height:40px;border-radius:20px;border:0;background:none;display:grid;place-items:center;cursor:pointer;color:var(--muted)}
-.icbtn:hover{background:var(--hover);color:var(--text)}
-.icbtn svg{width:20px;height:20px}
-.p-body{flex:1;overflow:hidden;padding:0 14px;display:flex;flex-direction:column;gap:10px;min-height:0}
-.hero{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
-.hero small{color:var(--muted);font-size:11.5px}
-.hero .bal{font-size:26px;font-weight:700;margin:2px 0 8px}
+.p-top .brand-name .a{color:var(--text)}
+.p-top .brand-name .m{color:var(--red)}
+.p-top .latest{color:var(--green);border-color:rgba(31,164,99,.45);background:var(--green-soft)}
+.p-top .brand-desc{color:var(--muted)}
+.p-body{flex:1;overflow:hidden;padding:0 14px;display:flex;flex-direction:column;gap:12px;min-height:0}
+.hero{background:linear-gradient(135deg,#FF8A65,#E5383B);color:#fff;border-radius:24px;padding:16px;box-shadow:0 10px 24px rgba(229,56,59,.25);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-30px;top:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.13)}
+.hero small{opacity:.9;font-size:12.5px;font-weight:700}
+.hero .bal{font-size:30px;font-weight:900;margin:2px 0 10px}
 .hero .io{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.hero .io div{background:var(--chrome);border-radius:10px;padding:8px 10px}
-.mtabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--panel);border-radius:10px;padding:3px;position:relative}
-.mtabs button{height:36px;border:0;background:none;color:var(--muted);border-radius:8px;cursor:pointer}
-.mtabs button.on{color:#fff;background:var(--selected-bg);box-shadow:inset 0 -2px 0 var(--red)}
-.plist{flex:1;overflow:hidden;min-height:0}
-.plist .tx{padding:9px 4px}
-.bnav{display:grid;grid-template-columns:repeat(5,1fr);align-items:center;height:64px;border-top:1px solid var(--line);background:var(--chrome);position:relative;flex:0 0 auto}
-.bnav button{border:0;background:none;color:var(--muted);display:grid;justify-items:center;gap:2px;font-size:10.5px;cursor:pointer;height:56px}
-.bnav button svg{width:20px;height:20px}
+.hero .io div{background:rgba(255,255,255,.2);border-radius:14px;padding:8px 12px;font-weight:800}
+.hero .io small{display:block;font-size:11.5px}
+.mtabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--soft2);border-radius:16px;padding:4px}
+.mtabs button{height:40px;border:0;background:none;color:var(--muted);border-radius:12px;cursor:pointer;font-weight:800}
+.mtabs button.on{color:var(--text);background:var(--surface);box-shadow:var(--shadow)}
+.plist{flex:1;overflow:hidden;min-height:0;background:var(--surface);border-radius:22px;padding:4px 8px;border:1px solid var(--line)}
+.bnav{display:grid;grid-template-columns:repeat(5,1fr);align-items:center;height:72px;background:var(--surface);border-top:1px solid var(--line);flex:0 0 auto}
+.bnav button{border:0;background:none;color:var(--dim);display:grid;justify-items:center;gap:3px;font-size:11.5px;font-weight:800;cursor:pointer;height:60px}
+.bnav button .lc{width:24px;height:24px}
 .bnav button.on{color:var(--text)}
-.bnav button.on svg{color:var(--red)}
-.fab{width:54px;height:54px;border-radius:27px;background:var(--red)!important;color:#fff!important;display:grid!important;place-items:center;margin:-22px auto 0;box-shadow:0 8px 20px rgba(229,56,59,.4)}
-.fab svg{width:26px!important;height:26px!important}
-.p-credit{position:absolute;right:14px;bottom:70px;font-size:10px;color:var(--dim)}
-.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--panel);border-radius:18px 18px 0 0;border-top:1px solid var(--line);padding:10px 16px 16px;display:grid;gap:10px;animation:sheetUp .35s var(--ease-out)}
+.bnav button.on .lc{color:var(--red)}
+.fab{width:62px!important;height:62px!important;border-radius:22px!important;background:var(--red)!important;color:#fff!important;display:grid!important;place-items:center;margin:-26px auto 0;box-shadow:0 5px 0 #B8262A,0 12px 22px rgba(229,56,59,.35)}
+.fab .lc{width:30px!important;height:30px!important}
+.p-credit{position:absolute;right:16px;bottom:78px;font-size:10.5px;color:var(--dim);font-weight:700}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-radius:28px 28px 0 0;padding:10px 16px 16px;display:grid;gap:10px;box-shadow:0 -10px 30px rgba(110,60,30,.15);animation:sheetUp .35s var(--ease-out)}
 @keyframes sheetUp{from{transform:translateY(40px);opacity:0}}
-.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--line2);margin:0 auto}
+.seg2{display:grid;grid-template-columns:1fr 1fr;background:var(--soft2);border-radius:14px;padding:4px}
+.seg2 button{height:36px;border:0;border-radius:11px;background:none;cursor:pointer;color:var(--muted);font-weight:800}
+.seg2 button.on{background:var(--surface);color:var(--red);box-shadow:var(--shadow)}
 .keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.keypad button{height:46px;border-radius:10px;border:0;background:var(--chrome);font-size:17px;cursor:pointer}
-.keypad button:hover{background:var(--hover)}
-.keypad .ok{background:var(--red);color:#fff;font-weight:700;grid-row:span 2;height:auto}
-.notif{position:absolute;left:10px;right:10px;top:10px;background:#2C2F36;border-radius:16px;padding:12px;display:flex;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);animation:pop .4s var(--ease-spring)}
-.notif .brand-icon{width:28px;height:28px}
-.notif small{color:var(--muted);font-size:11px}
-.notif .acts{display:flex;gap:14px;margin-top:6px;font-size:12px;font-weight:600;color:var(--red)}
-.inner-grid{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:0 14px 0;min-height:0}
-.inner-grid>div{display:flex;flex-direction:column;gap:10px;min-height:0}
-.rail{display:flex;gap:6px;overflow:hidden}
-
-/* icon concepts */
-.icons{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
-.ic{border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:10px;background:#1B1D21}
-.ic.rec{border-color:var(--red)}
-.ic .big{display:flex;gap:14px;align-items:flex-end}
-.ic .big svg{width:110px;height:110px}
-.ic .tb{display:flex;gap:10px;align-items:center;padding:6px 10px;border-radius:6px}
-.ic .tb.dark{background:#202020}.ic .tb.light{background:#F3F3F3}
-.ic .tb svg{flex:0 0 auto}
-.ic h3{margin:0;font-size:14px;display:flex;gap:8px;align-items:center}
-.ic h3 em{font-style:normal;font-size:10.5px;color:var(--red);border:1px solid var(--red);border-radius:4px;padding:0 5px}
-.ic p{margin:0;color:var(--muted);font-size:12.5px}
+.keypad button{height:40px;border-radius:14px;border:0;background:var(--soft);font-size:19px;font-weight:800;cursor:pointer}
+.keypad button:hover{background:var(--soft2)}
+.keypad .ok{background:var(--red);color:#fff;grid-row:span 2;height:auto;box-shadow:0 4px 0 #B8262A}
+.notif{position:absolute;left:12px;right:12px;top:12px;background:var(--surface);border-radius:22px;padding:12px;display:flex;gap:10px;box-shadow:var(--shadow-lg);animation:pop .5s var(--ease-spring);z-index:3;border:1px solid var(--line)}
+.notif small{color:var(--muted);font-size:11.5px;font-weight:700}
+.notif .acts{display:flex;gap:16px;margin-top:6px;font-size:13px;font-weight:900;color:var(--red)}
+.asheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-radius:28px 28px 0 0;padding:10px 12px 18px;display:grid;gap:4px;box-shadow:0 -10px 30px rgba(110,60,30,.18);z-index:2;animation:sheetUp .35s var(--ease-out)}
+.asheet button{display:flex;align-items:center;gap:14px;height:52px;padding:0 12px;border:0;border-radius:16px;background:none;font-weight:800;font-size:15px;cursor:pointer;text-align:left}
+.asheet button:hover{background:var(--soft)}
+.asheet button .lc{width:22px;height:22px;color:var(--muted)}
+.dimmer{position:absolute;inset:0;background:rgba(62,42,34,.3);z-index:1}
+.inner-grid{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:14px;padding:0 16px;min-height:0}
+.inner-grid>div{display:flex;flex-direction:column;gap:12px;min-height:0}
+.reportnav{display:flex;align-items:center;justify-content:center;gap:18px;color:var(--green);font-weight:900;font-size:18px}
+.reportnav .lc{width:22px;height:22px}
+.dots{display:flex;gap:8px;justify-content:center}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line2)}
+.dots i:first-child{background:var(--muted)}
+.icon-show{display:flex;gap:28px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:18px 22px}
+.icon-show .big{width:170px;height:170px;flex:0 0 auto}
+.icon-show .tb{display:flex;gap:12px;align-items:center;padding:8px 12px;border-radius:10px}
+.icon-show .tb.dark{background:#202020}.icon-show .tb.light{background:#F3F3F3}
+.icon-show p{margin:0;color:var(--muted);max-width:420px}
+.icon-show p b{color:var(--text)}
 .feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
-.feat div{border-top:2px solid var(--line);padding-top:8px;min-width:0}
-.feat h4{margin:0 0 4px;font-size:13.5px}
-.feat p{margin:0;color:var(--muted);font-size:13px}
+.feat div{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 14px;min-width:0}
+.feat h4{margin:0 0 4px;font-size:15px;font-weight:900}
+.feat p{margin:0;color:var(--muted);font-size:13.5px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <symbol id="logo" viewBox="0 0 512 512"><defs><linearGradient id="bP" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E4ECF7"/></linearGradient><linearGradient id="bK" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7B5CFF"/><stop offset="1" stop-color="#4B2BD6"/></linearGradient><linearGradient id="bRing" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4F6FA"/><stop offset=".5" stop-color="#9AA5B8"/><stop offset="1" stop-color="#5D677A"/></linearGradient><radialGradient id="bR" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#FF7E80"/><stop offset=".55" stop-color="#EE2F33"/><stop offset="1" stop-color="#A3161A"/></radialGradient><linearGradient id="bRim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C21E22"/><stop offset="1" stop-color="#7A0F12"/></linearGradient></defs><ellipse cx="250" cy="492" rx="200" ry="14" fill="#000" opacity=".28"/><rect x="56" y="30" width="336" height="448" rx="38" fill="url(#bK)"/><rect x="40" y="16" width="336" height="440" rx="36" fill="url(#bP)"/><rect x="40" y="16" width="336" height="440" rx="36" fill="none" stroke="#C9D5E8" stroke-width="4"/><g fill="url(#bRing)"><rect x="16" y="76" width="70" height="30" rx="15"/><rect x="16" y="166" width="70" height="30" rx="15"/><rect x="16" y="256" width="70" height="30" rx="15"/><rect x="16" y="346" width="70" height="30" rx="15"/></g><g stroke-width="22" stroke-linecap="round"><path d="M122 104h186" stroke="#2F8BFF"/><path d="M122 180h186" stroke="#22C3A6"/><path d="M122 256h110" stroke="#FFB020"/></g><circle cx="362" cy="380" r="130" fill="url(#bRim)"/><circle cx="362" cy="362" r="128" fill="url(#bR)"/><circle cx="362" cy="362" r="98" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="10"/><path d="M362 314v96M314 362h96" stroke="#8E1216" stroke-width="32" stroke-linecap="round" transform="translate(0 6)" opacity=".5"/><path d="M362 314v96M314 362h96" stroke="#fff" stroke-width="32" stroke-linecap="round"/><ellipse cx="318" cy="290" rx="44" ry="22" transform="rotate(-30 318 290)" fill="#fff" opacity=".35"/></symbol>
-    <symbol id="logoA" viewBox="0 0 512 512"><defs><linearGradient id="aB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3D9BFF"/><stop offset="1" stop-color="#1747B8"/></linearGradient><linearGradient id="aS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B4FB8"/><stop offset="1" stop-color="#0E2F7A"/></linearGradient><linearGradient id="aC" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE27A"/><stop offset="1" stop-color="#F5A623"/></linearGradient><linearGradient id="aT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7CC0FF"/><stop offset="1" stop-color="#3478E0"/></linearGradient><radialGradient id="aR" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FF8A8C"/><stop offset=".55" stop-color="#E5383B"/><stop offset="1" stop-color="#A3161A"/></radialGradient></defs><ellipse cx="256" cy="488" rx="200" ry="16" fill="#000" opacity=".28"/><rect x="80" y="30" width="300" height="170" rx="26" transform="rotate(-10 230 115)" fill="url(#aC)"/><rect x="110" y="66" width="120" height="18" rx="9" transform="rotate(-10 230 115)" fill="#fff" opacity=".55"/><rect x="20" y="136" width="472" height="342" rx="60" fill="url(#aS)"/><rect x="20" y="118" width="472" height="336" rx="60" fill="url(#aB)"/><rect x="52" y="134" width="408" height="40" rx="20" fill="#fff" opacity=".22"/><rect x="290" y="236" width="206" height="150" rx="46" fill="#123C99"/><rect x="290" y="226" width="206" height="146" rx="46" fill="url(#aT)"/><circle cx="362" cy="299" r="38" fill="#8E1216"/><circle cx="362" cy="293" r="36" fill="url(#aR)"/><ellipse cx="350" cy="280" rx="14" ry="9" fill="#fff" opacity=".7"/></symbol>
-    <symbol id="logoC" viewBox="0 0 512 512"><defs><radialGradient id="cF" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#FFE680"/><stop offset=".6" stop-color="#FFC21A"/><stop offset="1" stop-color="#E8930A"/></radialGradient><linearGradient id="cE" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D98208"/><stop offset="1" stop-color="#9A5604"/></linearGradient><linearGradient id="cBl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4FA3FF"/><stop offset="1" stop-color="#1E5FD6"/></linearGradient><linearGradient id="cRd" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FF6A6D"/><stop offset="1" stop-color="#C81E22"/></linearGradient></defs><ellipse cx="256" cy="496" rx="190" ry="12" fill="#000" opacity=".28"/><circle cx="256" cy="268" r="238" fill="url(#cE)"/><circle cx="256" cy="250" r="238" fill="url(#cF)"/><circle cx="256" cy="250" r="194" fill="none" stroke="#E08A06" stroke-width="12"/><circle cx="256" cy="250" r="194" fill="none" stroke="#FFF1B0" stroke-width="4" transform="translate(0 7)" opacity=".7"/><g><rect x="132" y="252" width="70" height="128" rx="16" fill="#123E99" transform="translate(8 8)"/><rect x="132" y="252" width="70" height="128" rx="16" fill="url(#cBl)"/><rect x="221" y="190" width="70" height="190" rx="16" fill="#123E99" transform="translate(8 8)"/><rect x="221" y="190" width="70" height="190" rx="16" fill="url(#cBl)"/><rect x="310" y="120" width="70" height="260" rx="16" fill="#8E1216" transform="translate(8 8)"/><rect x="310" y="120" width="70" height="260" rx="16" fill="url(#cRd)"/></g><g fill="#fff" opacity=".45"><rect x="142" y="262" width="14" height="80" rx="7"/><rect x="231" y="200" width="14" height="130" rx="7"/><rect x="320" y="130" width="14" height="190" rx="7"/></g><path d="M90 160a190 190 0 0 1 120-110" stroke="#fff" stroke-width="18" stroke-linecap="round" fill="none" opacity=".45"/></symbol>
-    <!-- UI icons (stroke) -->
-    <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
-    <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></symbol>
-    <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
-    <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></symbol>
-    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></symbol>
-    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
-    <symbol id="i-update" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
-    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4zM10 21h4"/></symbol>
-    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
-    <symbol id="i-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 18a5 5 0 1 1 1-9.9A6 6 0 0 1 19 10a4 4 0 0 1-1 8z"/></symbol>
-    <symbol id="i-spark" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 6.3L21 9l-5.2 4.1L17.6 20 12 16.3 6.4 20l1.8-6.9L3 9l6.8-.7z"/></symbol>
-    <!-- group icons (filled, white) -->
-    <symbol id="g-food" viewBox="0 0 24 24" fill="currentColor"><path d="M3 11h18a9 9 0 0 1-18 0zM8 3v6M12 2v7M16 3v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-    <symbol id="g-coffee" viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 10h1.5a2.5 2.5 0 0 1 0 5H17z"/><path d="M8 2v3M12 2v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-    <symbol id="g-noodle" viewBox="0 0 24 24" fill="currentColor"><path d="M2 12h20a10 9 0 0 1-20 0z"/><path d="M6 10L17 2M9 10l10-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
-    <symbol id="g-car" viewBox="0 0 24 24" fill="currentColor"><path d="M5 11l2-5h10l2 5h1a1 1 0 0 1 1 1v5h-2v2h-3v-2H8v2H5v-2H3v-5a1 1 0 0 1 1-1zm2.5 0h9l-1.2-3H8.7zM7 13.5a1.5 1.5 0 1 0 0 .01zM17 13.5a1.5 1.5 0 1 0 0 .01z"/></symbol>
-    <symbol id="g-fuel" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v17H4zm2 2v4h6V6zM15 8l3 3v7a1 1 0 0 0 2 0V9l-3-3"/></symbol>
-    <symbol id="g-bike" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="5.5" cy="16" r="3.5"/><circle cx="18.5" cy="16" r="3.5"/><path d="M5.5 16l4-7h6l3 7M9 6h3" stroke-linecap="round"/></symbol>
-    <symbol id="g-house" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l10 8h-3v10h-5v-6h-4v6H5V11H2z"/></symbol>
-    <symbol id="g-bolt" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></symbol>
-    <symbol id="g-drop" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2s7 8 7 13a7 7 0 0 1-14 0c0-5 7-13 7-13z"/></symbol>
-    <symbol id="g-wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M2 9a15 15 0 0 1 20 0M5.5 12.5a10 10 0 0 1 13 0M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="19.5" r="1.3" fill="currentColor" stroke="none"/></symbol>
-    <symbol id="g-bag" viewBox="0 0 24 24" fill="currentColor"><path d="M5 8h14l-1 13H6zM9 8V6a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="2" fill-rule="evenodd"/></symbol>
-    <symbol id="g-heart" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-9-5.5-9-12a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-9 12-9 12z"/></symbol>
-    <symbol id="g-game" viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10a5 5 0 0 1 4.6 7l-1 2.4a2.5 2.5 0 0 1-4.3.4L15 15H9l-1.3 1.8a2.5 2.5 0 0 1-4.3-.4l-1-2.4A5 5 0 0 1 7 7z"/></symbol>
-    <symbol id="g-brief" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" stroke="currentColor" stroke-width="2" fill-rule="evenodd"/></symbol>
-    <symbol id="g-brush" viewBox="0 0 24 24" fill="currentColor"><path d="M20 3l1 1-9 10-2-2zM9 13l2 2c0 3-2 5-6 5 1-1 1-2 1-3 0-2 1-4 3-4z"/></symbol>
-    <symbol id="g-gift" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9h18v4H3zM5 13h14v8H5zM11 9h2v12h-2zM12 9C9 9 7 4 9.5 4S12 9 12 9zm0 0c3 0 5-5 2.5-5S12 9 12 9z"/></symbol>
-  </defs>
-</svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="logo" viewBox="0 0 512 512"><defs><linearGradient id="bP" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E4ECF7"/></linearGradient><linearGradient id="bK" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7B5CFF"/><stop offset="1" stop-color="#4B2BD6"/></linearGradient><linearGradient id="bRing" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4F6FA"/><stop offset=".5" stop-color="#9AA5B8"/><stop offset="1" stop-color="#5D677A"/></linearGradient><radialGradient id="bR" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#FF7E80"/><stop offset=".55" stop-color="#EE2F33"/><stop offset="1" stop-color="#A3161A"/></radialGradient><linearGradient id="bRim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C21E22"/><stop offset="1" stop-color="#7A0F12"/></linearGradient></defs><ellipse cx="250" cy="494" rx="205" ry="13" fill="#000" opacity=".26"/><g transform="translate(14 8) rotate(-11 210 250) scale(.94)"><rect x="56" y="30" width="336" height="448" rx="38" fill="url(#bK)"/><rect x="40" y="16" width="336" height="440" rx="36" fill="url(#bP)"/><rect x="40" y="16" width="336" height="440" rx="36" fill="none" stroke="#C9D5E8" stroke-width="4"/><g fill="url(#bRing)"><rect x="16" y="76" width="70" height="30" rx="15"/><rect x="16" y="166" width="70" height="30" rx="15"/><rect x="16" y="256" width="70" height="30" rx="15"/><rect x="16" y="346" width="70" height="30" rx="15"/></g><g stroke-width="22" stroke-linecap="round"><path d="M122 104h186" stroke="#2F8BFF"/><path d="M122 180h186" stroke="#22C3A6"/><path d="M122 256h110" stroke="#FFB020"/></g></g><circle cx="370" cy="384" r="122" fill="url(#bRim)"/><circle cx="370" cy="368" r="120" fill="url(#bR)"/><circle cx="370" cy="368" r="92" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="10"/><path d="M370 322v92M324 368h92" stroke="#8E1216" stroke-width="30" stroke-linecap="round" transform="translate(0 6)" opacity=".5"/><path d="M370 322v92M324 368h92" stroke="#fff" stroke-width="30" stroke-linecap="round"/><ellipse cx="328" cy="300" rx="42" ry="20" transform="rotate(-30 328 300)" fill="#fff" opacity=".35"/></symbol>
+</defs></svg>
 
 <div class="doc">
   <header class="intro">
-    <h1><span class="m">Mondiro</span> Mon Money Lover · bản phác layout</h1>
-    <p>Bản xem trước giao diện trước khi build. Dữ liệu là ví dụ. Bấm thử tab Ngày / Tháng / Năm, nút "Thêm giao dịch", và gõ số tiền 35000 trong hộp nhập để xem gợi ý tự động.</p>
+    <h1><span class="m">Mondiro</span> Mon Money Lover · bản phác v2</h1>
+    <p>Dữ liệu là ví dụ. Mọi chỗ đều bấm thử được: biểu đồ (rê chuột hoặc kéo ngón tay để xem từng ngày), chip nhóm, kéo thả nhóm, nút Chuyển / Gộp / Sửa, thư viện icon, và ô số tiền (gõ 35000 để thấy gợi ý).</p>
+    <ul class="changes">
+      <li><b>1</b> Icon B, sổ nghiêng</li><li><b>2</b> Biểu đồ đường chồng lên nhau, lọc theo nhóm</li><li><b>3</b> Chỉ Android + PC</li><li><b>4</b> Tạo nhóm: tự đặt tên, chọn icon từ thư viện</li><li><b>5</b> Chuyển nhóm con, đổi nhóm cha, gộp nhóm</li><li><b>6</b> Tông sáng ấm, icon to</li>
+    </ul>
   </header>
 
   <section class="sec">
-    <div class="sec-h"><h2>1 · Icon app: 3 phương án</h2><span>Phong cách khối 3D, màu rực · thử trên taskbar tối và sáng ở cỡ 32 / 24 / 16px</span></div>
-    <div class="icons" id="icons"></div>
-  </section>
-
-  <section class="sec">
-    <div class="sec-h"><h2>2 · PC (Windows, Electron)</h2><span>Cửa sổ 1180 × 740, thu nhỏ cho vừa trang</span></div>
-    <div class="fit" data-w="1180" data-h="740"><div class="frame">
-      <div class="app win" id="desk">
-        <div class="titlebar"><span>Mondiro Mon Money Lover</span><i>–</i><i>▢</i><i>✕</i></div>
-        <header class="top">
-          <div class="brand">
-            <svg class="brand-icon"><use href="#logo"/></svg>
-            <div class="brand-text">
-              <div class="brand-name"><span class="m">Mondiro</span> <span class="a">Mon Money Lover</span> <span class="latest" title="Đang dùng bản mới nhất">LATEST</span></div>
-              <div class="brand-desc">Ghi chi tiêu, thu nhập · đồng bộ PC và điện thoại</div>
-            </div>
-          </div>
-          <div class="spacer"></div>
-          <div class="tools">
-            <span class="sync" title="Dữ liệu đã lưu lên Firebase"><span class="dot"></span>Đã đồng bộ · 20:41</span>
-            <button class="btn" type="button" title="Tìm giao dịch (Ctrl+F)"><svg><use href="#i-search"/></svg>Tìm</button>
-            <button class="btn" type="button" title="Kiểm tra bản cập nhật"><svg><use href="#i-update"/></svg>Kiểm tra bản cập nhật</button>
-            <span class="avatar" title="mondiro@…">M</span>
-          </div>
-        </header>
-        <div class="body">
-          <aside class="side">
-            <nav class="nav">
-              <div class="li on"><svg><use href="#i-list"/></svg>Sổ giao dịch</div>
-              <div class="li"><svg><use href="#i-chart"/></svg>Báo cáo &amp; so sánh</div>
-              <div class="li"><svg><use href="#i-folder"/></svg>Quản lý nhóm</div>
-              <div class="li"><svg><use href="#i-gear"/></svg>Cài đặt</div>
-            </nav>
-            <h4>Nhóm · tháng 10</h4>
-            <div class="tree" id="tree"></div>
-            <button class="addgrp" type="button">+ Tạo nhóm mới</button>
-          </aside>
-          <main class="main">
-            <div class="bar">
-              <div class="tabs" id="dTabs"><button type="button" data-v="day">Ngày</button><button type="button" class="on" data-v="month">Tháng</button><button type="button" data-v="year">Năm</button><span class="ind"></span></div>
-              <div class="period"><button type="button" title="Kỳ trước (←)">‹</button><span id="dPeriod">Tháng 10 / 2026</span><button type="button" title="Kỳ sau (→)">›</button></div>
-              <span class="chip on" id="dFilter">Tất cả nhóm ▾</span>
-              <div class="spacer"></div>
-              <button class="btn primary" type="button" id="openAdd" title="Thêm giao dịch (Ctrl+N)"><svg><use href="#i-plus"/></svg>Thêm giao dịch</button>
-            </div>
-            <div class="grid">
-              <div class="list" id="dList"></div>
-              <div class="right">
-                <div class="card">
-                  <h3>So sánh chi tiêu</h3>
-                  <div class="sub">Tháng 10 so với tháng 9 và trung bình 3 tháng (7–9)</div>
-                  <div class="seg"><span class="chip on">Chi tiêu</span><span class="chip">Thu nhập</span></div>
-                  <div class="kpi" id="kpi"></div>
-                  <div id="dChart"></div>
-                  <div class="legend"><span><i style="background:var(--red)"></i>Tháng này</span><span><i style="background:var(--blue)"></i>Tháng trước</span><span><i style="background:#4A4F58"></i>TB 3 tháng</span></div>
-                </div>
-                <div class="card">
-                  <h3>Chi tiêu theo tuần</h3>
-                  <div class="sub">Đường mờ là tháng trước</div>
-                  <div id="dLine"></div>
-                </div>
-              </div>
-            </div>
-          </main>
-        </div>
-        <footer class="foot"><span><svg><use href="#i-bell"/></svg> Nhắc nhập chi tiêu 20:00 hằng ngày <span class="toggle"></span></span><span><svg><use href="#i-cloud"/></svg> Firebase · 1.284 giao dịch</span><span class="credit">Created by Mondiro</span></footer>
-        <div id="dlgHost"></div>
+    <div class="sec-h"><h2>Icon app</h2><span>Phương án B, cuốn sổ nghiêng sang trái, đồng xu đỏ đứng thẳng phía trước</span></div>
+    <div class="icon-show">
+      <svg class="big"><use href="#logo"/></svg>
+      <div style="display:grid;gap:10px">
+        <div class="tb dark"><svg width="32" height="32"><use href="#logo"/></svg><svg width="24" height="24"><use href="#logo"/></svg><svg width="16" height="16"><use href="#logo"/></svg><span style="color:#aaa;font-size:12px;margin-left:8px">taskbar tối</span></div>
+        <div class="tb light"><svg width="32" height="32"><use href="#logo"/></svg><svg width="24" height="24"><use href="#logo"/></svg><svg width="16" height="16"><use href="#logo"/></svg><span style="color:#666;font-size:12px;margin-left:8px">taskbar sáng</span></div>
       </div>
-    </div></div>
-    <ul class="notes">
-      <li><b>Cột trái</b>: cây nhóm cha/con, mỗi nhóm có icon và tổng tháng. Bấm nhóm để lọc giao dịch theo nhóm đó.</li>
-      <li><b>Giữa</b>: sổ giao dịch, đổi kiểu xem Ngày / Tháng / Năm, mũi tên ‹ › để lùi tới kỳ trước.</li>
-      <li><b>Phải</b>: biểu đồ so sánh tháng này với tháng trước và trung bình 3 tháng, theo từng nhóm.</li>
-      <li><b>Chân</b>: trạng thái nhắc 20:00 và đồng bộ Firebase; PC chạy nền ở khay hệ thống để vẫn nhắc được.</li>
-    </ul>
-  </section>
-
-  <section class="sec">
-    <div class="sec-h"><h2>3 · Điện thoại: Z Fold 7 màn ngoài</h2><span>1 cột, nút + lớn ở giữa thanh dưới</span></div>
-    <div class="row" id="outerRow">
-      <div class="cell" style="flex:1 1 300px"><div class="fit" data-w="412" data-h="916" data-max="1"><div class="frame">
-        <div class="app phone p-outer">
-          <div class="p-top">
-            <svg class="brand-icon"><use href="#logo"/></svg>
-            <div style="min-width:0"><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Money</span> <span class="latest">LATEST</span></div><div class="brand-desc">Đã đồng bộ · 20:41</div></div>
-            <div class="spacer"></div>
-            <button class="icbtn" type="button" title="Kiểm tra bản cập nhật"><svg><use href="#i-update"/></svg></button>
-            <button class="icbtn" type="button" title="Tìm"><svg><use href="#i-search"/></svg></button>
-          </div>
-          <div class="p-body">
-            <div class="hero"><small>Còn lại tháng 10</small><div class="bal" id="mBal"></div><div class="io" id="mIO"></div></div>
-            <div class="mtabs"><button type="button">Ngày</button><button type="button" class="on">Tháng</button><button type="button">Năm</button></div>
-            <div class="plist" id="mList"></div>
-          </div>
-          <span class="p-credit">Created by Mondiro</span>
-          <nav class="bnav"><button type="button" class="on"><svg><use href="#i-list"/></svg>Sổ</button><button type="button"><svg><use href="#i-chart"/></svg>Báo cáo</button><button type="button" class="fab" title="Thêm giao dịch"><svg><use href="#i-plus"/></svg></button><button type="button"><svg><use href="#i-folder"/></svg>Nhóm</button><button type="button"><svg><use href="#i-gear"/></svg>Cài đặt</button></nav>
-        </div>
-      </div></div><div class="cap"><b>Trang chính</b>: số dư, thu/chi tháng, danh sách theo ngày</div></div>
-
-      <div class="cell" style="flex:1 1 300px"><div class="fit" data-w="412" data-h="916" data-max="1"><div class="frame">
-        <div class="app phone p-outer">
-          <div class="p-top"><svg class="brand-icon"><use href="#logo"/></svg><div><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Money</span></div></div></div>
-          <div class="p-body" style="opacity:.35"><div class="hero"><small>Còn lại tháng 10</small><div class="bal">4.120.000 ₫</div></div></div>
-          <div class="sheet" id="mSheet"></div>
-        </div>
-      </div></div><div class="cap"><b>Thêm giao dịch</b>: bàn phím số lớn, gợi ý hiện ngay khi số tiền đã nhập ≥ 3 lần</div></div>
-
-      <div class="cell" style="flex:1 1 300px"><div class="fit" data-w="412" data-h="916" data-max="1"><div class="frame">
-        <div class="app phone p-outer" style="background:#101114">
-          <div style="padding:40px 20px;color:var(--muted);text-align:center;font-size:44px;font-weight:300">20:00</div>
-          <div class="notif" style="top:150px">
-            <svg class="brand-icon"><use href="#logo"/></svg>
-            <div style="flex:1"><small>Mon Money Lover · bây giờ</small><div><b>Hôm nay bạn tiêu gì rồi?</b></div><div style="color:var(--muted);font-size:12px">Mới ghi 2 giao dịch hôm nay. Nhập nốt trước khi quên nhé.</div><div class="acts"><span>Nhập ngay</span><span style="color:var(--muted)">Nhắc lại 30 phút</span></div></div>
-          </div>
-        </div>
-      </div></div><div class="cap"><b>Nhắc 20:00</b>: thông báo hằng ngày, đổi giờ được trong Cài đặt</div></div>
+      <p>Nghiêng sổ khoảng 11° cho cảm giác vừa ghi vội, có chuyển động. <b>Đồng xu đỏ có dấu cộng</b> vẫn là thứ nhận ra đầu tiên khi icon nhỏ.</p>
     </div>
   </section>
 
   <section class="sec">
-    <div class="sec-h"><h2>4 · Điện thoại: Z Fold 7 mở ra (màn trong)</h2><span>Gần vuông → chia 2 cột: sổ giao dịch | biểu đồ</span></div>
-    <div class="fit" data-w="820" data-h="740" data-max="1"><div class="frame">
-      <div class="app phone p-inner">
-        <div class="p-top">
-          <svg class="brand-icon"><use href="#logo"/></svg>
-          <div><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Mon Money Lover</span> <span class="latest">LATEST</span></div><div class="brand-desc">Ghi chi tiêu, thu nhập · đồng bộ PC và điện thoại</div></div>
+    <div class="sec-h"><h2>PC · Sổ giao dịch + biểu đồ xu hướng</h2><span>Cửa sổ 1200 × 780</span></div>
+    <div class="fit" data-w="1200" data-h="780"><div class="frame">
+      <div class="app win" id="deskA">
+        <div class="titlebar"><span>Mondiro Mon Money Lover</span><i>–</i><i>▢</i><i>✕</i></div>
+        <header class="top">
+          <div class="brand"><svg class="brand-icon"><use href="#logo"/></svg>
+            <div><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Mon Money Lover</span> <span class="latest" title="Đang dùng bản mới nhất">LATEST</span></div>
+            <div class="brand-desc">Ghi chi tiêu, thu nhập · đồng bộ PC và điện thoại</div></div></div>
           <div class="spacer"></div>
-          <button class="icbtn" type="button" title="Kiểm tra bản cập nhật"><svg><use href="#i-update"/></svg></button>
-          <button class="btn primary" type="button"><svg><use href="#i-plus"/></svg>Thêm</button>
+          <div class="tools"><span class="sync" title="Đã lưu lên Firebase"><span class="dot"></span>Đã đồng bộ · 20:41</span>
+            <button class="btn" type="button" title="Tìm giao dịch (Ctrl+F)"><i data-i="search"></i>Tìm</button>
+            <button class="btn" type="button" title="Kiểm tra bản cập nhật"><i data-i="refresh-cw"></i>Kiểm tra bản cập nhật</button>
+            <span class="avatar">M</span></div>
+        </header>
+        <div class="body">
+          <aside class="side">
+            <nav class="nav"><div class="li on"><i data-i="list"></i>Sổ giao dịch</div><div class="li"><i data-i="chart-line"></i>Báo cáo</div><div class="li"><i data-i="folder-tree"></i>Quản lý nhóm</div><div class="li"><i data-i="settings"></i>Cài đặt</div></nav>
+            <h4>Nhóm · tháng 10</h4>
+            <div class="mini" id="miniA"></div>
+          </aside>
+          <main class="main">
+            <div class="bar">
+              <div class="tabs" data-tabs><button type="button">Ngày</button><button type="button" class="on">Tháng</button><button type="button">Năm</button><span class="ind"></span></div>
+              <div class="period"><button class="icb" type="button" title="Tháng trước (←)"><i data-i="chevron-left"></i></button>Tháng 10 / 2026<button class="icb" type="button" title="Tháng sau (→)"><i data-i="chevron-right"></i></button></div>
+              <div class="spacer"></div>
+              <button class="btn primary" type="button" id="openAdd" title="Thêm giao dịch (Ctrl+N)"><i data-i="plus"></i>Thêm giao dịch</button>
+            </div>
+            <div class="grid">
+              <div class="panel list" id="listA"></div>
+              <div class="panel right"><div class="trend" id="trendA"></div></div>
+            </div>
+          </main>
         </div>
-        <div class="inner-grid">
-          <div>
+        <footer class="foot"><span><i data-i="bell"></i> Nhắc nhập chi tiêu 20:00 mỗi ngày <span class="toggle"></span></span><span><i data-i="cloud"></i> Firebase · 1.284 giao dịch</span><span class="credit">Created by Mondiro</span></footer>
+        <div data-host></div>
+      </div>
+    </div></div>
+    <ul class="notes">
+      <li><b>Biểu đồ</b>: đường đỏ là tổng chi cộng dồn tháng này, đường xám là trung bình 3 tháng trước (hoặc tháng trước). Hai đường chồng lên nhau nên nhìn là biết đang tiêu nhanh hay chậm hơn.</li>
+      <li><b>Lọc theo nhóm</b>: bấm chip Ăn uống, Đi lại… thì biểu đồ chỉ tính nhóm đó, gồm cả nhóm con.</li>
+      <li><b>Rê chuột</b> trên biểu đồ để xem số của từng ngày, giống app bạn gửi.</li>
+    </ul>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>PC · Quản lý nhóm</h2><span>Kéo thả, chuyển nhóm cha, gộp nhóm, tạo nhóm với thư viện icon</span></div>
+    <div class="fit" data-w="1200" data-h="780"><div class="frame">
+      <div class="app win" id="deskB">
+        <div class="titlebar"><span>Mondiro Mon Money Lover</span><i>–</i><i>▢</i><i>✕</i></div>
+        <header class="top">
+          <div class="brand"><svg class="brand-icon"><use href="#logo"/></svg>
+            <div><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Mon Money Lover</span> <span class="latest">LATEST</span></div>
+            <div class="brand-desc">Ghi chi tiêu, thu nhập · đồng bộ PC và điện thoại</div></div></div>
+          <div class="spacer"></div>
+          <div class="tools"><span class="sync"><span class="dot"></span>Đã đồng bộ · 20:41</span><button class="btn" type="button" title="Kiểm tra bản cập nhật"><i data-i="refresh-cw"></i>Kiểm tra bản cập nhật</button><span class="avatar">M</span></div>
+        </header>
+        <div class="body">
+          <aside class="side">
+            <nav class="nav"><div class="li"><i data-i="list"></i>Sổ giao dịch</div><div class="li"><i data-i="chart-line"></i>Báo cáo</div><div class="li on"><i data-i="folder-tree"></i>Quản lý nhóm</div><div class="li"><i data-i="settings"></i>Cài đặt</div></nav>
+          </aside>
+          <main class="main">
+            <div class="bar">
+              <div class="tabs" data-tabs id="gmType"><button type="button" class="on" data-v="exp">Nhóm chi</button><button type="button" data-v="inc">Nhóm thu</button><span class="ind"></span></div>
+              <span class="cap" style="font-weight:700">Mẹo: kéo một nhóm thả lên nhóm khác để biến nó thành nhóm con</span>
+              <div class="spacer"></div>
+              <button class="btn" type="button" id="mergeSel" disabled><i data-i="merge"></i>Gộp nhóm đã chọn</button>
+            </div>
+            <div class="gm">
+              <div class="panel gm-list" id="gmList"></div>
+              <div class="panel editor" id="editor"></div>
+            </div>
+          </main>
+        </div>
+        <footer class="foot"><span><i data-i="cloud"></i> Thay đổi nhóm được đồng bộ sang điện thoại ngay</span><span class="credit">Created by Mondiro</span></footer>
+        <div data-host></div>
+      </div>
+    </div></div>
+    <ul class="notes">
+      <li><b>Chuyển vào nhóm cha</b>: kéo thả, hoặc bấm "Chuyển" rồi chọn nhóm cha mới. Kéo ra khung nét đứt trên cùng để thành nhóm cha.</li>
+      <li><b>Gộp</b>: bấm "Gộp" trên 1 nhóm, hoặc tick nhiều nhóm rồi bấm "Gộp nhóm đã chọn". Mọi giao dịch của nhóm bị gộp chuyển sang nhóm giữ lại.</li>
+      <li><b>Tạo / sửa nhóm</b>: đặt tên, chọn màu, chọn icon từ thư viện 90+ icon chia theo chủ đề, chọn nhóm cha.</li>
+    </ul>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>Điện thoại · Z Fold 7 màn ngoài</h2><span>1 cột, icon to, nút + lớn ở giữa</span></div>
+    <div class="row">
+      <div class="cell"><div class="fit" data-w="412" data-h="916" data-max="1"><div class="frame">
+        <div class="app phone p-outer">
+          <div class="notif"><svg width="32" height="32" style="flex:0 0 auto"><use href="#logo"/></svg><div style="flex:1"><small>Mon Money Lover · 20:00</small><div style="font-weight:900">Hôm nay bạn tiêu gì rồi?</div><div style="color:var(--muted);font-size:12.5px;font-weight:600">Mới ghi 2 khoản hôm nay. Nhập nốt trước khi quên nhé.</div><div class="acts"><span>Nhập ngay</span><span style="color:var(--muted)">Nhắc lại sau 30 phút</span></div></div></div>
+          <div class="p-top"><svg class="brand-icon"><use href="#logo"/></svg><div style="min-width:0"><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Mon Money Lover</span></div><div class="brand-desc">Đã đồng bộ · 20:41</div></div><div class="spacer"></div><button class="icb" type="button" title="Kiểm tra bản cập nhật"><i data-i="refresh-cw"></i></button></div>
+          <div class="p-body">
+            <div class="hero"><small>Còn lại tháng 10</small><div class="bal" data-bal></div><div class="io" data-io></div></div>
             <div class="mtabs"><button type="button">Ngày</button><button type="button" class="on">Tháng</button><button type="button">Năm</button></div>
-            <div class="rail" id="iRail"></div>
-            <div class="plist" id="iList"></div>
+            <div class="plist" data-plist="3"></div>
           </div>
-          <div>
-            <div class="card"><h3>So sánh chi tiêu</h3><div class="sub">Tháng 10 · tháng 9 · TB 3 tháng</div><div class="kpi" id="iKpi"></div><div id="iChart"></div></div>
+          <span class="p-credit">Created by Mondiro</span>
+          <nav class="bnav" data-bnav="0"></nav>
+        </div>
+      </div></div><div class="cap"><b>Trang chính</b> + thông báo nhắc lúc 20:00</div></div>
+
+      <div class="cell"><div class="fit" data-w="412" data-h="916" data-max="1"><div class="frame">
+        <div class="app phone p-outer">
+          <div class="p-top"><svg class="brand-icon"><use href="#logo"/></svg><div><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Mon Money Lover</span></div></div></div>
+          <div class="p-body"><div class="panel" style="padding:14px;border-radius:24px"><div class="trend" id="trendM"></div></div>
+            <div class="reportnav"><i data-i="chevron-left"></i>Báo cáo xu hướng<i data-i="chevron-right"></i></div><div class="dots"><i></i><i></i></div></div>
+          <span class="p-credit">Created by Mondiro</span>
+          <nav class="bnav" data-bnav="1"></nav>
+        </div>
+      </div></div><div class="cap"><b>Báo cáo xu hướng</b>: kéo ngón tay trên biểu đồ để xem từng ngày</div></div>
+
+      <div class="cell"><div class="fit" data-w="412" data-h="916" data-max="1"><div class="frame">
+        <div class="app phone p-outer">
+          <div class="p-top"><svg class="brand-icon"><use href="#logo"/></svg><div><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Mon Money Lover</span></div></div></div>
+          <div class="p-body" style="opacity:.35"><div class="hero"><small>Còn lại tháng 10</small><div class="bal" data-bal></div></div></div>
+          <div class="sheet" id="mSheet"></div>
+        </div>
+      </div></div><div class="cap"><b>Thêm giao dịch</b>: số tiền đã nhập từ 3 lần trở lên sẽ hiện gợi ý</div></div>
+
+      <div class="cell"><div class="fit" data-w="412" data-h="916" data-max="1"><div class="frame">
+        <div class="app phone p-outer">
+          <div class="p-top"><svg class="brand-icon"><use href="#logo"/></svg><div><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Mon Money Lover</span></div><div class="brand-desc">Nhóm chi · giữ lâu vào nhóm để có tuỳ chọn</div></div></div>
+          <div class="p-body"><div class="plist" id="mGroups" style="padding:8px"></div></div>
+          <div class="dimmer"></div>
+          <div class="asheet"><div class="grab"></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:6px 12px 8px" id="asHead"></div>
+            <button type="button"><i data-i="folder-input"></i>Chuyển sang nhóm cha khác</button>
+            <button type="button"><i data-i="corner-down-right"></i>Biến thành nhóm cha</button>
+            <button type="button"><i data-i="merge"></i>Gộp vào nhóm khác</button>
+            <button type="button"><i data-i="pencil"></i>Đổi tên, icon, màu</button>
+            <button type="button" style="color:var(--red)"><i data-i="trash-2"></i>Xoá nhóm</button>
           </div>
+        </div>
+      </div></div><div class="cap"><b>Quản lý nhóm</b> trên điện thoại: giữ lâu để chuyển, gộp, sửa</div></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>Điện thoại · Z Fold 7 mở ra</h2><span>Gần vuông, chia 2 cột: sổ giao dịch | biểu đồ</span></div>
+    <div class="fit" data-w="860" data-h="760" data-max="1"><div class="frame">
+      <div class="app phone p-inner">
+        <div class="p-top"><svg class="brand-icon"><use href="#logo"/></svg><div><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Mon Money Lover</span> <span class="latest">LATEST</span></div><div class="brand-desc">Ghi chi tiêu, thu nhập · đồng bộ PC và điện thoại</div></div><div class="spacer"></div><button class="icb" type="button" title="Kiểm tra bản cập nhật"><i data-i="refresh-cw"></i></button></div>
+        <div class="inner-grid">
+          <div><div class="hero" style="padding:12px 16px"><small>Còn lại tháng 10</small><div class="bal" style="font-size:24px;margin:0 0 8px" data-bal></div><div class="io" data-io></div></div><div class="plist" data-plist="2"></div></div>
+          <div><div class="panel" style="padding:14px;border-radius:24px"><div class="trend" id="trendI"></div></div></div>
         </div>
         <span class="p-credit">Created by Mondiro</span>
-        <nav class="bnav"><button type="button" class="on"><svg><use href="#i-list"/></svg>Sổ</button><button type="button"><svg><use href="#i-chart"/></svg>Báo cáo</button><button type="button" class="fab"><svg><use href="#i-plus"/></svg></button><button type="button"><svg><use href="#i-folder"/></svg>Nhóm</button><button type="button"><svg><use href="#i-gear"/></svg>Cài đặt</button></nav>
+        <nav class="bnav" data-bnav="0" style="margin-top:12px"></nav>
       </div>
     </div></div>
   </section>
 
   <section class="sec">
-    <div class="sec-h"><h2>5 · Cách hoạt động</h2><span>Phần chạy ngầm phía sau giao diện</span></div>
+    <div class="sec-h"><h2>Phần chạy ngầm</h2><span>Không thấy trên giao diện nhưng có trong bản build</span></div>
     <div class="feat">
-      <div><h4>Đồng bộ Firebase</h4><p>Đăng nhập bằng email + mật khẩu. Dữ liệu lưu trên Firestore, PC và điện thoại thấy nhau ngay. Mất mạng vẫn nhập được, có mạng lại tự đẩy lên.</p></div>
-      <div><h4>Nhóm lồng nhau</h4><p>Có sẵn khoảng 25 nhóm kèm icon (Ăn uống › Cà phê, Đi lại › Xăng…). Tạo nhóm mới: chọn tên, icon, màu, nhóm cha. Tổng nhóm cha cộng cả nhóm con.</p></div>
-      <div><h4>Gợi ý theo số tiền</h4><p>Khi một số tiền đã được nhập từ 3 lần trở lên, app gợi ý các cặp nhóm + ghi chú hay dùng nhất với số đó. Chạm 1 lần là điền xong.</p></div>
-      <div><h4>Nhắc 20:00</h4><p>Android: thông báo hằng ngày kể cả khi app đóng. PC: app thu nhỏ xuống khay hệ thống và hiện thông báo Windows.</p></div>
-      <div><h4>Tự cập nhật</h4><p>Bản mới phát hành trên GitHub Releases. Bấm "Kiểm tra bản cập nhật": nếu đã mới nhất, chữ LATEST xanh hiện cạnh tên app.</p></div>
+      <div><h4>Đồng bộ Firebase</h4><p>Đăng nhập email + mật khẩu. PC và điện thoại thấy dữ liệu của nhau ngay; mất mạng vẫn ghi được, có mạng lại tự đẩy lên.</p></div>
+      <div><h4>Nhắc 20:00</h4><p>Android: thông báo mỗi ngày kể cả khi app đóng. PC: app thu xuống khay hệ thống và hiện thông báo Windows. Đổi giờ trong Cài đặt.</p></div>
+      <div><h4>Gộp nhóm an toàn</h4><p>Gộp nhóm sẽ chuyển hết giao dịch và nhóm con sang nhóm giữ lại. Có nút "Hoàn tác" trong 10 giây.</p></div>
+      <div><h4>Tự cập nhật</h4><p>Bản mới phát hành trên GitHub Releases. Đã mới nhất thì chữ LATEST xanh hiện cạnh tên app.</p></div>
     </div>
   </section>
 </div>
 
 <script>
 (function(){
-const fmt=n=>Math.abs(n).toLocaleString('vi-VN')+' ₫';
-const short=n=>{n=Math.abs(n);return n>=1e6?(n/1e6).toLocaleString('vi-VN',{maximumFractionDigits:1})+'tr':Math.round(n/1e3)+'k'};
-// nhóm: [id, tên, icon, màu, cha]
-const G=[
- ['an','Ăn uống','g-food','#E5383B'],['cf','Cà phê','g-coffee','#E5383B','an'],['sang','Ăn sáng','g-noodle','#E5383B','an'],
- ['di','Đi lại','g-car','#5B8FD9'],['xang','Xăng xe','g-fuel','#5B8FD9','di'],['grab','Grab','g-bike','#5B8FD9','di'],
- ['nha','Nhà cửa','g-house','#C98F2A'],['dien','Điện','g-bolt','#C98F2A','nha'],['nuoc','Nước','g-drop','#C98F2A','nha'],['net','Internet','g-wifi','#C98F2A','nha'],
- ['mua','Mua sắm','g-bag','#9B6BD6'],['art','Đồ vẽ, phần mềm','g-brush','#9B6BD6','mua'],
- ['gt','Giải trí','g-game','#3BAFB0'],['sk','Sức khoẻ','g-heart','#D96B9B'],
- ['luong','Lương','g-brief','#3DBE7A','','inc'],['free','Freelance','g-brush','#3DBE7A','','inc'],['qua','Được tặng','g-gift','#3DBE7A','','inc'],
+const ICONS={"utensils":"<path d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2\" /> <path d=\"M7 2v20\" /> <path d=\"M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7\" />","coffee":"<path d=\"M10 2v2\" /> <path d=\"M14 2v2\" /> <path d=\"M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1\" /> <path d=\"M6 2v2\" />","cup-soda":"<path d=\"m6 8 1.75 12.28a2 2 0 0 0 2 1.72h4.54a2 2 0 0 0 2-1.72L18 8\" /> <path d=\"M5 8h14\" /> <path d=\"M7 15a6.47 6.47 0 0 1 5 0 6.47 6.47 0 0 0 5 0\" /> <path d=\"m12 8 1-6h2\" />","pizza":"<path d=\"m12 14-1 1\" /> <path d=\"m13.75 18.25-1.25 1.42\" /> <path d=\"M17.775 5.654a15.68 15.68 0 0 0-12.121 12.12\" /> <path d=\"M18.8 9.3a1 1 0 0 0 2.1 7.7\" /> <path d=\"M21.964 20.732a1 1 0 0 1-1.232 1.232l-18-5a1 1 0 0 1-.695-1.232A19.68 19.68 0 0 1 15.732 2.037a1 1 0 0 1 1.232.695z\" />","sandwich":"<path d=\"m2.37 11.223 8.372-6.777a2 2 0 0 1 2.516 0l8.371 6.777\" /> <path d=\"M21 15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-5.25\" /> <path d=\"M3 15a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h9\" /> <path d=\"m6.67 15 6.13 4.6a2 2 0 0 0 2.8-.4l3.15-4.2\" /> <rect width=\"20\" height=\"4\" x=\"2\" y=\"11\" rx=\"1\" />","soup":"<path d=\"M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z\" /> <path d=\"M7 21h10\" /> <path d=\"M19.5 12 22 6\" /> <path d=\"M16.25 3c.27.1.8.53.75 1.36-.06.83-.93 1.2-1 2.02-.05.78.34 1.24.73 1.62\" /> <path d=\"M11.25 3c.27.1.8.53.74 1.36-.05.83-.93 1.2-.98 2.02-.06.78.33 1.24.72 1.62\" /> <path d=\"M6.25 3c.27.1.8.53.75 1.36-.06.83-.93 1.2-1 2.02-.05.78.34 1.24.74 1.62\" />","ice-cream-cone":"<path d=\"m7 11 4.08 10.35a1 1 0 0 0 1.84 0L17 11\" /> <path d=\"M17 7A5 5 0 0 0 7 7\" /> <path d=\"M17 7a2 2 0 0 1 0 4H7a2 2 0 0 1 0-4\" />","beer":"<path d=\"M17 11h1a3 3 0 0 1 0 6h-1\" /> <path d=\"M9 12v6\" /> <path d=\"M13 12v6\" /> <path d=\"M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z\" /> <path d=\"M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8\" />","cake":"<path d=\"M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8\" /> <path d=\"M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1\" /> <path d=\"M2 21h20\" /> <path d=\"M7 8v3\" /> <path d=\"M12 8v3\" /> <path d=\"M17 8v3\" /> <path d=\"M7 4h.01\" /> <path d=\"M12 4h.01\" /> <path d=\"M17 4h.01\" />","apple":"<path d=\"M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z\" /> <path d=\"M10 2c1 .5 2 2 2 5\" />","cookie":"<path d=\"M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5\" /> <path d=\"M8.5 8.5v.01\" /> <path d=\"M16 15.5v.01\" /> <path d=\"M12 12v.01\" /> <path d=\"M11 17v.01\" /> <path d=\"M7 14v.01\" />","egg-fried":"<circle cx=\"11.5\" cy=\"12.5\" r=\"3.5\" /> <path d=\"M3 8c0-3.5 2.5-6 6.5-6 5 0 4.83 3 7.5 5s5 2 5 6c0 4.5-2.5 6.5-7 6.5-2.5 0-2.5 2.5-6 2.5s-7-2-7-5.5c0-3 1.5-3 1.5-5C3.5 10 3 9 3 8Z\" />","croissant":"<path d=\"m4.6 13.11 5.79-3.21c1.89-1.05 4.79 1.78 3.71 3.71l-3.22 5.81C8.8 23.16.79 15.23 4.6 13.11Z\" /> <path d=\"m10.5 9.5-1-2.29C9.2 6.48 8.8 6 8 6H4.5C2.79 6 2 6.5 2 8.5a7.71 7.71 0 0 0 2 4.83\" /> <path d=\"M8 6c0-1.55.24-4-2-4-2 0-2.5 2.17-2.5 4\" /> <path d=\"m14.5 13.5 2.29 1c.73.3 1.21.7 1.21 1.5v3.5c0 1.71-.5 2.5-2.5 2.5a7.71 7.71 0 0 1-4.83-2\" /> <path d=\"M18 16c1.55 0 4-.24 4 2 0 2-2.17 2.5-4 2.5\" />","salad":"<path d=\"M7 21h10\" /> <path d=\"M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z\" /> <path d=\"M11.38 12a2.4 2.4 0 0 1-.4-4.77 2.4 2.4 0 0 1 3.2-2.77 2.4 2.4 0 0 1 3.47-.63 2.4 2.4 0 0 1 3.37 3.37 2.4 2.4 0 0 1-1.1 3.7 2.51 2.51 0 0 1 .03 1.1\" /> <path d=\"m13 12 4-4\" /> <path d=\"M10.9 7.25A3.99 3.99 0 0 0 4 10c0 .73.2 1.41.54 2\" />","fish":"<path d=\"M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z\" /> <path d=\"M18 12v.5\" /> <path d=\"M16 17.93a9.77 9.77 0 0 1 0-11.86\" /> <path d=\"M7 10.67C7 8 5.58 5.97 2.73 5.5c-1 1.5-1 5 .23 6.5-1.24 1.5-1.24 5-.23 6.5C5.58 18.03 7 16 7 13.33\" /> <path d=\"M10.46 7.26C10.2 5.88 9.17 4.24 8 3h5.8a2 2 0 0 1 1.98 1.67l.23 1.4\" /> <path d=\"m16.01 17.93-.23 1.4A2 2 0 0 1 13.8 21H9.5a5.96 5.96 0 0 0 1.49-3.98\" />","drumstick":"<path d=\"M15.4 15.63a7.875 6 135 1 1 6.23-6.23 4.5 3.43 135 0 0-6.23 6.23\" /> <path d=\"m8.29 12.71-2.6 2.6a2.5 2.5 0 1 0-1.65 4.65A2.5 2.5 0 1 0 8.7 18.3l2.59-2.59\" />","milk":"<path d=\"M8 2h8\" /> <path d=\"M9 2v2.789a4 4 0 0 1-.672 2.219l-.656.984A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-9.789a4 4 0 0 0-.672-2.219l-.656-.984A4 4 0 0 1 15 4.788V2\" /> <path d=\"M7 15a6.472 6.472 0 0 1 5 0 6.47 6.47 0 0 0 5 0\" />","car":"<path d=\"M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2\" /> <circle cx=\"7\" cy=\"17\" r=\"2\" /> <path d=\"M9 17h6\" /> <circle cx=\"17\" cy=\"17\" r=\"2\" />","bike":"<circle cx=\"18.5\" cy=\"17.5\" r=\"3.5\" /> <circle cx=\"5.5\" cy=\"17.5\" r=\"3.5\" /> <circle cx=\"15\" cy=\"5\" r=\"1\" /> <path d=\"M12 17.5V14l-3-3 4-3 2 3h2\" />","bus":"<path d=\"M8 6v6\" /> <path d=\"M15 6v6\" /> <path d=\"M2 12h19.6\" /> <path d=\"M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3\" /> <circle cx=\"7\" cy=\"18\" r=\"2\" /> <path d=\"M9 18h5\" /> <circle cx=\"16\" cy=\"18\" r=\"2\" />","fuel":"<line x1=\"3\" x2=\"15\" y1=\"22\" y2=\"22\" /> <line x1=\"4\" x2=\"14\" y1=\"9\" y2=\"9\" /> <path d=\"M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18\" /> <path d=\"M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5\" />","train-front":"<path d=\"M8 3.1V7a4 4 0 0 0 8 0V3.1\" /> <path d=\"m9 15-1-1\" /> <path d=\"m15 15 1-1\" /> <path d=\"M9 19c-2.8 0-5-2.2-5-5v-4a8 8 0 0 1 16 0v4c0 2.8-2.2 5-5 5Z\" /> <path d=\"m8 19-2 3\" /> <path d=\"m16 19 2 3\" />","plane":"<path d=\"M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z\" />","car-taxi-front":"<path d=\"M10 2h4\" /> <path d=\"m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8\" /> <path d=\"M7 14h.01\" /> <path d=\"M17 14h.01\" /> <rect width=\"18\" height=\"8\" x=\"3\" y=\"10\" rx=\"2\" /> <path d=\"M5 18v2\" /> <path d=\"M19 18v2\" />","wrench":"<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z\" />","house":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />","zap":"<path d=\"M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z\" />","droplet":"<path d=\"M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z\" />","wifi":"<path d=\"M12 20h.01\" /> <path d=\"M2 8.82a15 15 0 0 1 20 0\" /> <path d=\"M5 12.859a10 10 0 0 1 14 0\" /> <path d=\"M8.5 16.429a5 5 0 0 1 7 0\" />","flame":"<path d=\"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z\" />","sofa":"<path d=\"M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3\" /> <path d=\"M2 16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z\" /> <path d=\"M4 18v2\" /> <path d=\"M20 18v2\" /> <path d=\"M12 4v9\" />","lamp":"<path d=\"M8 2h8l4 10H4L8 2Z\" /> <path d=\"M12 12v6\" /> <path d=\"M8 22v-2c0-1.1.9-2 2-2h4a2 2 0 0 1 2 2v2H8Z\" />","bed":"<path d=\"M2 4v16\" /> <path d=\"M2 8h18a2 2 0 0 1 2 2v10\" /> <path d=\"M2 17h20\" /> <path d=\"M6 8v9\" />","washing-machine":"<path d=\"M3 6h3\" /> <path d=\"M17 6h.01\" /> <rect width=\"18\" height=\"20\" x=\"3\" y=\"2\" rx=\"2\" /> <circle cx=\"12\" cy=\"13\" r=\"5\" /> <path d=\"M12 18a2.5 2.5 0 0 0 0-5 2.5 2.5 0 0 1 0-5\" />","key-round":"<path d=\"M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z\" /> <circle cx=\"16.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />","shopping-bag":"<path d=\"M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z\" /> <path d=\"M3 6h18\" /> <path d=\"M16 10a4 4 0 0 1-8 0\" />","shopping-cart":"<circle cx=\"8\" cy=\"21\" r=\"1\" /> <circle cx=\"19\" cy=\"21\" r=\"1\" /> <path d=\"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12\" />","shirt":"<path d=\"M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z\" />","gem":"<path d=\"M6 3h12l4 6-10 13L2 9Z\" /> <path d=\"M11 3 8 9l4 13 4-13-3-6\" /> <path d=\"M2 9h20\" />","glasses":"<circle cx=\"6\" cy=\"15\" r=\"4\" /> <circle cx=\"18\" cy=\"15\" r=\"4\" /> <path d=\"M14 15a2 2 0 0 0-2-2 2 2 0 0 0-2 2\" /> <path d=\"M2.5 13 5 7c.7-1.3 1.4-2 3-2\" /> <path d=\"M21.5 13 19 7c-.7-1.3-1.5-2-3-2\" />","scissors":"<circle cx=\"6\" cy=\"6\" r=\"3\" /> <path d=\"M8.12 8.12 12 12\" /> <path d=\"M20 4 8.12 15.88\" /> <circle cx=\"6\" cy=\"18\" r=\"3\" /> <path d=\"M14.8 14.8 20 20\" />","watch":"<circle cx=\"12\" cy=\"12\" r=\"6\" /> <polyline points=\"12 10 12 12 13 13\" /> <path d=\"m16.13 7.66-.81-4.05a2 2 0 0 0-2-1.61h-2.68a2 2 0 0 0-2 1.61l-.78 4.05\" /> <path d=\"m7.88 16.36.8 4a2 2 0 0 0 2 1.61h2.72a2 2 0 0 0 2-1.61l.81-4.05\" />","smartphone":"<rect width=\"14\" height=\"20\" x=\"5\" y=\"2\" rx=\"2\" ry=\"2\" /> <path d=\"M12 18h.01\" />","laptop":"<path d=\"M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16\" />","gamepad-2":"<line x1=\"6\" x2=\"10\" y1=\"11\" y2=\"11\" /> <line x1=\"8\" x2=\"8\" y1=\"9\" y2=\"13\" /> <line x1=\"15\" x2=\"15.01\" y1=\"12\" y2=\"12\" /> <line x1=\"18\" x2=\"18.01\" y1=\"10\" y2=\"10\" /> <path d=\"M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z\" />","headphones":"<path d=\"M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3\" />","palette":"<circle cx=\"13.5\" cy=\"6.5\" r=\".5\" fill=\"currentColor\" /> <circle cx=\"17.5\" cy=\"10.5\" r=\".5\" fill=\"currentColor\" /> <circle cx=\"8.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" /> <circle cx=\"6.5\" cy=\"12.5\" r=\".5\" fill=\"currentColor\" /> <path d=\"M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z\" />","brush":"<path d=\"m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08\" /> <path d=\"M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z\" />","pen-tool":"<path d=\"M15.707 21.293a1 1 0 0 1-1.414 0l-1.586-1.586a1 1 0 0 1 0-1.414l5.586-5.586a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 1 0 1.414z\" /> <path d=\"m18 13-1.375-6.874a1 1 0 0 0-.746-.776L3.235 2.028a1 1 0 0 0-1.207 1.207L5.35 15.879a1 1 0 0 0 .776.746L13 18\" /> <path d=\"m2.3 2.3 7.286 7.286\" /> <circle cx=\"11\" cy=\"11\" r=\"2\" />","camera":"<path d=\"M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z\" /> <circle cx=\"12\" cy=\"13\" r=\"3\" />","heart-pulse":"<path d=\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\" /> <path d=\"M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27\" />","pill":"<path d=\"m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z\" /> <path d=\"m8.5 8.5 7 7\" />","stethoscope":"<path d=\"M11 2v2\" /> <path d=\"M5 2v2\" /> <path d=\"M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1\" /> <path d=\"M8 15a6 6 0 0 0 12 0v-3\" /> <circle cx=\"20\" cy=\"10\" r=\"2\" />","dumbbell":"<path d=\"M14.4 14.4 9.6 9.6\" /> <path d=\"M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z\" /> <path d=\"m21.5 21.5-1.4-1.4\" /> <path d=\"M3.9 3.9 2.5 2.5\" /> <path d=\"M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z\" />","baby":"<path d=\"M9 12h.01\" /> <path d=\"M15 12h.01\" /> <path d=\"M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5\" /> <path d=\"M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1\" />","dog":"<path d=\"M11.25 16.25h1.5L12 17z\" /> <path d=\"M16 14v.5\" /> <path d=\"M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309\" /> <path d=\"M8 14v.5\" /> <path d=\"M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5\" />","cat":"<path d=\"M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7-.42 7 .57 1.07 1 2.24 1 3.44C21 17.9 16.97 21 12 21s-9-3-9-7.56c0-1.25.5-2.4 1-3.44 0 0-1.89-6.42-.5-7 1.39-.58 4.72.23 6.5 2.23A9.04 9.04 0 0 1 12 5Z\" /> <path d=\"M8 14v.5\" /> <path d=\"M16 14v.5\" /> <path d=\"M11.25 16.25h1.5L12 17l-.75-.75Z\" />","paw-print":"<circle cx=\"11\" cy=\"4\" r=\"2\" /> <circle cx=\"18\" cy=\"8\" r=\"2\" /> <circle cx=\"20\" cy=\"16\" r=\"2\" /> <path d=\"M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z\" />","book-open":"<path d=\"M12 7v14\" /> <path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\" />","graduation-cap":"<path d=\"M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z\" /> <path d=\"M22 10v6\" /> <path d=\"M6 12.5V16a6 3 0 0 0 12 0v-3.5\" />","film":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" /> <path d=\"M7 3v18\" /> <path d=\"M3 7.5h4\" /> <path d=\"M3 12h18\" /> <path d=\"M3 16.5h4\" /> <path d=\"M17 3v18\" /> <path d=\"M17 7.5h4\" /> <path d=\"M17 16.5h4\" />","music":"<path d=\"M9 18V5l12-2v13\" /> <circle cx=\"6\" cy=\"18\" r=\"3\" /> <circle cx=\"18\" cy=\"16\" r=\"3\" />","ticket":"<path d=\"M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z\" /> <path d=\"M13 5v2\" /> <path d=\"M13 17v2\" /> <path d=\"M13 11v2\" />","tv":"<rect width=\"20\" height=\"15\" x=\"2\" y=\"7\" rx=\"2\" ry=\"2\" /> <polyline points=\"17 2 12 7 7 2\" />","party-popper":"<path d=\"M5.8 11.3 2 22l10.7-3.79\" /> <path d=\"M4 3h.01\" /> <path d=\"M22 8h.01\" /> <path d=\"M15 2h.01\" /> <path d=\"M22 20h.01\" /> <path d=\"m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10\" /> <path d=\"m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17\" /> <path d=\"m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7\" /> <path d=\"M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z\" />","briefcase":"<path d=\"M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\" /> <rect width=\"20\" height=\"14\" x=\"2\" y=\"6\" rx=\"2\" />","wallet":"<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\" /> <path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\" />","banknote":"<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" /> <path d=\"M6 12h.01M18 12h.01\" />","piggy-bank":"<path d=\"M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z\" /> <path d=\"M2 9v1c0 1.1.9 2 2 2h1\" /> <path d=\"M16 11h.01\" />","coins":"<circle cx=\"8\" cy=\"8\" r=\"6\" /> <path d=\"M18.09 10.37A6 6 0 1 1 10.34 18\" /> <path d=\"M7 6h1v4\" /> <path d=\"m16.71 13.88.7.71-2.82 2.82\" />","gift":"<rect x=\"3\" y=\"8\" width=\"18\" height=\"4\" rx=\"1\" /> <path d=\"M12 8v13\" /> <path d=\"M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7\" /> <path d=\"M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5\" />","trending-up":"<polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\" /> <polyline points=\"16 7 22 7 22 13\" />","hand-coins":"<path d=\"M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17\" /> <path d=\"m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9\" /> <path d=\"m2 16 6 6\" /> <circle cx=\"16\" cy=\"9\" r=\"2.9\" /> <circle cx=\"6\" cy=\"5\" r=\"3\" />","landmark":"<line x1=\"3\" x2=\"21\" y1=\"22\" y2=\"22\" /> <line x1=\"6\" x2=\"6\" y1=\"18\" y2=\"11\" /> <line x1=\"10\" x2=\"10\" y1=\"18\" y2=\"11\" /> <line x1=\"14\" x2=\"14\" y1=\"18\" y2=\"11\" /> <line x1=\"18\" x2=\"18\" y1=\"18\" y2=\"11\" /> <polygon points=\"12 2 20 7 4 7\" />","receipt":"<path d=\"M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z\" /> <path d=\"M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8\" /> <path d=\"M12 17.5v-11\" />","credit-card":"<rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"2\" /> <line x1=\"2\" x2=\"22\" y1=\"10\" y2=\"10\" />","phone":"<path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\" />","list":"<path d=\"M3 12h.01\" /> <path d=\"M3 18h.01\" /> <path d=\"M3 6h.01\" /> <path d=\"M8 12h13\" /> <path d=\"M8 18h13\" /> <path d=\"M8 6h13\" />","chart-line":"<path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /> <path d=\"m19 9-5 5-4-4-3 3\" />","folder-tree":"<path d=\"M20 10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-.9-1.2A1 1 0 0 0 15 3h-2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z\" /> <path d=\"M20 21a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-2.9a1 1 0 0 1-.88-.55l-.42-.85a1 1 0 0 0-.92-.6H13a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z\" /> <path d=\"M3 5a2 2 0 0 0 2 2h3\" /> <path d=\"M3 3v13a2 2 0 0 0 2 2h3\" />","settings":"<path d=\"M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" />","plus":"<path d=\"M5 12h14\" /> <path d=\"M12 5v14\" />","refresh-cw":"<path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\" /> <path d=\"M21 3v5h-5\" /> <path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\" /> <path d=\"M8 16H3v5\" />","search":"<circle cx=\"11\" cy=\"11\" r=\"8\" /> <path d=\"m21 21-4.3-4.3\" />","cloud":"<path d=\"M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z\" />","bell":"<path d=\"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9\" /> <path d=\"M10.3 21a1.94 1.94 0 0 0 3.4 0\" />","grip-vertical":"<circle cx=\"9\" cy=\"12\" r=\"1\" /> <circle cx=\"9\" cy=\"5\" r=\"1\" /> <circle cx=\"9\" cy=\"19\" r=\"1\" /> <circle cx=\"15\" cy=\"12\" r=\"1\" /> <circle cx=\"15\" cy=\"5\" r=\"1\" /> <circle cx=\"15\" cy=\"19\" r=\"1\" />","merge":"<path d=\"m8 6 4-4 4 4\" /> <path d=\"M12 2v10.3a4 4 0 0 1-1.172 2.872L4 22\" /> <path d=\"m20 22-5-5\" />","corner-down-right":"<polyline points=\"15 10 20 15 15 20\" /> <path d=\"M4 4v7a4 4 0 0 0 4 4h12\" />","ellipsis":"<circle cx=\"12\" cy=\"12\" r=\"1\" /> <circle cx=\"19\" cy=\"12\" r=\"1\" /> <circle cx=\"5\" cy=\"12\" r=\"1\" />","pencil":"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /> <path d=\"m15 5 4 4\" />","trash-2":"<path d=\"M3 6h18\" /> <path d=\"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6\" /> <path d=\"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\" /> <line x1=\"10\" x2=\"10\" y1=\"11\" y2=\"17\" /> <line x1=\"14\" x2=\"14\" y1=\"11\" y2=\"17\" />","chevron-left":"<path d=\"m15 18-6-6 6-6\" />","chevron-right":"<path d=\"m9 18 6-6-6-6\" />","x":"<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />","sparkles":"<path d=\"M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z\" /> <path d=\"M20 3v4\" /> <path d=\"M22 5h-4\" /> <path d=\"M4 17v2\" /> <path d=\"M5 18H3\" />","check":"<path d=\"M20 6 9 17l-5-5\" />","folder-input":"<path d=\"M2 9V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1\" /> <path d=\"M2 13h10\" /> <path d=\"m9 16 3-3-3-3\" />","sprout":"<path d=\"M7 20h10\" /> <path d=\"M10 20c5.5-2.5.8-6.4 3-10\" /> <path d=\"M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z\" /> <path d=\"M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z\" />","flower-2":"<path d=\"M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M9 8h1m5 0a3 3 0 1 1-3 3m3-3h-1m-2 3v-1\" /> <circle cx=\"12\" cy=\"8\" r=\"2\" /> <path d=\"M12 10v12\" /> <path d=\"M12 22c4.2 0 7-1.667 7-5-4.2 0-7 1.667-7 5Z\" /> <path d=\"M12 22c-4.2 0-7-1.667-7-5 4.2 0 7 1.667 7 5Z\" />","plane-takeoff":"<path d=\"M2 22h20\" /> <path d=\"M6.36 17.4 4 17l-2-4 1.1-.55a2 2 0 0 1 1.8 0l.17.1a2 2 0 0 0 1.8 0L8 12 5 6l.9-.45a2 2 0 0 1 2.09.2l4.02 3a2 2 0 0 0 2.1.2l4.19-2.06a2.41 2.41 0 0 1 1.73-.17L21 7a1.4 1.4 0 0 1 .87 1.99l-.38.76c-.23.46-.6.84-1.07 1.08L7.58 17.2a2 2 0 0 1-1.22.18Z\" />","tent":"<path d=\"M3.5 21 14 3\" /> <path d=\"M20.5 21 10 3\" /> <path d=\"M15.5 21 12 15l-3.5 6\" /> <path d=\"M2 21h20\" />","umbrella":"<path d=\"M22 12a10.06 10.06 1 0 0-20 0Z\" /> <path d=\"M12 12v8a2 2 0 0 0 4 0\" /> <path d=\"M12 2v1\" />","heart":"<path d=\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\" />","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /> <circle cx=\"9\" cy=\"7\" r=\"4\" /> <path d=\"M22 21v-2a4 4 0 0 0-3-3.87\" /> <path d=\"M16 3.13a4 4 0 0 1 0 7.75\" />"};
+const I=(n,cls='')=>`<svg class="lc ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]||''}</svg>`;
+const hydrate=root=>root.querySelectorAll('i[data-i]').forEach(e=>{e.outerHTML=I(e.dataset.i)});
+const fmt=n=>Math.round(Math.abs(n)).toLocaleString('vi-VN');
+const vnd=n=>fmt(n)+' ₫';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ---- bảng màu nhóm (chữ đậm / nền pastel)
+const PAL={red:['#F0643C','#FFE3D6'],brown:['#B06A2C','#F8E6D2'],blue:['#3A7BEA','#DCEAFF'],honey:['#D99A06','#FFF0C2'],purple:['#8A4FE0','#EFE3FF'],teal:['#13A386','#D5F5EE'],pink:['#E5487A','#FFE0EA'],green:['#1FA463','#DAF5E5'],indigo:['#5B4FE0','#E6E3FF'],orange:['#E07B12','#FFE9CF']};
+const tile=(g,s=40)=>{const p=PAL[g.color]||PAL.red;return `<span class="tile" style="width:${s}px;height:${s}px;--fg-t:${p[0]};--bg-t:${p[1]}">${I(g.icon)}</span>`};
+
+// ---- nhóm (có thể thay đổi bởi trang quản lý)
+let G=[
+ {id:'an',name:'Ăn uống',icon:'utensils',color:'red',type:'exp',n:46},
+ {id:'cf',name:'Cà phê',icon:'coffee',color:'brown',parent:'an',type:'exp',n:21},
+ {id:'ts',name:'Trà sữa',icon:'cup-soda',color:'pink',parent:'an',type:'exp',n:9},
+ {id:'sang',name:'Ăn sáng',icon:'soup',color:'red',parent:'an',type:'exp',n:24},
+ {id:'di',name:'Đi lại',icon:'car',color:'blue',type:'exp',n:8},
+ {id:'xang',name:'Xăng xe',icon:'fuel',color:'blue',parent:'di',type:'exp',n:6},
+ {id:'grab',name:'Grab',icon:'car-taxi-front',color:'teal',parent:'di',type:'exp',n:13},
+ {id:'nha',name:'Nhà cửa',icon:'house',color:'honey',type:'exp',n:3},
+ {id:'dien',name:'Điện',icon:'zap',color:'honey',parent:'nha',type:'exp',n:3},
+ {id:'nuoc',name:'Nước',icon:'droplet',color:'blue',parent:'nha',type:'exp',n:3},
+ {id:'net',name:'Internet',icon:'wifi',color:'indigo',parent:'nha',type:'exp',n:3},
+ {id:'mua',name:'Mua sắm',icon:'shopping-bag',color:'purple',type:'exp',n:7},
+ {id:'art',name:'Đồ vẽ, phần mềm',icon:'palette',color:'indigo',parent:'mua',type:'exp',n:5},
+ {id:'ao',name:'Quần áo',icon:'shirt',color:'pink',parent:'mua',type:'exp',n:4},
+ {id:'gt',name:'Giải trí',icon:'gamepad-2',color:'teal',type:'exp',n:6},
+ {id:'phim',name:'Xem phim',icon:'film',color:'purple',parent:'gt',type:'exp',n:4},
+ {id:'sk',name:'Sức khoẻ',icon:'heart-pulse',color:'pink',type:'exp',n:3},
+ {id:'meo',name:'Thú cưng',icon:'paw-print',color:'orange',type:'exp',n:11},
+ {id:'luong',name:'Lương',icon:'briefcase',color:'green',type:'inc',n:3},
+ {id:'free',name:'Freelance',icon:'pen-tool',color:'teal',type:'inc',n:8},
+ {id:'qua',name:'Được tặng',icon:'gift',color:'pink',type:'inc',n:2},
 ];
-const gm=Object.fromEntries(G.map(g=>[g[0],{id:g[0],name:g[1],ic:g[2],c:g[3],p:g[4]||'',inc:g[5]==='inc'}]));
-const gi=(id,s)=>{const g=gm[id];return `<span class="gi" style="background:${g.c}"><svg style="color:#fff"><use href="#${g.ic}"/></svg></span>`};
-// giao dịch ví dụ
+const gm=id=>G.find(g=>g.id===id);
+const kids=id=>G.filter(g=>g.parent===id);
+const tops=type=>G.filter(g=>!g.parent&&g.type===type);
+
+// ---- giao dịch ví dụ
 const TX=[
  [15,'cf',-35000,'cf sáng Highlands'],[15,'grab',-42000,'Grab về nhà'],
  [14,'sang',-30000,'Phở bò'],[14,'free',2500000,'Spine anim cho game Bắn cá'],[14,'cf',-35000,'cf sáng Highlands'],[14,'art',-890000,'Gia hạn Spine Essential'],
- [13,'xang',-80000,'Đổ xăng Vision'],[13,'an',-185000,'Lẩu với nhóm'],[13,'cf',-35000,'cf sáng Highlands'],
- [12,'gt',-220000,'Vé xem phim'],[12,'sang',-35000,'Bánh mì + sữa'],
+ [13,'xang',-80000,'Đổ xăng Vision'],[13,'an',-185000,'Lẩu với nhóm'],[13,'cf',-35000,'cf sáng Highlands'],[13,'meo',-120000,'Pate cho Mochi'],
+ [12,'phim',-220000,'Vé xem phim'],[12,'sang',-35000,'Bánh mì + sữa'],[12,'ts',-35000,'Trà sữa Phúc Long'],
  [10,'dien',-612000,'Tiền điện T9'],[10,'net',-220000,'FPT tháng 10'],[10,'luong',18000000,'Lương tháng 9'],
- [8,'sk',-150000,'Thuốc cảm'],[8,'cf',-29000,'Trà sữa'],
 ];
-const day=d=>{const w=['CN','T2','T3','T4','T5','T6','T7'][new Date(2026,9,d).getDay()];return `${w}, ${d}/10`};
-function txRow(t){const g=gm[t[1]];const par=g.p?gm[g.p].name+' › ':'';return `<div class="tx">${gi(t[1])}<div class="t"><div>${t[3]}</div><small>${par}${g.name}</small></div><div class="amt ${t[2]>0?'inc':''}">${t[2]>0?'+':'−'}${fmt(t[2])}</div></div>`}
-function monthList(limitDays){let h='',days=[...new Set(TX.map(t=>t[0]))];if(limitDays)days=days.slice(0,limitDays);
- for(const d of days){const ts=TX.filter(t=>t[0]===d);const s=ts.reduce((a,t)=>a+t[2],0);
-  h+=`<div class="day"><b>${day(d)}</b><span class="${s>0?'inc':''}">${s>0?'+':'−'}${fmt(s)}</span></div>`+ts.map(txRow).join('')}
- return h}
-const SUM={inc:20500000,exp:8420000};
-function summary(){return `<div class="sum"><div><small>Thu nhập</small><b class="inc">+${fmt(SUM.inc)}</b></div><div><small>Chi tiêu</small><b class="exp">−${fmt(SUM.exp)}</b></div><div><small>Còn lại</small><b>${fmt(SUM.inc-SUM.exp)}</b></div></div>`}
-const YEAR=[[1,7.1,15],[2,9.8,15],[3,7.4,16.2],[4,8.0,15],[5,7.6,19],[6,8.9,15],[7,8.3,17.5],[8,7.6,15],[9,8.0,18],[10,8.42,20.5]];
-function yearList(){return summary().replace('Thu nhập','Thu nhập 2026')+YEAR.slice().reverse().map(r=>`<div class="yr"><b>Tháng ${r[0]}</b><div class="track"><i style="width:${r[1]/10*100}%"></i></div><span class="r exp">−${r[1].toLocaleString('vi-VN')}tr</span><span class="r inc">+${r[2].toLocaleString('vi-VN')}tr</span></div>`).join('')}
-// desktop list + tabs
-const dList=document.getElementById('dList'),dPeriod=document.getElementById('dPeriod');
-function setView(v){
- if(v==='day'){dPeriod.textContent='Thứ 5, 15/10/2026';dList.innerHTML=`<div class="sum"><div><small>Thu hôm nay</small><b class="inc">+0 ₫</b></div><div><small>Chi hôm nay</small><b class="exp">−77.000 ₫</b></div><div><small>TB mỗi ngày tháng này</small><b>561.000 ₫</b></div></div>`+monthList(1)}
- else if(v==='year'){dPeriod.textContent='Năm 2026';dList.innerHTML=yearList()}
- else{dPeriod.textContent='Tháng 10 / 2026';dList.innerHTML=summary()+monthList()}
-}
-function tabs(el,cb){const ind=el.querySelector('.ind');const btns=[...el.querySelectorAll('button')];
- const place=b=>{if(ind){ind.style.left=b.offsetLeft+8+'px';ind.style.width=b.offsetWidth-16+'px'}};
- btns.forEach(b=>b.addEventListener('click',()=>{btns.forEach(x=>x.classList.toggle('on',x===b));place(b);cb&&cb(b.dataset.v)}));
+const day=d=>`${['CN','T2','T3','T4','T5','T6','T7'][new Date(2026,9,d).getDay()]}, ${d}/10`;
+const txRow=t=>{const g=gm(t[1])||{name:'?',icon:'circle',color:'red'};const p=g.parent?gm(g.parent):null;
+ return `<div class="tx">${tile(g,44)}<div class="t"><div>${esc(t[3])}</div><small>${p?esc(p.name)+' › ':''}${esc(g.name)}</small></div><div class="amt ${t[2]>0?'inc':''}">${t[2]>0?'+':'−'}${vnd(t[2])}</div></div>`};
+function txList(nDays){let h='';let days=[...new Set(TX.map(t=>t[0]))];if(nDays)days=days.slice(0,nDays);
+ for(const d of days){const ts=TX.filter(t=>t[0]===d),s=ts.reduce((a,t)=>a+t[2],0);
+  h+=`<div class="day"><b>${day(d)}</b><span class="${s>0?'inc':''}">${s>0?'+':'−'}${vnd(s)}</span></div>`+ts.map(txRow).join('')}return h}
+
+// ---- dữ liệu chi tiêu theo ngày (giả lập, cố định)
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const PROF={an:[.95,60e3,230e3],di:[.55,30e3,130e3],nha:[0,0,0,{5:4500e3,10:650e3,12:220e3}],mua:[.14,150e3,900e3],gt:[.16,100e3,400e3],sk:[.07,80e3,400e3],meo:[.12,50e3,300e3,{3:450e3}]};
+const MONTHS=[['07',31,11],['08',31,22],['09',30,33],['10',31,44]];
+const DAILY={};// DAILY[group][monthIdx] = array length
+for(const gid in PROF){DAILY[gid]=MONTHS.map(([m,len,seed],mi)=>{const r=rng(seed+gid.charCodeAt(0)*7+gid.length);const [p,a,b,fix={}]=PROF[gid];const arr=[];
+ for(let d=1;d<=len;d++){let v=0;if(r()<p)v+=a+(b-a)*r();if(fix[d])v+=fix[d];arr.push(Math.round(v/1000)*1000)}
+ if(mi===3&&gid==='mua'){arr[3]+=2800e3}if(mi===3&&gid==='an'){arr[2]+=600e3}return arr})}
+const TODAY=15;
+function cum(a){let s=0;return a.map(v=>s+=v)}
+function series(gid){const ids=gid==='all'?Object.keys(PROF):[gid];
+ const m=MONTHS.map((x,mi)=>{const len=x[1];const out=Array(len).fill(0);ids.forEach(id=>DAILY[id][mi].forEach((v,i)=>out[i]+=v));return cum(out)});
+ const at=(c,d)=>c[Math.min(d,c.length)-1];
+ const avg=Array.from({length:31},(_,i)=>(at(m[0],i+1)+at(m[1],i+1)+at(m[2],i+1))/3);
+ const prev=Array.from({length:31},(_,i)=>at(m[2],i+1));
+ return{cur:m[3].slice(0,TODAY),avg,prev}}
+function niceStep(max){const raw=max/3;const p=Math.pow(10,Math.floor(Math.log10(raw)));for(const k of [1,2,2.5,5,10])if(k*p>=raw)return k*p;return 10*p}
+const tick=v=>v>=1e6?(v/1e6).toLocaleString('vi-VN')+' tr':v>=1e3?Math.round(v/1e3)+'k':'0';
+
+// ---- biểu đồ xu hướng (đường chồng nhau)
+const CHIPS=['all','an','di','nha','mua','gt','sk','meo'];
+function trend(el,W,H){let st={g:'all',mode:'avg',sel:TODAY};
+ function render(){const s=series(st.g),cmp=st.mode==='avg'?s.avg:s.prev,cmpName=st.mode==='avg'?'TB 3 tháng trước':'Tháng 9';
+  const max=Math.max(cmp[30],s.cur[TODAY-1])*1.05||1,step=niceStep(max),top=Math.ceil(max/step)*step;
+  const L=6,R=54,T=10,B=26,x=d=>L+(d-1)*(W-L-R)/30,y=v=>T+(H-T-B)*(1-v/top);
+  const path=a=>a.map((v,i)=>(i?'L':'M')+x(i+1).toFixed(1)+' '+y(v).toFixed(1)).join('');
+  let g='';for(let v=0;v<=top+1;v+=step){g+=`<line x1="${L}" x2="${W-R+6}" y1="${y(v)}" y2="${y(v)}" stroke="#EAD7C5" stroke-dasharray="${v?'5 5':'0'}" stroke-width="${v?1.2:1.6}"/><text x="${W-R+12}" y="${y(v)+4}">${tick(v)}</text>`}
+  const d=st.sel,cv=d<=TODAY?s.cur[d-1]:null,pv=cmp[d-1];
+  const lab=st.g==='all'?'':` · ${esc(gm(st.g).name)}`;
+  el.innerHTML=`<div class="trend-h"><h3>Xu hướng chi tiêu${lab}</h3><div class="seg"><button type="button" data-m="avg" class="${st.mode==='avg'?'on':''}">TB 3 tháng</button><button type="button" data-m="prev" class="${st.mode==='prev'?'on':''}">Tháng trước</button></div></div>
+  <div class="gchips">${CHIPS.map(id=>id==='all'?`<button type="button" class="chip txt ${st.g==='all'?'on':''}" data-g="all">Tất cả</button>`:`<button type="button" class="chip ${st.g===id?'on':''}" data-g="${id}">${tile(gm(id)||{icon:'circle',color:'red'},24)}${esc((gm(id)||{name:id}).name)}</button>`).join('')}</div>
+  <div class="tip"><div class="l1">${String(d).padStart(2,'0')}/10/2026: ${cv!=null?`<b>${fmt(cv)}</b>`:'<span style="color:var(--dim)">chưa tới ngày này</span>'}</div><div class="l2">${cmpName}: <b>${fmt(pv)}</b></div></div>
+  <svg class="tchart" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><defs><linearGradient id="ar${el.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E5383B" stop-opacity=".28"/><stop offset="1" stop-color="#E5383B" stop-opacity="0"/></linearGradient></defs>${g}
+   <path d="${path(cmp)}" fill="none" stroke="#DCCFC4" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+   <path d="${path(s.cur)}L${x(TODAY)} ${y(0)}L${x(1)} ${y(0)}Z" fill="url(#ar${el.id})"/>
+   <path d="${path(s.cur)}" fill="none" stroke="#E5383B" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/>
+   <line x1="${x(d)}" x2="${x(d)}" y1="${T}" y2="${y(0)}" stroke="#D9C6B5" stroke-width="1.4"/>
+   <circle cx="${x(d)}" cy="${y(pv)}" r="4.5" fill="#fff" stroke="#C9B9AC" stroke-width="2.5"/>
+   ${cv!=null?`<circle cx="${x(d)}" cy="${y(cv)}" r="7" fill="#fff" stroke="#E5383B" stroke-width="3.2"/>`:''}
+   <text x="${x(1)}" y="${H-6}" text-anchor="start">01/10</text><text x="${x(31)}" y="${H-6}" text-anchor="end">31/10</text>
+   <rect x="${L}" y="0" width="${W-L-R}" height="${H}" fill="transparent" data-hit/></svg>
+  <div class="tlegend"><span><i style="background:#E5383B"></i>Tháng này</span><span><i style="background:#DCCFC4"></i>${cmpName}</span></div>
+  ${(()=>{const a=s.cur[TODAY-1],b=cmp[TODAY-1],p=(a-b)/b*100;return `<div class="verdict ${p<=0?'good':''}">Đến 15/10 bạn đã tiêu ${p>0?'nhiều':'ít'} hơn ${Math.abs(p).toFixed(0)}% so với ${st.mode==='avg'?'trung bình 3 tháng trước':'tháng 9'} cùng thời điểm.</div>`})()}`;
+  const svg=el.querySelector('svg.tchart');
+  const pick=e=>{const r=svg.getBoundingClientRect(),sx=W/r.width,px=(e.clientX-r.left)*sx;st.sel=Math.max(1,Math.min(31,Math.round((px-L)/((W-L-R)/30))+1));render()};
+  svg.addEventListener('pointermove',pick);svg.addEventListener('pointerdown',pick);
+  svg.addEventListener('pointerleave',()=>{st.sel=TODAY;render()});
+  el.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{st.g=b.dataset.g;st.sel=TODAY;render()});
+  el.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{st.mode=b.dataset.m;render()});
+ }
+ render();return{render}}
+
+// ---- tabs có thanh trượt
+function tabs(el,cb){const ind=el.querySelector('.ind');const bs=[...el.querySelectorAll('button')];
+ const place=b=>{if(ind&&b){ind.style.left=b.offsetLeft+'px';ind.style.width=b.offsetWidth+'px'}};
+ bs.forEach(b=>b.addEventListener('click',()=>{bs.forEach(x=>x.classList.toggle('on',x===b));place(b);cb&&cb(b.dataset.v)}));
  requestAnimationFrame(()=>place(el.querySelector('.on')))}
-tabs(document.getElementById('dTabs'),setView);setView('month');
-// tree
-const spent={cf:612000,sang:845000,an:2150000,xang:400000,grab:388000,di:788000,dien:612000,nuoc:120000,net:220000,nha:952000,art:890000,mua:1650000,gt:520000,sk:360000,luong:18000000,free:2500000,qua:0};
-const tree=document.getElementById('tree');let th='';
-G.forEach(g=>{const o=gm[g[0]];const kids=G.filter(k=>k[4]===o.id).length;
- th+=`<div class="li${o.p?' child':''}${o.id==='an'?'':''}" data-g="${o.id}">${o.p?'':`<span class="caret">${kids?'▼':''}</span>`}${gi(o.id)}<span>${o.name}</span><em class="${o.inc?'inc':''}">${spent[o.id]?short(spent[o.id]):'–'}</em></div>`});
-tree.innerHTML=th;
-tree.addEventListener('click',e=>{const li=e.target.closest('.li');if(!li)return;const on=li.classList.contains('on');tree.querySelectorAll('.li').forEach(x=>x.classList.remove('on'));
- const f=document.getElementById('dFilter');if(on){f.textContent='Tất cả nhóm ▾';setView(document.querySelector('#dTabs .on').dataset.v);return}
- li.classList.add('on');const id=li.dataset.g;f.textContent=gm[id].name+' ✕';
- const ids=[id,...G.filter(k=>k[4]===id).map(k=>k[0])];const ts=TX.filter(t=>ids.includes(t[1]));
- dList.innerHTML=`<div class="sum"><div><small>${gm[id].name} · tháng 10</small><b>${fmt(spent[id]||0)}</b></div><div><small>Tháng 9</small><b>${fmt((spent[id]||0)*.86)}</b></div><div><small>Số giao dịch</small><b>${ts.length}</b></div></div>`+ts.map(t=>`<div class="day"><b>${day(t[0])}</b></div>`+txRow(t)).join('')});
-// chart: so sánh theo nhóm
-const CMP=[['an',2150000,1890000,2010000],['di',788000,820000,760000],['nha',952000,930000,945000],['mua',1650000,640000,880000],['gt',520000,610000,560000],['sk',360000,120000,180000]];
-function kpiHtml(){const cur=8420000,prev=7980000,avg=8130000;const d1=(cur-prev)/prev*100,d2=(cur-avg)/avg*100;
- return `<div><small>Tháng này</small><b class="exp">${short(cur)}</b></div><div><small>So tháng trước</small><b>${short(prev)}</b> <span class="delta up">▲${d1.toFixed(1)}%</span></div><div><small>So TB 3 tháng</small><b>${short(avg)}</b> <span class="delta up">▲${d2.toFixed(1)}%</span></div>`}
-function barChart(w){const rowH=34,lab=70,h=CMP.length*rowH+18,max=2400000,sx=v=>(w-lab-44)*v/max;let s=`<svg class="chart" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;
- [0,1e6,2e6].forEach(v=>{const x=lab+sx(v);s+=`<line x1="${x}" x2="${x}" y1="0" y2="${h-16}" stroke="#363A42"/><text x="${x}" y="${h-4}" text-anchor="middle">${v?v/1e6+'tr':'0'}</text>`});
- CMP.forEach((r,i)=>{const y=i*rowH+3;const g=gm[r[0]];
-  s+=`<text x="0" y="${y+16}" style="fill:#E8E9EC">${g.name}</text>`;
-  s+=`<rect x="${lab}" y="${y}" width="${sx(r[1])}" height="9" rx="2" fill="#E5383B"/>`;
-  s+=`<rect x="${lab}" y="${y+10}" width="${sx(r[2])}" height="7" rx="2" fill="#8A9AB0"/>`;
-  s+=`<rect x="${lab}" y="${y+18}" width="${sx(r[3])}" height="7" rx="2" fill="#4A4F58"/>`;
-  const d=(r[1]-r[3])/r[3]*100;s+=`<text x="${lab+sx(Math.max(r[1],r[2],r[3]))+5}" y="${y+10}" style="fill:${d>10?'#E5383B':d<-5?'#3DBE7A':'#8D929C'};font-weight:600">${d>0?'+':''}${d.toFixed(0)}%</text>`});
- return s+'</svg>'}
-function lineChart(w){const h=110,cur=[1.9,2.3,2.6,1.62],prev=[1.7,2.0,2.4,1.88],pad=22,sx=i=>pad+i*(w-pad*2)/3,sy=v=>h-20-(v/3)*(h-30);
- const path=a=>a.map((v,i)=>(i?'L':'M')+sx(i)+' '+sy(v)).join(' ');
- let s=`<svg class="chart" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;[1,2,3].forEach(v=>s+=`<line x1="${pad}" x2="${w-pad}" y1="${sy(v)}" y2="${sy(v)}" stroke="#363A42"/><text x="0" y="${sy(v)+3}">${v}tr</text>`);
- s+=`<path d="${path(cur)} L${sx(3)} ${h-20} L${sx(0)} ${h-20}Z" fill="rgba(229,56,59,.12)"/><path d="${path(prev)}" fill="none" stroke="#8A9AB0" stroke-dasharray="4 4" stroke-width="1.5"/><path d="${path(cur)}" fill="none" stroke="#E5383B" stroke-width="2"/>`;
- cur.forEach((v,i)=>s+=`<text x="${sx(i)}" y="${h-4}" text-anchor="middle">Tuần ${i+1}</text>`);s+=`<circle cx="${sx(3)}" cy="${sy(cur[3])}" r="4" fill="#E5383B"/>`;return s+'</svg>'}
-document.getElementById('kpi').innerHTML=kpiHtml();document.getElementById('dChart').innerHTML=barChart(360);document.getElementById('dLine').innerHTML=lineChart(360);
-// mobile
-document.getElementById('mBal').textContent=fmt(SUM.inc-SUM.exp);
-document.getElementById('mIO').innerHTML=`<div><small>Thu</small><div class="inc"><b>+${fmt(SUM.inc)}</b></div></div><div><small>Chi</small><div class="exp"><b>−${fmt(SUM.exp)}</b></div></div>`;
-document.getElementById('mList').innerHTML=monthList(3);
-document.getElementById('iList').innerHTML=monthList(3);
-document.getElementById('iKpi').innerHTML=kpiHtml();document.getElementById('iChart').innerHTML=barChart(360);
-document.getElementById('iRail').innerHTML=['Tất cả','Ăn uống','Đi lại','Nhà cửa','Mua sắm'].map((n,i)=>`<span class="chip${i?'':' on'}">${n}</span>`).join('');
-// gợi ý theo số tiền (≥3 lần)
+
+// ---- gợi ý theo số tiền
 function suggestFor(v){const hits={};TX.filter(t=>Math.abs(t[2])===v).forEach(t=>{const k=t[1]+'|'+t[3];hits[k]=(hits[k]||0)+1});
  const total=Object.values(hits).reduce((a,b)=>a+b,0);if(total<3)return '';
- const opts=Object.entries(hits).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,c])=>{const [g,n]=k.split('|');return `<button type="button" class="chip" data-g="${g}" data-n="${n}">${gi(g)}${gm[g].name} · ${n} <small style="color:var(--muted)">×${c}</small></button>`}).join('');
- return `<div class="suggest"><small><svg width="12" height="12"><use href="#i-spark"/></svg>Số tiền này bạn đã nhập ${total} lần. Dùng lại?</small><div class="opts">${opts}</div></div>`}
-const pick=['an','cf','sang','di','xang','grab','nha','dien','mua','gt','sk','art'];
-function grpPick(sel){return `<div class="grpPick">${pick.map(id=>`<button type="button" data-g="${id}" class="${id===sel?'on':''}">${gi(id)}${gm[id].name}</button>`).join('')}</div>`}
-function wireForm(root){
- const amt=root.querySelector('[data-amt]'),sg=root.querySelector('[data-sg]'),note=root.querySelector('[data-note]');
- const upd=()=>{const v=parseInt((amt.value||amt.textContent).replace(/\D/g,''))||0;sg.innerHTML=suggestFor(v)};
+ return `<div class="suggest"><small>${I('sparkles')}Bạn đã nhập số tiền này ${total} lần. Dùng lại?</small><div class="opts">${Object.entries(hits).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,c])=>{const [g,n]=k.split('|');return `<button type="button" class="chip" data-g="${g}" data-n="${esc(n)}">${tile(gm(g),24)}${esc(gm(g).name)} · ${esc(n)} <span style="color:var(--muted)">×${c}</span></button>`}).join('')}</div></div>`}
+const PICK=['an','cf','ts','sang','di','xang','grab','nha','mua','art','gt','meo'];
+const gpick=(sel,max=12)=>`<div class="gpick">${PICK.filter(gm).slice(0,max).map(id=>`<button type="button" data-g="${id}" class="${id===sel?'on':''}">${tile(gm(id),44)}${esc(gm(id).name)}</button>`).join('')}</div>`;
+function wireForm(root){const amt=root.querySelector('[data-amt]'),sg=root.querySelector('[data-sg]'),note=root.querySelector('[data-note]');
+ const upd=()=>{sg.innerHTML=suggestFor(parseInt((amt.value||amt.textContent).replace(/\D/g,''))||0)};
  if(amt.tagName==='INPUT')amt.addEventListener('input',()=>{const v=amt.value.replace(/\D/g,'');amt.value=v?(+v).toLocaleString('vi-VN'):'';upd()});
- root.addEventListener('click',e=>{const b=e.target.closest('button[data-g]');if(!b)return;
-  root.querySelectorAll('.grpPick button').forEach(x=>x.classList.toggle('on',x.dataset.g===b.dataset.g));
-  if(b.dataset.n&&note)note.value=b.dataset.n});
- upd();return upd}
-document.getElementById('openAdd').addEventListener('click',()=>{const host=document.getElementById('dlgHost');
- host.innerHTML=`<div class="scrim"><div class="dlg" role="dialog" aria-label="Thêm giao dịch"><h3>Thêm giao dịch <button class="icbtn" type="button" data-x title="Đóng (Esc)">✕</button></h3>
+ root.addEventListener('click',e=>{const b=e.target.closest('button[data-g]');if(!b)return;root.querySelectorAll('.gpick button').forEach(x=>x.classList.toggle('on',x.dataset.g===b.dataset.g));if(b.dataset.n&&note)note.value=b.dataset.n});upd()}
+
+// ---- dialog + toast
+function dialog(app,html,wire){const host=app.querySelector('[data-host]');host.innerHTML=`<div class="scrim"><div class="dlg" role="dialog">${html}</div></div>`;
+ const close=()=>host.innerHTML='';host.querySelector('.scrim').addEventListener('click',e=>{if(e.target.classList.contains('scrim')||e.target.closest('[data-x]'))close()});wire&&wire(host,close)}
+function toast(app,msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;app.appendChild(t);setTimeout(()=>t.remove(),2600)}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('[data-host]').forEach(h=>h.innerHTML='')});
+
+// ===== Desktop A =====
+const deskA=document.getElementById('deskA');
+const SUM={inc:20500000,exp:8420000};
+function miniTree(){return tops('exp').map(g=>`<div class="li">${tile(g,34)}<span>${esc(g.name)}</span><em>${(g.n*95).toLocaleString('vi-VN')}k</em></div>`+kids(g.id).map(k=>`<div class="li child">${tile(k,26)}<span>${esc(k.name)}</span></div>`).join('')).join('')}
+document.getElementById('miniA').innerHTML=miniTree();
+document.getElementById('listA').innerHTML=`<div class="sum"><div><small>Thu nhập</small><b class="inc">+${vnd(SUM.inc)}</b></div><div><small>Chi tiêu</small><b class="exp">−${vnd(SUM.exp)}</b></div><div><small>Còn lại</small><b>${vnd(SUM.inc-SUM.exp)}</b></div></div>`+txList();
+trend(document.getElementById('trendA'),428,250);
+document.getElementById('openAdd').onclick=()=>dialog(deskA,`<h3>Thêm giao dịch</h3>
  <div class="seg2"><button type="button" class="on">Chi tiêu</button><button type="button">Thu nhập</button></div>
- <div class="field"><label for="dAmt">Số tiền (thử gõ 35000)</label><input id="dAmt" class="inp big" data-amt inputmode="numeric" placeholder="0 ₫"></div>
- <div data-sg></div>
- <div class="field"><label>Nhóm</label>${grpPick('')}</div>
- <div class="two"><div class="field"><label for="dNote">Ghi chú</label><input id="dNote" class="inp" data-note placeholder="Vd: cf sáng"></div><div class="field"><label for="dDate">Ngày</label><input id="dDate" class="inp" value="15/10/2026"></div></div>
- <div class="actions"><button class="btn" type="button" data-x>Huỷ</button><button class="btn primary" type="button" data-x>Lưu (Enter)</button></div></div></div>`;
- wireForm(host);host.querySelector('#dAmt').focus();
- host.querySelectorAll('[data-x]').forEach(b=>b.addEventListener('click',()=>host.innerHTML=''));
- host.querySelector('.scrim').addEventListener('click',e=>{if(e.target.classList.contains('scrim'))host.innerHTML=''})});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('dlgHost').innerHTML=''});
-// mobile sheet
+ <div class="field"><label for="dAmt">Số tiền (thử gõ 35000)</label><input id="dAmt" class="inp big" data-amt inputmode="numeric" placeholder="0 ₫"></div><div data-sg></div>
+ <div class="field"><label>Nhóm</label>${gpick('')}</div>
+ <div class="field"><label for="dNote">Ghi chú</label><input id="dNote" class="inp" data-note placeholder="Vd: cf sáng"></div>
+ <div class="actions"><button class="btn" type="button" data-x>Huỷ</button><button class="btn primary" type="button" data-x>Lưu (Enter)</button></div>`,h=>{wireForm(h);h.querySelector('#dAmt').focus()});
+
+// ===== Desktop B: quản lý nhóm =====
+const deskB=document.getElementById('deskB');let gmType='exp',selected=new Set(),editing=null;
+const ED={name:'Đồ ăn vặt',icon:'cookie',color:'orange',parent:'an'};
+const LIB={'Ăn uống':['utensils','coffee','cup-soda','pizza','sandwich','soup','ice-cream-cone','beer','cake','apple','cookie','egg-fried','croissant','salad','fish','drumstick','milk'],
+ 'Đi lại':['car','bike','bus','fuel','train-front','plane','car-taxi-front','wrench','plane-takeoff'],
+ 'Nhà cửa':['house','zap','droplet','wifi','flame','sofa','lamp','bed','washing-machine','key-round','phone'],
+ 'Mua sắm':['shopping-bag','shopping-cart','shirt','gem','glasses','scissors','watch','smartphone','laptop','headphones','camera','receipt','credit-card'],
+ 'Giải trí':['gamepad-2','film','music','ticket','tv','party-popper','palette','brush','pen-tool','book-open','graduation-cap','tent','umbrella'],
+ 'Sức khoẻ':['heart-pulse','pill','stethoscope','dumbbell','baby','dog','cat','paw-print','sprout','flower-2','heart','users'],
+ 'Thu nhập':['briefcase','wallet','banknote','piggy-bank','coins','gift','trending-up','hand-coins','landmark']};
+let libTab='Ăn uống';
+function renderGM(){const L=document.getElementById('gmList');
+ L.innerHTML=`<div class="dropTop" data-drop="__top">Thả vào đây để biến thành nhóm cha</div>`+tops(gmType).map(g=>`<div class="gcard">${row(g)}${kids(g.id).map(k=>row(k,1)).join('')}</div>`).join('');
+ function row(g,child){return `<div class="grow${child?' child':''}" draggable="true" data-id="${g.id}" data-drop="${g.id}"><input type="checkbox" ${selected.has(g.id)?'checked':''} aria-label="Chọn ${esc(g.name)}" data-sel="${g.id}">${I('grip-vertical','grip')}${tile(g,child?38:46)}<div class="nm"><b>${esc(g.name)}</b><small>${g.n} giao dịch${!child&&kids(g.id).length?' · '+kids(g.id).length+' nhóm con':''}</small></div><div class="acts"><button type="button" data-act="move" title="Chuyển sang nhóm cha khác">${I('folder-input')}Chuyển</button><button type="button" data-act="merge" title="Gộp vào nhóm khác">${I('merge')}Gộp</button><button type="button" data-act="edit" title="Sửa tên, icon, màu">${I('pencil')}Sửa</button></div></div>`}
+ const mb=document.getElementById('mergeSel');mb.disabled=selected.size<2;mb.innerHTML=`${I('merge')}Gộp ${selected.size>=2?selected.size+' ':''}nhóm đã chọn`;
+ renderEditor();renderMobileGroups()}
+function canBeChild(id,target){const g=gm(id);if(id===target)return 'Không thể thả vào chính nó';if(gm(target).parent)return 'Chỉ có 2 cấp: không thể thả vào nhóm con';if(kids(id).length)return `"${g.name}" đang có nhóm con, hãy chuyển các nhóm con đi trước`;if(gm(target).type!==g.type)return 'Không thể trộn nhóm chi với nhóm thu';return ''}
+function moveTo(id,target){const g=gm(id);if(target==='__top'){if(!g.parent)return;g.parent=undefined;toast(deskB,`"${g.name}" giờ là nhóm cha`);renderGM();return}
+ const err=canBeChild(id,target);if(err){toast(deskB,err);return}g.parent=target;toast(deskB,`Đã chuyển "${g.name}" vào "${gm(target).name}"`);renderGM()}
+function mergeInto(ids,target){const t=gm(target);let moved=0;ids.filter(i=>i!==target).forEach(i=>{const g=gm(i);moved+=g.n;t.n+=g.n;kids(i).forEach(k=>{k.parent=t.parent?t.parent:t.id});G=G.filter(x=>x.id!==i);TX.forEach(x=>{if(x[1]===i)x[1]=target});selected.delete(i)});
+ selected.clear();toast(deskB,`Đã gộp vào "${t.name}" · ${moved} giao dịch chuyển sang`);renderGM();document.getElementById('miniA').innerHTML=miniTree()}
+function pickList(filter){return tops(gmType).map(g=>[g,0]).flatMap(([g])=>[[g,0],...kids(g.id).map(k=>[k,1])]).filter(([g,c])=>filter(g,c)).map(([g,c])=>`<button type="button" class="${c?'child':''}" data-t="${g.id}">${tile(g,34)}${esc(g.name)}</button>`).join('')}
+document.getElementById('gmList').addEventListener('click',e=>{const cb=e.target.closest('[data-sel]');if(cb){cb.checked?selected.add(cb.dataset.sel):selected.delete(cb.dataset.sel);renderGM();return}
+ const b=e.target.closest('[data-act]');if(!b)return;const id=b.closest('.grow').dataset.id,g=gm(id);
+ if(b.dataset.act==='edit'){editing=id;Object.assign(ED,{name:g.name,icon:g.icon,color:g.color,parent:g.parent||''});renderEditor();return}
+ if(b.dataset.act==='move'){dialog(deskB,`<h3>Chuyển "${esc(g.name)}" tới…</h3><p>Chọn nhóm cha mới, hoặc để nó thành nhóm cha.</p><div class="pick">${g.parent?`<button type="button" data-t="__top">${I('corner-down-right')}Thành nhóm cha</button>`:''}${pickList(x=>!x.parent&&x.id!==id&&x.id!==g.parent)}</div><div class="actions"><button class="btn" type="button" data-x>Huỷ</button></div>`,(h,close)=>h.querySelectorAll('[data-t]').forEach(x=>x.onclick=()=>{close();moveTo(id,x.dataset.t)}));return}
+ if(b.dataset.act==='merge'){dialog(deskB,`<h3>Gộp "${esc(g.name)}" vào…</h3><p>${g.n} giao dịch${kids(id).length?' và '+kids(id).length+' nhóm con':''} sẽ chuyển sang nhóm bạn chọn. "${esc(g.name)}" sẽ bị xoá.</p><div class="pick">${pickList(x=>x.id!==id&&x.parent!==id)}</div><div class="actions"><button class="btn" type="button" data-x>Huỷ</button></div>`,(h,close)=>h.querySelectorAll('[data-t]').forEach(x=>x.onclick=()=>{close();mergeInto([id],x.dataset.t)}))}});
+document.getElementById('mergeSel').onclick=()=>{const ids=[...selected];dialog(deskB,`<h3>Gộp ${ids.length} nhóm</h3><p>Giữ lại tên và icon của nhóm nào?</p><div class="pick">${ids.map(i=>`<button type="button" data-t="${i}">${tile(gm(i),34)}${esc(gm(i).name)} <span style="color:var(--muted);font-weight:600;margin-left:auto">${gm(i).n} giao dịch</span></button>`).join('')}</div><div class="actions"><button class="btn" type="button" data-x>Huỷ</button></div>`,(h,close)=>h.querySelectorAll('[data-t]').forEach(x=>x.onclick=()=>{close();mergeInto(ids,x.dataset.t)}))};
+// kéo thả
+let dragId=null;const gl=document.getElementById('gmList');
+gl.addEventListener('dragstart',e=>{const r=e.target.closest('.grow');if(!r)return;dragId=r.dataset.id;r.classList.add('dragging');e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',dragId)}catch(_){}});
+gl.addEventListener('dragend',()=>{dragId=null;gl.querySelectorAll('.dragging,.over').forEach(x=>x.classList.remove('dragging','over'))});
+gl.addEventListener('dragover',e=>{const t=e.target.closest('[data-drop]');if(!t||!dragId)return;e.preventDefault();gl.querySelectorAll('.over').forEach(x=>x!==t&&x.classList.remove('over'));t.classList.add('over')});
+gl.addEventListener('drop',e=>{const t=e.target.closest('[data-drop]');if(!t||!dragId)return;e.preventDefault();const id=dragId;dragId=null;moveTo(id,t.dataset.drop)});
+tabs(document.getElementById('gmType'),v=>{gmType=v;selected.clear();editing=null;ED.parent='';ED.color=v==='inc'?'green':'orange';renderGM()});
+function renderEditor(){const E=document.getElementById('editor');const parents=tops(gmType).filter(g=>g.id!==editing);
+ E.innerHTML=`<h3>${editing?'Sửa nhóm':'Tạo nhóm mới'}</h3>
+ <div class="prevrow">${tile(ED,58)}<div style="min-width:0"><div style="font-weight:900;font-size:16px">${esc(ED.name||'Tên nhóm')}</div><small style="color:var(--muted);font-weight:700">${ED.parent&&gm(ED.parent)?'Nhóm con của '+esc(gm(ED.parent).name):'Nhóm cha'}</small></div></div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="field"><label for="edName">Tên nhóm</label><input id="edName" class="inp" value="${esc(ED.name)}" maxlength="30"></div>
+ <div class="field"><label for="edPar">Thuộc nhóm cha</label><select id="edPar" class="inp"><option value="">(Không, là nhóm cha)</option>${parents.map(p=>`<option value="${p.id}" ${ED.parent===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div></div>
+ <div class="field"><label>Màu</label><div class="swatches">${Object.keys(PAL).map(k=>`<button type="button" data-c="${k}" class="${ED.color===k?'on':''}" style="background:${PAL[k][0]}" title="${k}"></button>`).join('')}</div></div>
+ <div class="field"><label>Thư viện icon</label><div class="libtabs">${Object.keys(LIB).map(k=>`<button type="button" data-lt="${k}" class="${libTab===k?'on':''}">${k}</button>`).join('')}</div></div>
+ <div class="lib">${LIB[libTab].map(n=>`<button type="button" data-ic="${n}" class="${ED.icon===n?'on':''}" title="${n}">${I(n)}</button>`).join('')}</div>
+ <div class="actions">${editing?`<button class="btn" type="button" data-cancel>Huỷ sửa</button>`:''}<button class="btn primary" type="button" data-save>${I(editing?'check':'plus')}${editing?'Lưu thay đổi':'Tạo nhóm'}</button></div>`;
+ E.querySelector('#edName').oninput=e=>{ED.name=e.target.value;E.querySelector('.prevrow div div').textContent=ED.name||'Tên nhóm'};
+ E.querySelector('#edPar').onchange=e=>{ED.parent=e.target.value;renderEditor()};
+ E.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{ED.color=b.dataset.c;renderEditor()});
+ E.querySelectorAll('[data-lt]').forEach(b=>b.onclick=()=>{libTab=b.dataset.lt;renderEditor()});
+ E.querySelectorAll('[data-ic]').forEach(b=>b.onclick=()=>{ED.icon=b.dataset.ic;renderEditor()});
+ const c=E.querySelector('[data-cancel]');if(c)c.onclick=()=>{editing=null;Object.assign(ED,{name:'',icon:'cookie',color:'orange',parent:''});renderEditor()};
+ E.querySelector('[data-save]').onclick=()=>{const name=(ED.name||'').trim();if(!name){toast(deskB,'Hãy đặt tên cho nhóm');return}
+  if(editing){const g=gm(editing);if(ED.parent&&kids(editing).length){toast(deskB,'Nhóm đang có nhóm con nên không thể làm nhóm con');return}Object.assign(g,{name,icon:ED.icon,color:ED.color,parent:ED.parent||undefined});toast(deskB,`Đã lưu "${name}"`);editing=null}
+  else{G.push({id:'g'+Date.now(),name,icon:ED.icon,color:ED.color,parent:ED.parent||undefined,type:gmType,n:0});toast(deskB,`Đã tạo nhóm "${name}"`)}
+  Object.assign(ED,{name:'',parent:''});renderGM()}}
+// ===== Mobile =====
+const BN=[['list','Sổ'],['chart-line','Báo cáo'],null,['folder-tree','Nhóm'],['settings','Cài đặt']];
+document.querySelectorAll('[data-bnav]').forEach(n=>{const on=+n.dataset.bnav;n.innerHTML=BN.map((b,i)=>b?`<button type="button" class="${i===on||(on===1&&i===1)?'on':''}">${I(b[0])}${b[1]}</button>`:`<button type="button" class="fab" title="Thêm giao dịch">${I('plus')}</button>`).join('')});
+document.querySelectorAll('[data-bal]').forEach(e=>e.textContent=vnd(SUM.inc-SUM.exp));
+document.querySelectorAll('[data-io]').forEach(e=>e.innerHTML=`<div><small>Thu</small>+${vnd(SUM.inc)}</div><div><small>Chi</small>−${vnd(SUM.exp)}</div>`);
+document.querySelectorAll('[data-plist]').forEach(e=>e.innerHTML=txList(+e.dataset.plist));
+trend(document.getElementById('trendM'),348,250);
+trend(document.getElementById('trendI'),390,300);
 const sh=document.getElementById('mSheet');
 sh.innerHTML=`<div class="grab"></div><div class="seg2"><button type="button" class="on">Chi tiêu</button><button type="button">Thu nhập</button></div>
-<div style="text-align:center;font-size:34px;font-weight:700" data-amt>35.000 ₫</div>
-<div data-sg></div>
-${grpPick('cf')}
+<div style="text-align:center;font-size:34px;font-weight:900" data-amt>35.000 ₫</div><div data-sg></div>${gpick('cf',8)}
 <input class="inp" data-note value="cf sáng Highlands" aria-label="Ghi chú">
-<div class="keypad">${['1','2','3','⌫','4','5','6','000','7','8','9','','.','0','Hôm nay'].map(k=>k===''?`<button type="button" class="ok">Lưu</button>`:`<button type="button" style="${k==='Hôm nay'?'font-size:12px':''}">${k}</button>`).join('')}</div>`;
+<div class="keypad">${['1','2','3','⌫','4','5','6','000','7','8','9','','·','0','Hôm nay'].map(k=>k===''?`<button type="button" class="ok">Lưu</button>`:`<button type="button" style="${k==='Hôm nay'?'font-size:13px':''}">${k}</button>`).join('')}</div>`;
 wireForm(sh);
-// icon concepts
-const IC=[['logoA','A · Ví tiền','Ví xanh dương bóng, khoá đỏ. Dễ hiểu nhưng giống nhiều app tài chính khác.'],
- ['logo','B · Sổ ghi + đồng xu','Cuốn sổ ghi chú và đồng xu đỏ có dấu cộng: đúng tinh thần "ghi nhanh một khoản". Đang dùng trong bản phác.',1],
- ['logoC','C · Đồng xu biểu đồ','Đồng xu vàng nổi khối, 3 cột so sánh, cột đỏ là tháng này. Rõ nhất ở cỡ 16px.']];
-document.getElementById('icons').innerHTML=IC.map(c=>`<div class="ic${c[3]?' rec':''}"><h3>${c[1]}${c[3]?'<em>ĐỀ XUẤT</em>':''}</h3>
-<div class="big"><svg><use href="#${c[0]}"/></svg></div>
-<div class="tb dark">${[32,24,16].map(s=>`<svg width="${s}" height="${s}"><use href="#${c[0]}"/></svg>`).join('')}<span style="color:#aaa;font-size:11px;margin-left:auto">taskbar tối</span></div>
-<div class="tb light">${[32,24,16].map(s=>`<svg width="${s}" height="${s}"><use href="#${c[0]}"/></svg>`).join('')}<span style="color:#555;font-size:11px;margin-left:auto">taskbar sáng</span></div>
-<p>${c[2]}</p></div>`).join('');
-// scale frames
+function renderMobileGroups(){const m=document.getElementById('mGroups');if(!m)return;m.innerHTML=tops('exp').slice(0,6).map(g=>`<div class="tx">${tile(g,48)}<div class="t"><div>${esc(g.name)}</div><small>${kids(g.id).map(k=>esc(k.name)).join(', ')||'Chưa có nhóm con'}</small></div>${I('chevron-right')}</div>`).join('');
+ const ts=gm('ts');document.getElementById('asHead').innerHTML=ts?`${tile(ts,44)}<div><div style="font-weight:900">${esc(ts.name)}</div><small style="color:var(--muted);font-weight:700">${ts.parent?'Nhóm con của '+esc(gm(ts.parent).name):'Nhóm cha'} · ${ts.n} giao dịch</small></div>`:''}
+// boot
+hydrate(document);
+document.querySelectorAll('[data-tabs]').forEach(t=>{if(t.id!=='gmType')tabs(t)});
+renderGM();
 function fit(){document.querySelectorAll('.fit').forEach(f=>{const w=+f.dataset.w,h=+f.dataset.h;const s=Math.min(f.dataset.max?1:9,f.clientWidth/w);f.style.height=h*s+'px';f.firstElementChild.style.transform=`scale(${s})`})}
 addEventListener('resize',fit);fit();
 })();
