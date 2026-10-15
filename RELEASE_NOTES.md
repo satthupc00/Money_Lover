@@ -1,18 +1,11 @@
-## Mon Money Lover 1.0.0 · bản đầu tiên
+## Mon Money Lover 1.0.1 · sửa lỗi khoá trên Android
 
 **Tải về**
-- **Điện thoại Android:** file `MonMoneyLover-1.0.0.apk`
-- **Máy tính Windows:** file `MonMoneyLover-Setup-1.0.0.exe`
+- **Điện thoại Android:** file `MonMoneyLover-1.0.1.apk` (cài đè lên bản cũ, dữ liệu giữ nguyên)
+- **Máy tính Windows:** file `MonMoneyLover-Setup-1.0.1.exe`
 
-**Có gì trong bản này**
-- Ghi chi tiêu / thu nhập, có ghi chú, chọn nhóm. Nhóm lồng trong nhóm cha, có sẵn 27 nhóm kèm icon.
-- Xem theo ngày, tháng, năm; lọc theo từng nhóm. Thẻ tổng có 2 tab Chi / Thu.
-- Biểu đồ xu hướng: tháng này chồng lên tháng trước và trung bình 3 tháng trước, tick để bật / tắt từng đường, xem riêng từng nhóm.
-- Gợi ý dạng menu thả xuống: theo số tiền (khi đã nhập từ 3 lần) và theo ghi chú.
-- Quản lý nhóm: tạo nhóm với thư viện 90+ icon, kéo thả đổi nhóm cha, chuyển, gộp nhóm.
-- Nhắc nhập chi tiêu lúc 20:00 mỗi ngày (đổi giờ được).
-- Khoá app: điện thoại dùng mã PIN tự đặt + vân tay; PC dùng mã khoá dài tự đặt.
-- Đồng bộ PC và điện thoại qua Firebase (đăng nhập email + mật khẩu), mất mạng vẫn ghi được.
-- Nút "Kiểm tra bản cập nhật"; đang dùng bản mới nhất thì hiện chữ LATEST xanh.
+**Đã sửa**
+- Lần đầu đặt mã PIN trên Android: nhập lại mã xong bị đứng ở màn hình nhập PIN, không vào được app. Giờ app chuyển sang bước hỏi bật vân tay rồi vào màn hình chính.
+- Thêm giới hạn thời gian cho các bước kiểm tra vân tay để app không bao giờ bị kẹt ở màn khoá.
 
 Created by Mondiro

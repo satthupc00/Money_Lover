@@ -23,20 +23,24 @@ export async function setCode(code) {
 }
 async function check(code) { const c = lockCfg(); return !!c.hash && (await hash(code, c.salt)) === c.hash; }
 
+// Lưu ý: KHÔNG trả plugin Capacitor ra khỏi hàm async (await sẽ gọi .then trên plugin và treo mãi).
+// Vì vậy plugin được bọc trong object { B }.
 async function bio() {
   if (!isNative) return null;
-  try { return (await import('@aparajita/capacitor-biometric-auth')).BiometricAuth; } catch { return null; }
+  try { const m = await import('@aparajita/capacitor-biometric-auth'); return { B: m.BiometricAuth }; } catch { return null; }
 }
+// chặn treo: hết giờ thì dùng giá trị mặc định
+const within = (p, ms, fallback) => Promise.race([p, new Promise((r) => setTimeout(() => r(fallback), ms))]);
 export async function bioAvailable() {
-  const B = await bio();
-  if (!B) return false;
-  try { return (await B.checkBiometry()).isAvailable; } catch { return false; }
+  const w = await bio();
+  if (!w) return false;
+  try { return !!(await within(w.B.checkBiometry(), 3000, { isAvailable: false })).isAvailable; } catch { return false; }
 }
 async function bioAuth() {
-  const B = await bio();
-  if (!B) return false;
+  const w = await bio();
+  if (!w) return false;
   try {
-    await B.authenticate({
+    await w.B.authenticate({
       reason: 'Mở khoá Mon Money Lover', cancelTitle: 'Dùng mã PIN',
       androidTitle: 'Mở khoá Mon Money Lover', androidSubtitle: 'Chạm vân tay vào cảm biến', androidConfirmationRequired: false,
       allowDeviceCredential: false,
@@ -134,7 +138,7 @@ export function runLock(root) {
       const c = lockCfg();
       if (c.enabled === false) return done();
       if (!c.hash) return setup();
-      if (usePin && c.bio) { if (await bioAuth()) return done(); }
+      if (usePin && c.bio) { if (await within(bioAuth(), 60000, false)) return done(); }
       unlock();
     };
     const setup = () => {
@@ -144,7 +148,12 @@ export function runLock(root) {
           onEnter: (a) => {
             setTimeout(() => pinPad(root, {
               title: 'Nhập lại mã PIN', sub: 'Để chắc là bạn không bấm nhầm.',
-              onEnter: async (b) => { if (b !== a) return 'Hai lần nhập không khớp, nhập lại nhé'; await setCode(a); askBio(); return true; },
+              onEnter: async (b) => {
+                if (b !== a) return 'Hai lần nhập không khớp, nhập lại nhé';
+                try { await setCode(a); } catch (e) { console.error(e); return 'Không lưu được mã, thử lại nhé'; }
+                askBio().catch(done);
+                return true;
+              },
             }), 0);
             return true;
           },
@@ -157,12 +166,13 @@ export function runLock(root) {
       }
     };
     const askBio = async () => {
+      root.querySelector('.err') && (root.querySelector('.err').textContent = '');
       if (!(await bioAvailable())) return done();
       root.innerHTML = shell(`<button type="button" class="fp" data-on title="Bật vân tay">${I('fingerprint')}</button><h3>Mở khoá bằng vân tay?</h3>
         <p>Từ lần sau chỉ cần chạm vân tay. Mã PIN vẫn dùng được khi vân tay không nhận.</p>
         <div class="pcform"><button class="btn primary big" type="button" data-on>${I('fingerprint')}Bật vân tay</button><button class="btn big" type="button" data-later>Để sau</button></div>`);
       root.querySelectorAll('[data-on]').forEach((b) => (b.onclick = async () => {
-        if (await bioAuth()) { saveLockCfg({ ...lockCfg(), bio: true }); }
+        if (await within(bioAuth(), 60000, false)) { saveLockCfg({ ...lockCfg(), bio: true }); }
         done();
       }));
       root.querySelector('[data-later]').onclick = done;
