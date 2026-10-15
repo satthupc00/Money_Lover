@@ -58,16 +58,28 @@ jobs:
 
   release:
     name: Phát hành trên GitHub
-    if: startsWith(github.ref, 'refs/tags/v')
+    # tự phát hành khi version trong package.json chưa có bản phát hành (hoặc khi đẩy tag v*)
+    if: github.event_name != 'pull_request'
     needs: [android, windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Kiểm tra version mới
+        id: ver
+        env: { GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
+        run: |
+          V=$(node -p "require('./package.json').version")
+          echo "tag=v$V" >> "$GITHUB_OUTPUT"
+          if gh release view "v$V" >/dev/null 2>&1; then echo "new=false" >> "$GITHUB_OUTPUT"; else echo "new=true" >> "$GITHUB_OUTPUT"; fi
       - uses: actions/download-artifact@v4
+        if: steps.ver.outputs.new == 'true'
         with: { path: dist-release, merge-multiple: true }
       - uses: softprops/action-gh-release@v2
+        if: steps.ver.outputs.new == 'true'
         with:
-          name: Mon Money Lover ${{ github.ref_name }}
+          tag_name: ${{ steps.ver.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Mon Money Lover ${{ steps.ver.outputs.tag }}
           body_path: RELEASE_NOTES.md
           make_latest: true
           files: dist-release/*
