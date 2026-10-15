@@ -1,7 +1,8 @@
 // Khung app: PC (>= 1000px), Fold mở (600-999px, 2 cột), điện thoại (< 600px, 1 cột)
 import { store, tops, gById, groupIds } from '../store.js';
 import { view, setView } from '../state.js';
-import { upd, checkUpdate, installUpdate } from '../updater.js';
+import { upd } from '../updater.js';
+import { updateAction } from './update.js';
 import { getReminder } from '../reminder.js';
 import { isElectron, isNative } from '../platform.js';
 import { I } from '../icons.js';
@@ -121,7 +122,7 @@ export function render(root) {
   root.querySelectorAll('[data-tab]').forEach((b) => (b.onclick = () => setView({ tab: b.dataset.tab })));
   root.querySelectorAll('[data-add]').forEach((b) => (b.onclick = openAdd));
   root.querySelectorAll('[data-search]').forEach((b) => (b.onclick = searchBox));
-  root.querySelectorAll('[data-upd]').forEach((b) => (b.onclick = () => (upd.status === 'available' || upd.status === 'ready' ? installUpdate() : checkUpdate())));
+  root.querySelectorAll('[data-upd]').forEach((b) => (b.onclick = updateAction));
   root.querySelectorAll('[data-fg]').forEach((b) => (b.onclick = () => setView({ group: view.group === b.dataset.fg ? null : b.dataset.fg })));
   root.querySelectorAll('[data-mshift]').forEach((b) => (b.onclick = () => { const c = new Date(view.cursor); c.setMonth(c.getMonth() + +b.dataset.mshift, 1); setView({ cursor: c }); }));
   wireLedger(root, openTx);

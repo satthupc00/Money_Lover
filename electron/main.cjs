@@ -87,7 +87,7 @@ function addMin(t, m) { const [h, mm] = t.split(':').map(Number); const x = h * 
 // tự cập nhật từ GitHub Releases
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
-autoUpdater.on('update-available', (i) => send('update', { type: 'available', version: i.version }));
+autoUpdater.on('update-available', (i) => send('update', { type: 'available', version: i.version, notes: typeof i.releaseNotes === 'string' ? i.releaseNotes.replace(/<[^>]+>/g, '\n').replace(/\n{2,}/g, '\n').trim() : '' }));
 autoUpdater.on('update-not-available', () => send('update', { type: 'latest' }));
 autoUpdater.on('download-progress', (p) => send('update', { type: 'progress', percent: p.percent }));
 autoUpdater.on('update-downloaded', (i) => send('update', { type: 'downloaded', version: i.version }));

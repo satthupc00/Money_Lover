@@ -3,7 +3,8 @@ import { store, signIn, signUp, signOutUser, resetPassword } from '../store.js';
 import { parseConfig, saveConfig, clearConfig, hasBuiltinConfig } from '../firebase.js';
 import { getReminder, applyReminder } from '../reminder.js';
 import { lockCfg, saveLockCfg, setCode, bioAvailable } from '../lock.js';
-import { upd, checkUpdate, installUpdate } from '../updater.js';
+import { upd } from '../updater.js';
+import { updateAction } from './update.js';
 import { isNative, isElectron, APP_VERSION } from '../platform.js';
 import { I } from '../icons.js';
 import { esc, ymd } from '../util.js';
@@ -35,7 +36,7 @@ export function settingsHtml() {
       <div class="actions" style="grid-column:1/-1;justify-content:flex-start"><button class="btn primary" type="submit" data-mode="in">Đăng nhập</button><button class="btn" type="submit" data-mode="up">Tạo tài khoản</button><button class="linkbtn" type="button" data-forgotpw>Quên mật khẩu?</button></div></form></div>`;
   else acc = row('cloud', esc(store.user.email), syncText(), '<button class="btn" type="button" data-logout>Đăng xuất</button>');
   const updBtn = upd.status === 'available' || upd.status === 'ready'
-    ? `<button class="btn upd-av" type="button" data-install>${I('refresh-cw')}${upd.status === 'ready' ? 'Cài và mở lại' : isElectron ? 'Tải bản mới' : 'Tải về'}</button>`
+    ? `<button class="btn upd-av" type="button" data-install>${I('refresh-cw')}${upd.status === 'ready' ? 'Cài đặt' : upd.status === 'downloading' ? 'Đang tải ' + Math.round(upd.progress || 0) + '%' : 'Xem bản mới'}</button>`
     : `<button class="btn ${upd.status === 'checking' ? 'spin' : ''}" type="button" data-check>${I('refresh-cw')}Kiểm tra bản cập nhật</button>`;
   return `<div class="set-h">Tài khoản và đồng bộ</div><div class="set-group">${acc}
       ${store.fbReady && !hasBuiltinConfig() && !store.user ? '<button class="linkbtn" type="button" data-fbclear style="justify-self:start">Đổi dự án Firebase</button>' : ''}</div>
@@ -97,8 +98,8 @@ export function wireSettings(root) {
   $('[data-chcode]') && ($('[data-chcode]').onclick = () => changeCode(false));
   $('[data-bio]') && ($('[data-bio]').onchange = (e) => { saveLockCfg({ ...lockCfg(), bio: e.target.checked }); toast(e.target.checked ? 'Đã bật vân tay' : 'Đã tắt vân tay'); });
   root.querySelectorAll('[data-pref]').forEach((b) => (b.onchange = async () => { prefs = await window.mondiro.setPrefs({ [b.dataset.pref]: b.checked }); }));
-  $('[data-check]') && ($('[data-check]').onclick = checkUpdate);
-  $('[data-install]') && ($('[data-install]').onclick = installUpdate);
+  $('[data-check]') && ($('[data-check]').onclick = updateAction);
+  $('[data-install]') && ($('[data-install]').onclick = updateAction);
   $('[data-csv]') && ($('[data-csv]').onclick = exportCsv);
   const fi = $('[data-importfile]');
   $('[data-import]').onclick = () => fi.click();

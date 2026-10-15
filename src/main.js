@@ -46,6 +46,10 @@ async function boot() {
       if (view.tab !== 'ledger') { setView({ tab: 'ledger' }); return; }
       App.minimizeApp();
     });
+    App.addListener('resume', async () => {
+      const { upd, installUpdate } = await import('./updater.js');
+      if (upd.needPerm && upd.status === 'ready') { upd.needPerm = false; installUpdate(); }
+    });
   }
   setTimeout(checkUpdate, 2500);
 }

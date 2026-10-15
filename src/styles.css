@@ -460,3 +460,17 @@ html, body, #root, .shell-m, .p-body, .inner-grid > div, .list { overflow-x: hid
 .tx .amt { flex: 0 0 auto; }
 .hero .bal { font-size: clamp(22px, 8vw, 30px); overflow: hidden; text-overflow: ellipsis; }
 .dsum { flex: 0 0 auto; }
+
+/* bảng cập nhật */
+.upd-notes { background: var(--soft); border-radius: 14px; padding: 10px 14px; max-height: 40vh; overflow: auto; font-size: 13.5px; }
+.upd-notes p { margin: 6px 0; color: var(--text); font-weight: 700; }
+.upd-notes ul { margin: 4px 0 8px; padding-left: 18px; }
+.upd-notes li { margin: 3px 0; color: var(--muted); font-weight: 600; }
+.upd-notes b { color: var(--text); }
+.upd-notes code { background: var(--surface); border-radius: 6px; padding: 0 5px; font-size: 12px; }
+.upd-warn { background: var(--red-soft); color: #A3262A; border-radius: 12px; padding: 8px 12px; font-weight: 700; font-size: 13px; }
+.upd-prog { flex: 1; position: relative; height: 46px; border-radius: 12px; background: var(--soft2); overflow: hidden; display: grid; place-items: center; min-width: 200px; }
+.upd-prog i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #5FD39A, #1FA463); transition: width .3s var(--ease-out); }
+.upd-prog span { position: relative; font-weight: 900; color: var(--text); }
+.dlg { max-width: calc(100vw - 32px); }
+.upd-notes code { white-space: normal; word-break: break-all; }
