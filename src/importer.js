@@ -2,113 +2,10 @@
 // Nhóm cũ được xếp vào nhóm cha của app mới theo bảng MAP. Nhập lại nhiều lần không bị trùng (id cố định theo dòng CSV).
 import { store, gById, importData } from './store.js';
 import { dkey } from './util.js';
+import { DEFAULT_GROUPS } from './defaults.js';
 
-// Cấu trúc nhóm giống hệt app Money Lover cũ (thứ tự, tên, nhóm con).
-// Mỗi dòng: [id, tên, icon, màu, kiểu]; dòng bắt đầu bằng ' ' (thụt vào) là nhóm con của nhóm cha ngay phía trên.
-const STRUCT = `
-an|Ăn uống|utensils|red
- an_sang|Ăn sáng|soup|red
- an_toi|Ăn tối|drumstick|red
- an_trua|Ăn trưa|sandwich|orange
- an_vatcty|ăn vặt trong cty|cookie|orange
- an_bao|Bao ăn ún|gift|pink
- an_cfsang|cafe sáng|coffee|brown
- an_cftrua|cafe trưa|cup-soda|teal
- an_nglieu|nguyên liệu nấu ăn|salad|green
- an_dua|nước dừa|cup-soda|green
- an_onha|đồ ăn uống ở nhà|soup|honey
-anvk|ăn uống với K|utensils|pink
-anvnha|Ăn uống với nhà|house|honey
-baoduong|Bảo dưỡng xe|wrench|blue
-baohiem|Bảo hiểm|heart-pulse|red
-bibo|Bi Bo|cat|orange
-cpkhac2|Các chi phí khác|receipt|brown
-cattoc|Cắt tóc, gội đầu|scissors|purple
-codinh|Chi phí cố định cho nhà|house|honey
- luongcm|Lương cM|banknote|green
- thuenha|Thuê nhà|key-round|honey
- internet|Tiền internet|wifi|indigo
- nuoc|Tiền Nước|droplet|blue
- cap|Tiền truyền hình cáp|tv|indigo
- dien|Tiền điện|zap|honey
- youtube|youtube|tv|red
-cpkhac|Chi phí khác|wallet|orange
-dichuyen|Di chuyển|bus|blue
-canhan|Đồ dùng cá nhân|shopping-cart|purple
- chamsoc|chăm sóc cơ thể|flower-2|pink
- decor|Decor PC|lamp|honey
- dientu|Đồ điện tử|smartphone|blue
- docty|đồ linh tinh trong cty|briefcase|brown
- figure|Figure|gem|pink
- game|Game gủng|gamepad-2|teal
- pc|Linh kiện PC|laptop|indigo
- linhtinh|Linh tinh|receipt|brown
- phanmem|Phần mềm|palette|indigo
- quanao|Quần áo|shirt|pink
-xang|Đổ xăng|fuel|blue
-dulich|Du lịch|plane|blue
- tq|Trung Quốc|plane-takeoff|red
- vungtau|Vũng Tàu|umbrella|teal
-noan|ghi nợ An|receipt|orange
-guixe|gửi xe|key-round|teal
-ktrano|K trả nợ|hand-coins|pink
- cdmuon|trả nợ cD mượn 20tr|banknote|pink
-kuan|ku An|baby|teal
-muasam|Mua sắm|shopping-bag|purple
-outsource|Outsource|pen-tool|indigo
-kphi|Phí tổng của K|heart|pink
- kchi|Chi phí cho K|heart|pink
- kmuon|cho K mượn|hand-coins|teal
- kco|K bệnh cái cổ|stethoscope|pink
- kbenh|K bệnh linh tinh|pill|pink
- kba|K cho ba|gift|orange
- khoc|K học hành|graduation-cap|indigo
- kmua|K mua đồ|shopping-bag|purple
- klt|K phát sinh linh tinh|receipt|brown
- kque|K và quê K|bus|blue
- ktro|tiền thuê trọ cho K|key-round|honey
- kno|trả nợ cho K|banknote|green
-suanha|Sửa nhà|wrench|brown
-suckhoe|Sức khỏe|heart-pulse|pink
-tet|Tết|party-popper|red
- lixi|lì xì bên K|gift|red
- tetk|tiền tết K|coins|honey
-theduc|Thể dục thể thao|dumbbell|teal
-chuyendi|Tiền chuyển đi|banknote|brown
-dt3g|Tiền điện thoại, 3G|phone|indigo
-tragop|trả góp|credit-card|brown
-tralai|Trả lãi|piggy-bank|honey
-vequek|về quê K|bus|orange
-phim|Xem phim|film|purple
-dodung|Đồ dùng linh tinh trong nhà|sofa|orange
- anvat|đồ ăn vặt|cookie|orange
- giavi|Gia vị nấu ăn|flame|red
-vayno|Vay, trả nợ|hand-coins|brown
- chovay|Cho vay|hand-coins|teal
- trano|Trả nợ|banknote|brown
-luong|Lương|briefcase|green|inc
-thukhac|Thu nhập khác|wallet|green|inc
-job|Job|pen-tool|teal|inc
-lai|Thu lãi|piggy-bank|honey|inc
-chothue|tiền cho thuê nhà|house|green|inc
-ktra|K trả lại|hand-coins|pink|inc
-antra|An trả lại|hand-coins|teal|inc
-kgiu|K đưa giữ dùm|wallet|pink|inc
-`;
 const keyOf = (name) => dkey(String(name || '').trim().normalize('NFC')).replace(/\s+/g, ' ');
-const LAYOUT = (() => {
-  const out = [];
-  let parent = null;
-  for (const line of STRUCT.split('\n')) {
-    if (!line.trim()) continue;
-    const child = line.startsWith(' ');
-    const [id, name, icon, color, type = 'exp'] = line.trim().split('|');
-    const g = { id: 'ml_' + id, name, icon, color, type, parent: child ? parent : null };
-    if (!child) parent = g.id;
-    out.push(g);
-  }
-  return out;
-})();
+const LAYOUT = DEFAULT_GROUPS;
 const BY_NAME = new Map(LAYOUT.map((g) => [keyOf(g.name), g]));
 export const LAYOUT_IDS = new Set(LAYOUT.map((g) => g.id));
 
@@ -164,12 +61,14 @@ export function planImport(text) {
     if (date < min) min = date;
     if (date > max) max = date;
   }
-  const groups = [...LAYOUT, ...extra.values()].map((g, i) => ({ ...g, order: i }));
+  // chỉ tạo nhóm còn thiếu; nhóm đã có giữ nguyên tên / icon / màu người dùng đã chỉnh
+  const groups = [...LAYOUT, ...extra.values()].map((g, i) => ({ ...g, order: i })).filter((g) => !gById(g.id));
+  const allGroups = [...LAYOUT, ...extra.values()];
   // nhóm sẽ xoá: nhóm trống (sau khi nhập) không thuộc cấu trúc Money Lover
   const used = new Set(tx.map((t) => t.groupId));
   const imported = new Set(tx.map((t) => t.id));
   for (const t of store.tx) if (!imported.has(t.id)) used.add(t.groupId);
-  const keep = new Set(groups.map((g) => g.id));
+  const keep = new Set(allGroups.map((g) => g.id));
   const remove = store.groups.filter((g) => !keep.has(g.id) && !used.has(g.id));
   const removed = new Set(remove.map((g) => g.id));
   // nhóm còn giao dịch nhập tay mà nhóm cha bị xoá: chuyển vào nhóm cha cùng tên trong cấu trúc mới, không có thì thành nhóm cha

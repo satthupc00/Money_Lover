@@ -1,5 +1,5 @@
 // Kho dữ liệu: chế độ "local" (chỉ trên máy) hoặc "cloud" (Firestore, có offline)
-import { DEFAULT_GROUPS } from './defaults.js';
+import { DEFAULT_GROUPS, LEGACY } from './defaults.js';
 import { ls, uid as newId } from './util.js';
 import { fb, initFirebase } from './firebase.js';
 
@@ -30,7 +30,29 @@ export const txCount = (id) => store.tx.reduce((n, t) => n + (t.groupId === id ?
 function loadLocal() {
   const d = ls.get(LS_DATA);
   if (d && Array.isArray(d.groups)) { store.groups = d.groups; store.tx = d.tx || []; }
-  else { store.groups = DEFAULT_GROUPS.map((g, i) => ({ ...g, order: i })); store.tx = []; saveLocal(); }
+  else { store.groups = DEFAULT_GROUPS.map((g) => ({ ...g })); store.tx = []; saveLocal(); ls.set(MIGR_KEY('local'), 1); }
+}
+
+// Nâng cấp dữ liệu bản cũ: dùng cấu trúc nhóm Money Lover + bộ icon mới (chạy 1 lần cho mỗi kho dữ liệu)
+const MIGR_KEY = (who) => 'mml.migr2.' + who;
+function migrate(who) {
+  if (ls.get(MIGR_KEY(who))) return;
+  const ops = [];
+  const have = new Set(store.groups.map((g) => g.id));
+  for (const d of DEFAULT_GROUPS) {
+    if (!have.has(d.id)) ops.push({ type: 'set', col: 'groups', id: d.id, data: strip(d) });
+    else ops.push({ type: 'update', col: 'groups', id: d.id, data: { icon: d.icon, color: d.color, order: d.order } });
+  }
+  for (const t of store.tx) if (LEGACY[t.groupId]) ops.push({ type: 'update', col: 'tx', id: t.id, data: { groupId: LEGACY[t.groupId] } });
+  for (const g of store.groups) {
+    if (LEGACY[g.id]) ops.push({ type: 'delete', col: 'groups', id: g.id });
+    else if (g.parent && LEGACY[g.parent]) {
+      const np = DEFAULT_GROUPS.find((d) => d.id === LEGACY[g.parent]);
+      ops.push({ type: 'update', col: 'groups', id: g.id, data: { parent: np ? (np.parent || np.id) : null } });
+    }
+  }
+  ls.set(MIGR_KEY(who), 1);
+  apply(ops);
 }
 function saveLocal() { ls.set(LS_DATA, { groups: store.groups, tx: store.tx }); }
 
@@ -38,6 +60,7 @@ function saveLocal() { ls.set(LS_DATA, { groups: store.groups, tx: store.tx }); 
 let unwatch = null;
 export function initStore() {
   loadLocal();
+  migrate('local');
   store.fbReady = initFirebase();
   if (store.fbReady) {
     fb.onUser(async (u) => {
@@ -50,9 +73,11 @@ export function initStore() {
       try {
         if (await fb.isEmpty(u.uid)) await seedCloud(u.uid);
       } catch (e) { console.warn('seed', e); }
+      let gotG = false, gotT = false;
+      const ready = () => { if (gotG && gotT) migrate(u.uid); };
       unwatch = fb.watch(u.uid,
-        (gs) => { store.groups = gs; store.syncState = 'synced'; emit(); },
-        (ts) => { store.tx = ts; store.syncState = 'synced'; emit(); },
+        (gs) => { store.groups = gs; store.syncState = 'synced'; gotG = true; ready(); emit(); },
+        (ts) => { store.tx = ts; store.syncState = 'synced'; gotT = true; ready(); emit(); },
         (e) => { console.error(e); store.syncState = 'error'; emit(); });
     });
   }
@@ -62,7 +87,7 @@ export function initStore() {
 // tài khoản mới: đưa dữ liệu đang có trên máy lên (hoặc nhóm mặc định)
 async function seedCloud(u) {
   const local = ls.get(LS_DATA);
-  const groups = local?.groups?.length ? local.groups : DEFAULT_GROUPS.map((g, i) => ({ ...g, order: i }));
+  const groups = local?.groups?.length ? local.groups : DEFAULT_GROUPS.map((g) => ({ ...g }));
   const tx = local?.tx || [];
   const ops = [
     ...groups.map((g) => ({ type: 'set', col: 'groups', id: g.id, data: strip(g) })),
