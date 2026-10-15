@@ -33,7 +33,7 @@ npm run electron       # chạy app PC (cần tải Electron)
 npm run android:sync   # build web rồi chép vào dự án Android (android/)
 ```
 
-Phát hành bản mới: tăng `version` trong `package.json`, sửa `RELEASE_NOTES.md`, rồi tạo tag `vX.Y.Z`. GitHub Actions sẽ build APK + file cài Windows và đăng lên Releases; app tự phát hiện bản mới qua nút "Kiểm tra bản cập nhật".
+Phát hành bản mới: tăng `version` trong `package.json`, sửa `RELEASE_NOTES.md`, rồi push. GitHub Actions sẽ build APK + file cài Windows và tự đăng bản `vX.Y.Z` lên Releases nếu version đó chưa có; app tự phát hiện bản mới qua nút "Kiểm tra bản cập nhật".
 
 Cấu trúc:
 
