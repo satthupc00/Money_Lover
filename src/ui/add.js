@@ -69,7 +69,7 @@ export function pickGroup(type, current, compact) {
   return new Promise((resolve) => {
     const list = () => tops(type).map((g) => [g, ...kids(g.id)]).flat();
     const html = `<h3 class="pg-h">${I('folder-tree')}Chọn nhóm ${type === 'inc' ? 'thu' : 'chi'}</h3>
-      <input class="inp" id="gq" placeholder="Tìm nhóm" autocomplete="off"><div class="pick gpicklist"></div>
+      <div class="pg-tools"><input class="inp" id="gq" placeholder="Tìm nhóm" autocomplete="off"><button type="button" class="btn primary" data-newg>${I('plus')}Tạo nhóm mới</button></div><div class="pick gpicklist"></div>
       ${compact ? '' : '<div class="actions"><button class="btn" type="button" data-x>Huỷ</button></div>'}`;
     let done = false;
     const box = compact ? sheet(html, { cls: 'tall', onClose: () => !done && resolve(null) }) : dialog(html, { onClose: () => !done && resolve(null) });
@@ -81,6 +81,11 @@ export function pickGroup(type, current, compact) {
       out.querySelectorAll('[data-t]').forEach((b) => (b.onclick = () => { done = true; resolve(b.dataset.t); box.close(); }));
     };
     q.oninput = draw; draw();
+    box.el.querySelector('[data-newg]').onclick = async () => {
+      const { openEditorSheet } = await import('./groups.js');
+      done = true; box.close();
+      openEditorSheet(null, { type, compact, onDone: (id) => resolve(id || null) });
+    };
     out.querySelector('.on')?.scrollIntoView({ block: 'center' });
     if (!compact) setTimeout(() => q.focus(), 50);
   });

@@ -58,10 +58,20 @@ export function confirmBox(title, text, okLabel = 'Đồng ý', danger = false) 
 }
 
 // tabs có thanh trượt: đặt vị trí .ind theo nút đang chọn
+const tabPos = {};
 export function placeTabs(root) {
-  root.querySelectorAll('.tabs').forEach((t) => {
+  root.querySelectorAll('.tabs').forEach((t, i) => {
     const ind = t.querySelector('.ind'), on = t.querySelector('button.on');
-    if (ind && on) { ind.style.left = on.offsetLeft + 'px'; ind.style.width = on.offsetWidth + 'px'; }
+    if (!ind || !on) return;
+    const key = t.dataset.tabkey || 'tabs' + i, to = [on.offsetLeft, on.offsetWidth], from = tabPos[key];
+    if (from && (from[0] !== to[0] || from[1] !== to[1])) {
+      ind.style.transition = 'none';
+      ind.style.left = from[0] + 'px'; ind.style.width = from[1] + 'px';
+      void ind.offsetWidth;
+      ind.style.transition = '';
+    }
+    ind.style.left = to[0] + 'px'; ind.style.width = to[1] + 'px';
+    tabPos[key] = to;
   });
 }
 

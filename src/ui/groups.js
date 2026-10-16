@@ -81,7 +81,7 @@ function wireEditor(el, compact, rerender, done) {
       updateGroup(ed.id, { name, icon: ed.icon, color: ed.color, parent: ed.parent || null });
       toast(`Đã lưu "${name}"`);
     } else {
-      addGroup({ name, icon: ed.icon, color: ed.color, type: ed.type, parent: ed.parent || null });
+      gs.lastCreated = addGroup({ name, icon: ed.icon, color: ed.color, type: ed.type, parent: ed.parent || null });
       toast(`Đã tạo nhóm "${name}"`);
     }
     gs.ed = blank(view.gmType);
@@ -94,8 +94,14 @@ function editInto(id) {
   gs.libTab = Object.keys(LIB).find((k) => LIB[k].includes(g.icon)) || gs.libTab;
 }
 
-const typeTabs = () => `<div class="tabs">${[['exp', 'Nhóm chi'], ['inc', 'Nhóm thu']].map(([k, n]) => `<button type="button" data-gmtype="${k}" class="${view.gmType === k ? 'on' : ''}">${n}</button>`).join('')}<span class="ind"></span></div>`;
-const setType = (t) => { gs.selected.clear(); if (!gs.ed.id) gs.ed = blank(t); setView({ gmType: t }); };
+const typeTabs = () => `<div class="tabs" data-tabkey="gmtype">${[['exp', 'Nhóm chi'], ['inc', 'Nhóm thu']].map(([k, n]) => `<button type="button" data-gmtype="${k}" class="${view.gmType === k ? 'on' : ''}">${n}</button>`).join('')}<span class="ind"></span></div>`;
+const setType = (t) => {
+  if (t === view.gmType) return;
+  gs.selected.clear(); if (!gs.ed.id) gs.ed = blank(t);
+  document.body.dataset.swipe = t === 'inc' ? 'next' : 'prev';
+  setView({ gmType: t });
+  setTimeout(() => delete document.body.dataset.swipe, 400);
+};
 
 // ---------- PC ----------
 export function groupsDeskHtml() {
@@ -155,11 +161,17 @@ export function groupsMobileHtml() {
     <div class="lbl" style="padding:0 4px">Chạm vào nhóm để chuyển, gộp, sửa</div>
     ${tops(view.gmType).map((g) => `<div class="plist">${row(g)}${kids(g.id).map((k) => row(k, 1)).join('')}</div>`).join('')}`;
 }
-export function openEditorSheet(id) {
-  if (id) editInto(id); else gs.ed = blank(view.gmType);
-  const box = sheet('<div data-editor style="display:flex;flex-direction:column;gap:12px"></div>');
+// mở form tạo / sửa nhóm. opts: { type, compact, onDone(idMới) } — dùng cả khi đang nhập giao dịch
+export function openEditorSheet(id, opts = {}) {
+  const compact = opts.compact ?? true;
+  if (id) editInto(id); else gs.ed = blank(opts.type || view.gmType);
+  gs.lastCreated = null;
+  const html = '<div data-editor style="display:flex;flex-direction:column;gap:12px"></div>';
+  let finished = false;
+  const onClose = () => { if (!finished && opts.onDone) opts.onDone(null); };
+  const box = compact ? sheet(html, { cls: 'tall', onClose }) : dialog(html, { wide: true, onClose });
   const el = box.el.querySelector('[data-editor]');
-  const redraw = () => { el.innerHTML = editorHtml(true); wireEditor(el, true, redraw, () => box.close()); };
+  const redraw = () => { el.innerHTML = editorHtml(compact); wireEditor(el, compact, redraw, (saved) => { finished = true; box.close(); if (opts.onDone) opts.onDone(saved ? gs.lastCreated : null); }); };
   redraw();
 }
 export function wireGroupsMobile(root) {

@@ -14,6 +14,7 @@ import { openTxForm } from './add.js';
 import { groupsDeskHtml, wireGroupsDesk, groupsMobileHtml, wireGroupsMobile } from './groups.js';
 import { settingsHtml, wireSettings, updLabel } from './settings.js';
 
+let pressedTab = null;
 export const layout = () => (innerWidth >= 1000 ? 'desk' : innerWidth >= 600 ? 'tab' : 'phone');
 export const openTx = (tx) => openTxForm(tx, { compact: layout() !== 'desk', date: view.period === 'day' ? ymd(view.cursor) : undefined });
 export const openAdd = () => openTx(null);
@@ -119,7 +120,8 @@ export function render(root) {
   render.done = true;
   placeTabs(root);
 
-  root.querySelectorAll('[data-tab]').forEach((b) => (b.onclick = () => setView({ tab: b.dataset.tab })));
+  root.querySelectorAll('[data-tab]').forEach((b) => (b.onclick = () => { pressedTab = b.closest('.bnav') ? b.dataset.tab : null; setView({ tab: b.dataset.tab }); }));
+  if (pressedTab) { const nb = root.querySelector(`.bnav [data-tab="${pressedTab}"]`); pressedTab = null; if (nb) { nb.classList.add('bounce'); setTimeout(() => nb.classList.remove('bounce'), 450); } }
   root.querySelectorAll('[data-add]').forEach((b) => (b.onclick = () => {
     if (b.classList.contains('fab')) { b.classList.remove('bounce'); void b.offsetWidth; b.classList.add('bounce'); setTimeout(openAdd, 140); }
     else openAdd();

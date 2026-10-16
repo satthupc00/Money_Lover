@@ -48,14 +48,14 @@ export function heroHtml() {
   return `<div class="hero ${k === 'inc' ? 'inc' : ''}">
     <span class="rem" title="Thu trừ chi ${pw}">Còn lại ${rest < 0 ? '−' : ''}${shortM(rest)}</span>
     <small>${k === 'exp' ? 'Chi tiêu' : 'Thu nhập'} ${pw}${view.group ? ' · ' + esc(gById(view.group)?.name) : ''}</small>
-    <div class="bal">${v ? (k === 'exp' ? '−' : '+') : ''}${vnd(v)}</div>
+    <div class="bal num">${vnd(v)}</div>
     <div class="io" role="tablist"><button type="button" role="tab" data-hero="exp" class="${k === 'exp' ? 'on' : ''}">Chi tiêu</button><button type="button" role="tab" data-hero="inc" class="${k === 'inc' ? 'on' : ''}">Thu nhập</button></div></div>`;
 }
 
 export const txRow = (t) => {
   const g = gById(t.groupId) || { name: 'Nhóm đã xoá', icon: 'receipt', color: 'brown' };
   const sub = [t.note, t.exclude ? 'không tính vào báo cáo' : ''].filter(Boolean).join(' · ');
-  return `<button type="button" class="tx" data-tx="${t.id}">${tile(g, 44)}<div class="t"><div>${esc(g.name)}</div>${sub ? `<small>${esc(sub)}</small>` : ''}</div><div class="amt ${t.type === 'inc' ? 'inc' : ''}">${t.type === 'inc' ? '+' : '−'}${vnd(t.amount)}</div></button>`;
+  return `<button type="button" class="tx" data-tx="${t.id}">${tile(g, 44)}<div class="t"><div>${esc(g.name)}</div>${sub ? `<small>${esc(sub)}</small>` : ''}</div><div class="amt num ${t.type === 'inc' ? 'inc' : 'exp'}">${vnd(t.amount)}</div></button>`;
 };
 
 const sortTx = (a, b) => (b.date.localeCompare(a.date)) || ((b.createdAt || 0) - (a.createdAt || 0));
@@ -74,7 +74,7 @@ export function listHtml() {
     const dt = new Date(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10));
     const today = ymd(), yd = new Date(); yd.setDate(yd.getDate() - 1);
     const rel = d === today ? 'Hôm nay' : d === ymd(yd) ? 'Hôm qua' : ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'][dt.getDay()];
-    h += `<section class="dayblk"><header class="dayhd"><span class="dnum">${dt.getDate()}</span><span class="dmeta"><b>${rel}</b><small>tháng ${dt.getMonth() + 1} ${dt.getFullYear()}</small></span><span class="dsum ${s > 0 ? 'inc' : ''}">${s > 0 ? '+' : s < 0 ? '−' : ''}${vnd(s)}</span></header>${ts.map(txRow).join('')}</section>`;
+    h += `<section class="dayblk"><header class="dayhd"><span class="dnum">${dt.getDate()}</span><span class="dmeta"><b>${rel}</b><small>tháng ${dt.getMonth() + 1} ${dt.getFullYear()}</small></span><span class="dsum num ${s > 0 ? 'inc' : s < 0 ? 'exp' : ''}">${vnd(s)}</span></header>${ts.map(txRow).join('')}</section>`;
   }
   return h;
 }
@@ -100,7 +100,7 @@ export function wireLedger(root, openTx) {
 }
 const sameMonth = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
 
-export const periodTabs = () => `<div class="tabs">${[['day', 'Ngày'], ['month', 'Tháng'], ['year', 'Năm']].map(([k, n]) => `<button type="button" data-period="${k}" class="${view.period === k ? 'on' : ''}">${n}</button>`).join('')}<span class="ind"></span></div>`;
+export const periodTabs = () => `<div class="tabs" data-tabkey="period">${[['day', 'Ngày'], ['month', 'Tháng'], ['year', 'Năm']].map(([k, n]) => `<button type="button" data-period="${k}" class="${view.period === k ? 'on' : ''}">${n}</button>`).join('')}<span class="ind"></span></div>`;
 export const periodNav = () => `<div class="period"><button class="icb" type="button" data-shift="-1" title="Kỳ trước (←)">${I('chevron-left')}</button><span>${periodLabel()}</span><button class="icb" type="button" data-shift="1" title="Kỳ sau (→)">${I('chevron-right')}</button></div>`;
 export const groupFilterChip = () => view.group ? `<button type="button" class="chip on" data-clear-group title="Bỏ lọc">${tile(gById(view.group), 24)}${esc(gById(view.group)?.name)} ${I('x')}</button>` : '';
 export { fmt };

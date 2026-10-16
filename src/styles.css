@@ -548,3 +548,16 @@ body[data-swipe=next] .hero, body[data-swipe=prev] .hero { animation: none !impo
 body[data-swipe=next] .period > span, body[data-swipe=next] .card, body[data-swipe=next] .shell-m .p-body > .plist, body[data-swipe=next] .gm-list { animation: swNext .32s var(--ease-out); }
 body[data-swipe=prev] .period > span, body[data-swipe=prev] .card, body[data-swipe=prev] .shell-m .p-body > .plist, body[data-swipe=prev] .gm-list { animation: swPrev .32s var(--ease-out); }
 body[data-swipe] .hero .bal { animation: none !important; }
+
+/* số tiền: không dấu, phân biệt bằng màu */
+.tx .amt.exp, .dsum.exp { color: var(--red); }
+.tx .amt.inc, .dsum.inc { color: var(--green); }
+/* nút điều hướng nhún khi bấm */
+.bnav button.bounce:not(.fab) { animation: navBounce .42s var(--ease-spring); }
+@keyframes navBounce { 0% { transform: scale(1); } 35% { transform: scale(.82); } 70% { transform: scale(1.12); } 100% { transform: scale(1); } }
+.bnav button:not(.fab):active { transform: scale(.88); }
+/* đổi tab nhóm: danh sách trượt */
+body[data-swipe=next] .shell-m .p-body > .plist, body[data-swipe=next] .gm-list { animation: swNext .32s var(--ease-out); }
+.pg-tools { display: flex; gap: 8px; }
+.pg-tools .inp { flex: 1; min-width: 0; }
+.pg-tools .btn { height: 44px; flex: 0 0 auto; }

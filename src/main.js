@@ -1,5 +1,5 @@
 import './styles.css';
-import { initStore, subscribe } from './store.js';
+import { initStore, subscribe, store } from './store.js';
 import { onView, view, setView } from './state.js';
 import { onUpd, checkUpdate } from './updater.js';
 import { applyReminder, getReminder, onReminderTap } from './reminder.js';
@@ -17,6 +17,17 @@ initStore();
 
 async function boot() {
   await runLock(root);
+  // mở app: nhảy tới tháng có giao dịch gần nhất (nếu tháng này chưa có)
+  let jumped = false;
+  const jumpToLatest = () => {
+    if (jumped || !store.tx.length) return;
+    jumped = true;
+    const last = store.tx.reduce((m, t) => (t.date > m ? t.date : m), '');
+    const now = new Date(), d = new Date(+last.slice(0, 4), +last.slice(5, 7) - 1, 1);
+    if (last && d < new Date(now.getFullYear(), now.getMonth(), 1)) view.cursor = d;
+  };
+  jumpToLatest();
+  subscribe(() => jumpToLatest());
   const draw = () => render(root);
   draw();
   const later = debounce(draw, 30);
