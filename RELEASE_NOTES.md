@@ -1,18 +1,11 @@
-## Mon Money Lover 1.0.14 · tông Trắng xám và sổ thoáng hơn
+## Mon Money Lover 1.0.15 · cập nhật nhanh hơn trên máy Samsung
 
 **Tải về**
-- **Điện thoại Android:** `MonMoneyLover-1.0.14.apk`
-- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.14.exe`
+- **Điện thoại Android:** `MonMoneyLover-1.0.15.apk`
+- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.15.exe`
 
-**Tông màu mới: Trắng xám**
-- Vào **Cài đặt › Giao diện › Tông màu** để chọn **Ấm áp** (như cũ) hoặc **Trắng xám** (giống Money Lover, dịu mắt hơn khi nhìn lâu).
-- Ở tông Trắng xám, thẻ tổng chi / thu có nền trắng, số tiền tô đỏ hoặc xanh; thanh tiêu đề trên PC chuyển sang xám đậm.
-- App nhớ tông màu đã chọn trên từng máy.
-
-**Sổ giao dịch**
-- Các ngày trải hết bề ngang màn hình điện thoại, không còn bọc trong khung, nhìn thoáng như Money Lover.
-
-**Sửa lỗi**
-- PC: số tiền trong danh sách nhóm bên trái không còn bị cắt.
+**Cập nhật trên Samsung**
+- Hộp "Có bản mới" có thêm nút **Mở Bảo mật và quyền riêng tư**: bấm là tới thẳng trang có **Trình chặn tự động**, tắt tạm rồi quay lại app bấm Cài đặt, không phải tự tìm trong Cài đặt nữa.
+- Cài xong có thể bật lại Trình chặn tự động.
 
 Created by Mondiro

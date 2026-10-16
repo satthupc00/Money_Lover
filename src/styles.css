@@ -722,3 +722,6 @@ html[data-theme=gray] .hero .io .ind { box-shadow: 0 2px 6px rgba(20, 24, 32, .1
 .inner-grid .dayblk { border-radius: 16px; }
 .desk .list.daylist .dayblk { border-radius: 16px; padding: 2px 16px 6px; }
 .mini { grid-template-columns: minmax(0, 1fr); }
+.upd-tip { display: flex; gap: 10px; align-items: flex-start; background: var(--soft); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 15px; line-height: 1.45; }
+.upd-tip > .lc { width: 22px; height: 22px; flex: 0 0 auto; color: var(--red); margin-top: 1px; }
+.upd-tip .linkbtn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 0 2px; }

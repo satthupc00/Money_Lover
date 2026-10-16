@@ -1,5 +1,5 @@
 // Bảng thông báo có bản mới: nội dung bản mới, tiến độ tải, nút cài
-import { upd, onUpd, installUpdate, checkUpdate } from '../updater.js';
+import { upd, onUpd, installUpdate, checkUpdate, openSecurity } from '../updater.js';
 import { isNative, isElectron, APP_VERSION } from '../platform.js';
 import { I } from '../icons.js';
 import { esc } from '../util.js';
@@ -41,6 +41,8 @@ function body() {
     ${upd.notes ? `<div class="upd-notes">${notesHtml(upd.notes)}</div>` : ''}
     ${upd.needPerm && isNative ? '<div class="upd-warn">Android cần bạn cho phép cài app từ Mon Money Lover: bật <b>"Cho phép từ nguồn này"</b> rồi quay lại, app sẽ tự mở trình cài.</div>' : ''}
     ${s === 'error' ? `<div class="upd-warn">${esc(upd.error)}</div>` : ''}
+    ${isNative && upd.samsung && s !== 'error' ? `<div class="upd-tip">${I('shield-check')}<div><b>Máy Samsung:</b> nếu bị "Trình chặn tự động" chặn cài, bấm nút bên dưới → chọn <b>Trình chặn tự động</b> → tắt tạm → quay lại app bấm Cài đặt. Cài xong có thể bật lại.
+      <button class="linkbtn" type="button" data-sec>${I('arrow-right')}Mở Bảo mật và quyền riêng tư</button></div></div>` : ''}
     <div class="actions"><button class="btn" type="button" data-x>Để sau</button>${btn}</div>`;
 }
 
@@ -51,6 +53,7 @@ export function openUpdateDialog() {
 }
 function wire() {
   box?.el.querySelector('[data-inst]')?.addEventListener('click', () => { if (upd.status === 'error') upd.status = 'available'; installUpdate(); });
+  box?.el.querySelector('[data-sec]')?.addEventListener('click', openSecurity);
 }
 onUpd(() => {
   if (box) { box.el.innerHTML = body(); wire(); }

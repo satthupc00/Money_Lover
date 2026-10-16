@@ -5,7 +5,10 @@ import { isElectron, isNative, APP_VERSION, REPO } from './platform.js';
 // plugin Android tự viết (android/.../ApkUpdaterPlugin.java): tải APK rồi mở trình cài
 const ApkUpdater = registerPlugin('ApkUpdater');
 
-export const upd = { status: 'idle', version: '', progress: 0, apkUrl: '', error: '', notes: '', needPerm: false, asked: false };
+export const upd = { status: 'idle', version: '', progress: 0, apkUrl: '', error: '', notes: '', needPerm: false, asked: false, samsung: false };
+// máy Samsung: "Trình chặn tự động" chặn cài APK ngoài cửa hàng -> nhắc và có nút mở nhanh trang bảo mật
+if (isNative) ApkUpdater.device().then((r) => { upd.samsung = !!r?.samsung; }).catch(() => {});
+export const openSecurity = () => ApkUpdater.openSecurity().catch(() => {});
 const subs = new Set();
 export const onUpd = (f) => { subs.add(f); return () => subs.delete(f); };
 const emit = () => subs.forEach((f) => f());

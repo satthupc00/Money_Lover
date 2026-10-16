@@ -81,6 +81,30 @@ public class ApkUpdaterPlugin extends Plugin {
         }).start();
     }
 
+    // hãng máy: dùng để nhắc tắt "Trình chặn tự động" trên Samsung
+    @PluginMethod
+    public void device(PluginCall call) {
+        JSObject r = new JSObject();
+        r.put("samsung", "samsung".equalsIgnoreCase(Build.MANUFACTURER));
+        call.resolve(r);
+    }
+
+    // mở trang "Bảo mật và quyền riêng tư" (Samsung để Trình chặn tự động ở trang này); không mở được thì mở Cài đặt
+    @PluginMethod
+    public void openSecurity(PluginCall call) {
+        String[] actions = { Settings.ACTION_SECURITY_SETTINGS, Settings.ACTION_SETTINGS };
+        for (String a : actions) {
+            try {
+                Intent i = new Intent(a);
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(i);
+                call.resolve();
+                return;
+            } catch (Exception e) { /* thử cách tiếp theo */ }
+        }
+        call.reject("Không mở được Cài đặt");
+    }
+
     @PluginMethod
     public void install(PluginCall call) {
         try {
