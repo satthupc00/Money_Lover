@@ -13,7 +13,7 @@ Chuẩn tham chiếu: header của **Mondiro GifCap** / **Mondiro Spine Preview 
 
 ## 0. Trước khi bắt đầu một app MỚI
 
-1. **Hỏi tên app**: luôn hỏi người dùng tên app, kèm **1 tên đề xuất** do Claude tự đặt (ngắn, tiếng Anh, dạng "Mondiro <Tên>"). Dùng AskUserQuestion nếu có.
+1. **Hỏi tên app**: luôn hỏi người dùng tên app, kèm **1 tên đề xuất** do Claude tự đặt (ngắn, tiếng Anh, dạng "Mondiro <Tên>" hoặc "Mon <Tên>", xem §2). Dùng AskUserQuestion nếu có.
 2. Nếu yêu cầu còn chỗ đắn đo (tính năng, platform, cách lưu file…) → hỏi lại, mỗi lần ít câu, có phương án đề xuất.
 3. Nếu có cách làm tốt hơn yêu cầu → đề xuất + giải thích vì sao, để người dùng chọn.
 4. **Luôn vẽ icon** cho app mới (xem §4).
@@ -52,6 +52,11 @@ html,body{margin:0;height:100%;background:var(--chrome);color:var(--text);
 
 Góc trái trên cùng: **icon app** → bên phải là **"Mondiro"** (đỏ) + **tên app** (trắng), cùng size; dòng dưới là mô tả ngắn tính năng (1 dòng, tiếng Việt, ≤ ~45 ký tự). Kích thước **giống hệt giữa các app**.
 
+**Hai dạng tên (chọn theo tên app):**
+- Tên dạng **"Mondiro + tên app"** (vd Mondiro GifCap) → làm như cũ: `<span class="m">Mondiro</span> <span class="a">GifCap</span>`.
+- Tên có chữ **"Mon"** (vd Mon Money Lover) → chữ **Mon** thay chỗ chữ Mondiro, **không** thêm "Mondiro" phía trước: `<span class="m">Mon</span> <span class="a">Money Lover</span>`.
+- Rule màu giữ nguyên ở cả hai dạng: phần đầu (Mondiro / Mon) màu đỏ `--red`, phần còn lại màu trắng; cùng size, cùng font, cùng icon 34px, cùng dòng mô tả.
+
 ```html
 <header class="top">
   <div class="brand">
@@ -76,8 +81,8 @@ Góc trái trên cùng: **icon app** → bên phải là **"Mondiro"** (đỏ) +
 .tools{display:flex;gap:8px}
 ```
 
-- `<title>` và `BrowserWindow.title` = "Mondiro Tên App". `backgroundColor:'#1F2126'` để không chớp trắng khi mở.
-- Ghi chú tên: luôn là **Mondiro** (không phải "Mondrio").
+- `<title>` và `BrowserWindow.title` = đúng tên hiển thị trên header ("Mondiro Tên App" hoặc "Mon Tên App"). `backgroundColor:'#1F2126'` để không chớp trắng khi mở.
+- Ghi chú tên: luôn là **Mondiro** (không phải "Mondrio"). Dòng "Created by Mondiro" (§3) giữ nguyên ở mọi app, kể cả app dạng "Mon".
 
 ## 3. "Created by Mondiro" (BẮT BUỘC mọi app)
 
@@ -208,7 +213,7 @@ input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.25);box-shadow:0
 
 ## 8. Checklist trước khi giao
 
-- [ ] Header đúng §2 (icon 34px, "Mondiro" đỏ 17px bold + tên app trắng, mô tả 11.5px muted).
+- [ ] Header đúng §2 (icon 34px, "Mondiro" hoặc "Mon" đỏ 17px bold + phần tên còn lại trắng, mô tả 11.5px muted).
 - [ ] Có "Created by Mondiro".
 - [ ] Có icon mới (app mới) hợp với app, đủ size .png/.ico (+ .svg gốc) hoặc adaptive icon.
 - [ ] Dùng đúng token màu §1, không màu lạ ngoài bảng.
