@@ -8,10 +8,12 @@ import { isNative, isElectron } from './platform.js';
 import { initScrollbars } from './ui/common.js';
 import { render, layout, openAdd, shortcuts } from './ui/shell.js';
 import { ls, debounce } from './util.js';
+import { applyTheme } from './theme.js';
 
 const root = document.getElementById('root');
 document.body.classList.toggle('electron', isElectron);
 document.body.classList.toggle('native', isNative);
+applyTheme();
 initScrollbars();
 initStore();
 

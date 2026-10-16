@@ -26,12 +26,15 @@ function boundsOk(b) {
   return screen.getAllDisplays().some((d) => b.x >= d.workArea.x - 50 && b.y >= d.workArea.y - 50 && b.x + 200 <= d.workArea.x + d.workArea.width && b.y + 100 <= d.workArea.y + d.workArea.height);
 }
 
+// màu nền + thanh tiêu đề theo tông màu đang chọn trong app
+const THEME = { warm: { bg: '#FFF6EC', bar: '#3E2A22' }, gray: { bg: '#F1F2F4', bar: '#24262B' } };
+
 function createWindow(hidden) {
   const b = boundsOk(prefs.bounds) ? prefs.bounds : { width: 1280, height: 820 };
   win = new BrowserWindow({
     ...b, minWidth: 1000, minHeight: 660, show: false, title: 'Mon Money Lover', icon: ICON,
-    backgroundColor: '#FFF6EC',
-    titleBarStyle: 'hidden', titleBarOverlay: { color: '#3E2A22', symbolColor: '#FFFFFF', height: 58 },
+    backgroundColor: THEME[prefs.theme]?.bg || THEME.warm.bg,
+    titleBarStyle: 'hidden', titleBarOverlay: { color: THEME[prefs.theme]?.bar || THEME.warm.bar, symbolColor: '#FFFFFF', height: 58 },
     webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true },
   });
   if (prefs.maximized) win.maximize();
@@ -100,6 +103,11 @@ ipcMain.on('update:check', () => {
 ipcMain.on('update:download', () => autoUpdater.downloadUpdate().catch(() => {}));
 ipcMain.on('update:install', () => { quitting = true; autoUpdater.quitAndInstall(false, true); });
 ipcMain.on('reminder:set', (_e, r) => { prefs.reminder = { enabled: !!r.enabled, time: r.time || '20:00' }; savePrefs(); });
+ipcMain.on('theme:set', (_e, t) => {
+  if (!THEME[t]) return;
+  prefs.theme = t; savePrefs();
+  if (win) { win.setBackgroundColor(THEME[t].bg); try { win.setTitleBarOverlay({ color: THEME[t].bar, symbolColor: '#FFFFFF', height: 58 }); } catch { /* bỏ qua */ } }
+});
 ipcMain.handle('prefs:get', () => ({ tray: prefs.tray, autostart: prefs.autostart }));
 ipcMain.handle('prefs:set', (_e, p) => {
   if ('tray' in p) prefs.tray = !!p.tray;

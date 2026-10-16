@@ -9,4 +9,5 @@ contextBridge.exposeInMainWorld('mondiro', {
   onOpenAdd: (cb) => ipcRenderer.on('open-add', () => cb()),
   getPrefs: () => ipcRenderer.invoke('prefs:get'),
   setPrefs: (p) => ipcRenderer.invoke('prefs:set', p),
+  setTheme: (t) => ipcRenderer.send('theme:set', t),
 });

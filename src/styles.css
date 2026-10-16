@@ -672,3 +672,53 @@ body[data-swipe=next] .shell-m .p-body > .plist, body[data-swipe=next] .gm-list 
 .grow .nm small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .warnbox { display: flex; gap: 10px; align-items: flex-start; background: var(--red-soft); color: #A3262A; border-radius: 14px; padding: 10px 14px; margin: 4px 0 10px; font-size: 15.5px; }
 .warnbox .lc { width: 22px; height: 22px; flex: 0 0 auto; margin-top: 2px; }
+
+/* ================= Tông TRẮNG XÁM (giống Money Lover) — bật trong Cài đặt › Giao diện ================= */
+html[data-theme=gray] {
+  --bg: #F1F2F4; --surface: #FFFFFF; --soft: #F4F5F7; --soft2: #E9EBEE; --line: #E4E6EA; --line2: #CFD2D8;
+  --text: #1E1F23; --muted: #7B7F87; --dim: #A6A9B0;
+  --red-soft: #FDE8E8; --green-soft: #E2F4EA;
+  --cocoa: #24262B; --cocoa2: #34373D;
+  --shadow: 0 4px 14px rgba(20, 24, 32, .07); --shadow-lg: 0 22px 60px rgba(20, 24, 32, .18);
+}
+html[data-theme=gray] .is-scrolling::-webkit-scrollbar-thumb { background-color: rgba(120, 124, 132, .42); }
+html[data-theme=gray] .inp:hover { border-color: #B9BDC4; }
+html[data-theme=gray] .brand-desc, html[data-theme=gray] .sync { color: #A9ADB5; }
+html[data-theme=gray] .p-top .brand-desc { color: var(--muted); }
+html[data-theme=gray] .sync .dot.local { background: #A6A9B0; }
+html[data-theme=gray] .avatar { background: #E5383B; color: #fff; }
+html[data-theme=gray] .scrim { background: rgba(20, 22, 28, .38); }
+html[data-theme=gray] .sheet-scrim { background: rgba(20, 22, 28, .32); }
+html[data-theme=gray] .lockscreen { background: radial-gradient(circle at 50% 18%, #FFFFFF, var(--bg) 62%); }
+html[data-theme=gray] .tip .tv.avg { color: #8E9198; }
+html[data-theme=gray] svg.tchart line[stroke="#EAD7C5"] { stroke: #E3E5E9; }
+html[data-theme=gray] svg.tchart line[stroke="#D9C6B5"] { stroke: #C9CCD2; }
+/* thẻ tổng: nền trắng, số tô màu chi / thu như Money Lover (không còn mảng đỏ / xanh lớn) */
+html[data-theme=gray] .hero[data-tone], html[data-theme=gray] .hero.inc[data-tone] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); border: 1px solid var(--line); }
+html[data-theme=gray] .hero::after { display: none; }
+html[data-theme=gray] .hero small { color: var(--muted); opacity: 1; }
+html[data-theme=gray] .hero .bal { color: var(--t2); }
+html[data-theme=gray] .hero .rem { background: var(--soft2); color: var(--muted); }
+html[data-theme=gray] .hero .io { background: var(--soft2); }
+html[data-theme=gray] .hero .io button { color: var(--muted); }
+html[data-theme=gray] .hero .io button.on { color: var(--t2); }
+html[data-theme=gray] .hero .io .ind { box-shadow: 0 2px 6px rgba(20, 24, 32, .12); }
+
+/* nút chọn tông màu */
+.themepick { display: flex; gap: 6px; background: var(--soft2); padding: 4px; border-radius: 14px; }
+.themepick button { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; border-radius: 11px; padding: 8px 14px; font: inherit; font-weight: 700; color: var(--muted); cursor: pointer; }
+.themepick button.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+.themepick .sw { width: 18px; height: 18px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, .12); }
+.themepick .sw-warm { background: linear-gradient(135deg, #FFF1E3 50%, #FF8A65 50%); }
+.themepick .sw-gray { background: linear-gradient(135deg, #FFFFFF 50%, #D5D8DD 50%); }
+
+/* ================= Sổ: các ngày trải hết bề ngang, không bọc trong khung (giống Money Lover) ================= */
+.dayblk { border: 0; border-radius: 0; box-shadow: none; padding: 2px 14px 6px; }
+.dayhd { border-bottom: 1px solid var(--line); padding: 12px 0 10px; }
+.dayblk .tx { padding-left: 0; padding-right: 0; }
+.shell-m .p-body > .daylist { margin: 0 -14px; gap: 10px; max-width: none; width: auto; }
+.shell-m .p-body > .daylist > .empty, .shell-m .p-body > .daylist > .yr { margin: 0 14px; }
+.inner-grid .daylist { gap: 10px; }
+.inner-grid .dayblk { border-radius: 16px; }
+.desk .list.daylist .dayblk { border-radius: 16px; padding: 2px 16px 6px; }
+.mini { grid-template-columns: minmax(0, 1fr); }

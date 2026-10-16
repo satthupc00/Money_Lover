@@ -2,6 +2,7 @@
 import { store, signIn, signUp, signOutUser, resetPassword } from '../store.js';
 import { parseConfig, saveConfig, clearConfig, hasBuiltinConfig } from '../firebase.js';
 import { getReminder, applyReminder } from '../reminder.js';
+import { THEMES, getTheme, setTheme } from '../theme.js';
 import { lockCfg, saveLockCfg, setCode, bioAvailable } from '../lock.js';
 import { upd } from '../updater.js';
 import { updateAction } from './update.js';
@@ -40,6 +41,8 @@ export function settingsHtml() {
     : `<button class="btn ${upd.status === 'checking' ? 'spin' : ''}" type="button" data-check>${I('refresh-cw')}Kiểm tra bản cập nhật</button>`;
   return `<div class="set-h">Tài khoản và đồng bộ</div><div class="set-group">${acc}
       ${store.fbReady && !hasBuiltinConfig() && !store.user ? '<button class="linkbtn" type="button" data-fbclear style="justify-self:start">Đổi dự án Firebase</button>' : ''}</div>
+    <div class="set-h">Giao diện</div><div class="set-group">
+      ${row('palette', 'Tông màu', 'Ấm áp hoặc trắng xám giống Money Lover, dịu mắt hơn khi nhìn lâu', `<div class="themepick" role="radiogroup" aria-label="Tông màu">${THEMES.map(([k, n]) => `<button type="button" role="radio" aria-checked="${getTheme() === k}" class="${getTheme() === k ? 'on' : ''}" data-theme-set="${k}"><i class="sw sw-${k}"></i>${n}</button>`).join('')}</div>`)}</div>
     <div class="set-h">Nhắc nhở</div><div class="set-group">
       ${row('bell', 'Nhắc nhập chi tiêu mỗi ngày', isNative || isElectron ? 'Hiện thông báo vào giờ đã chọn' : 'Chỉ hoạt động trên app PC và điện thoại', `<input class="inp time" type="time" value="${r.time}" data-rtime aria-label="Giờ nhắc"><input type="checkbox" class="switch" data-rtoggle ${r.enabled ? 'checked' : ''} aria-label="Bật nhắc nhở">`)}</div>
     <div class="set-h">Khoá ứng dụng</div><div class="set-group">
@@ -59,6 +62,7 @@ export function settingsHtml() {
 
 export function wireSettings(root) {
   const $ = (s) => root.querySelector(s);
+  root.querySelectorAll('[data-theme-set]').forEach((b) => (b.onclick = () => { if (b.dataset.themeSet !== getTheme()) { setTheme(b.dataset.themeSet); setView({}); } }));
   $('[data-fbsetup]') && ($('[data-fbsetup]').onclick = fbSetup);
   $('[data-fbclear]') && ($('[data-fbclear]').onclick = async () => { if (await confirmBox('Đổi dự án Firebase?', 'App sẽ mở lại để nhập cấu hình mới.', 'Đổi')) { clearConfig(); location.reload(); } });
   const lf = $('[data-login]');
