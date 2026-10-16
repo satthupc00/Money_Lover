@@ -109,20 +109,20 @@ export function mountTrend(el) {
     const cv = d <= s.upto ? s.cur[d - 1] : null;
     const line = (k, a, col, w, dash) => a.length ? `<path data-k="${k}" pathLength="1" d="${path(a)}" fill="none" stroke="${col}" stroke-width="${w}" ${dash ? 'stroke-dasharray="7 6"' : ''} stroke-linejoin="round" stroke-linecap="round"/>` : '';
     const dot = (k, v, col, r) => `<circle data-k="${k}" cx="${x(d)}" cy="${yy(v)}" r="${r}" fill="#fff" stroke="${col}" stroke-width="2.6"/>`;
-    let verdict = '';
-    const ref = on('avg') ? ['avg', 'trung bình 3 tháng trước'] : on('prev') ? ['prev', 'tháng trước'] : null;
+    // câu so sánh luôn chiếm sẵn chỗ để biểu đồ không bị nhảy khi bật / tắt đường
+    let verdict = '<div class="verdict idle">Bật Tháng trước hoặc TB 3 tháng để so sánh</div>';
+    const ref = on('avg') ? ['avg', 'TB 3 tháng'] : on('prev') ? ['prev', 'tháng trước'] : null;
     if (ref && s.upto) {
       const a = s.cur[s.upto - 1], b = s[ref[0]][s.upto - 1];
-      if (b > 0) { const pc = (a - b) / b * 100; verdict = `<div class="verdict ${pc <= 0 ? 'good' : ''}">Đến ${s.upto}/${m + 1} bạn đã tiêu ${pc > 0 ? 'nhiều' : 'ít'} hơn ${Math.abs(pc).toFixed(0)}% so với ${ref[1]} cùng thời điểm.</div>`; }
-    }
+      if (b > 0) { const pc = (a - b) / b * 100; verdict = `<div class="verdict ${pc <= 0 ? 'good' : ''}"><span>Đến ${s.upto}/${m + 1}: ${pc > 0 ? 'nhiều' : 'ít'} hơn <b>${Math.abs(pc).toFixed(0)}%</b> so với ${ref[1]} cùng kỳ</span></div>`; }
+    } else if (!s.upto) verdict = '<div class="verdict idle">Tháng này chưa bắt đầu</div>';
     const cg = trendState.g === 'all' ? null : gById(trendState.g);
     const menu = trendState.menu ? `<div class="gmenu" role="listbox"><button type="button" data-g="all" class="${trendState.g === 'all' ? 'on' : ''}"><span class="allic">${I('layers')}</span>Tất cả nhóm</button>${tops('exp').flatMap((t) => [t, ...kids(t.id)]).map((g) => `<button type="button" data-g="${g.id}" class="${g.parent ? 'child' : ''} ${trendState.g === g.id ? 'on' : ''}">${tile(g, g.parent ? 26 : 30)}${esc(g.name)}</button>`).join('')}</div>` : '';
     const before = anim ? snapshot(el) : null;
     el.innerHTML = `<div class="trend-h"><h3>Xu hướng chi tiêu</h3>
         <div class="gsel"><button type="button" class="chip ${cg ? '' : 'txt'} on" data-gmenu aria-expanded="${trendState.menu}">${cg ? tile(cg, 24) : ''}${cg ? esc(cg.name) : 'Tất cả'}${I('chevron-down')}</button>${menu}</div></div>
-      <div class="tip">${on('cur') ? `<div class="l1">${dd}/${mm}/${y}: ${cv != null ? `<b>${fmt(cv)}</b>` : '<span style="color:var(--dim)">chưa tới ngày này</span>'}</div>` : `<div class="l1">Ngày ${dd}/${mm}</div>`}
-        ${on('prev') ? `<div class="l2"><i class="sw" style="background:${SER.prev[1]}"></i>Tháng trước: <b>${fmt(s.prev[d - 1])}</b></div>` : ''}
-        ${on('avg') ? `<div class="l2"><i class="sw" style="background:${SER.avg[1]}"></i>TB 3 tháng trước: <b>${fmt(s.avg[d - 1])}</b></div>` : ''}</div>
+      <div class="tip"><span class="td">${dd}/${mm}/${y}</span><b class="tv cur">${cv != null ? fmt(cv) : '–'}</b>
+        <span class="tv prev ${on('prev') ? '' : 'off'}" title="Tháng trước">${fmt(s.prev[d - 1])}</span><span class="tv avg ${on('avg') ? '' : 'off'}" title="TB 3 tháng trước">${fmt(s.avg[d - 1])}</span></div>
       <svg class="tchart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Biểu đồ chi tiêu cộng dồn">
         <defs><linearGradient id="trArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E5383B" stop-opacity=".28"/><stop offset="1" stop-color="#E5383B" stop-opacity="0"/></linearGradient></defs>${g}
         ${on('avg') ? line('avg', s.avg, SER.avg[1], 1.8) : ''}${on('prev') ? line('prev', s.prev, SER.prev[1], 1.8) : ''}
@@ -219,10 +219,18 @@ export function mountBreakdown(el) {
       <div class="brk">${rows.map((r) => {
         const isOpen = open.has(r.id);
         const hasKids = r.children.length > 1 || (r.children[0] && r.children[0].id !== r.id);
-        return `<div class="brkrow ${isOpen ? 'open' : ''}"><button type="button" data-brk="${r.id}" aria-expanded="${isOpen}">${tile(r.g, 40)}<div><div class="nm"><span>${esc(r.g?.name || 'Nhóm đã xoá')}</span><b>${fmt(r.v)}</b></div><div class="track"><i style="width:${(r.v / max * 100).toFixed(1)}%;background:${r.color}"></i></div></div>${hasKids ? I(isOpen ? 'chevron-up' : 'chevron-down', 'brkchev') : '<span></span>'}</button>
-          ${isOpen && hasKids ? `<div class="brkkids">${r.children.map((c) => { const cg = gById(c.id); return `<div class="brkkid">${tile(cg, 30)}<span>${esc(c.id === r.id ? r.g.name + ' (chung)' : cg?.name || '?')}</span><b>${fmt(c.v)}</b></div>`; }).join('')}<div class="brkkid sum"><span>Tổng nhóm trong tháng</span><b>${fmt(r.v)}</b></div></div>` : ''}</div>`;
+        return `<div class="brkrow ${isOpen ? 'open' : ''}"><button type="button" data-brk="${r.id}" aria-expanded="${isOpen}">${tile(r.g, 40)}<div><div class="nm"><span>${esc(r.g?.name || 'Nhóm đã xoá')}</span><b>${fmt(r.v)}</b></div><div class="track"><i style="width:${(r.v / max * 100).toFixed(1)}%;background:${r.color}"></i></div></div>${hasKids ? I('chevron-down', 'brkchev') : '<span></span>'}</button>
+          ${hasKids ? `<div class="fold"><div><div class="brkkids">${r.children.map((c) => { const cg = gById(c.id); return `<div class="brkkid">${tile(cg, 30)}<span>${esc(c.id === r.id ? r.g.name + ' (chung)' : cg?.name || '?')}</span><b>${fmt(c.v)}</b></div>`; }).join('')}<div class="brkkid sum"><span>Tổng nhóm trong tháng</span><b>${fmt(r.v)}</b></div></div></div></div>` : ''}</div>`;
       }).join('')}</div>`;
-    const toggle = (id) => { open.has(id) ? open.delete(id) : open.add(id); draw(); };
+    // mở / thu nhóm con ngay trên chỗ, không vẽ lại để có hiệu ứng trượt
+    const toggle = (id) => {
+      const on = !open.has(id);
+      on ? open.add(id) : open.delete(id);
+      const b = el.querySelector(`[data-brk="${id}"]`);
+      b?.closest('.brkrow').classList.toggle('open', on);
+      b?.setAttribute('aria-expanded', on);
+      el.querySelector(`[data-seg="${id}"]`)?.classList.toggle('on', on);
+    };
     el.querySelectorAll('[data-brk]').forEach((b) => (b.onclick = () => toggle(b.dataset.brk)));
     const la = el.querySelector('[data-legall]');
     if (la) la.onclick = () => { legAll = !legAll; draw(); };

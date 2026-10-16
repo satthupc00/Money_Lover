@@ -7,7 +7,7 @@ import { getReminder } from '../reminder.js';
 import { isElectron, isNative } from '../platform.js';
 import { I } from '../icons.js';
 import { esc, shortM, dkey, ymd, vnd } from '../util.js';
-import { tile, placeTabs, dialog } from './common.js';
+import { tile, placeTabs, dialog, syncTones } from './common.js';
 import { heroHtml, listHtml, wireLedger, periodTabs, periodNav, groupFilterChip, range, txRow } from './ledger.js';
 import { mountTrend, mountBreakdown } from './trend.js';
 import { openTxForm } from './add.js';
@@ -58,7 +58,7 @@ function deskHtml() {
   else main = `<div class="bar"><h2 style="margin:0;font-size:21.5px;font-weight:800">Cài đặt</h2></div><div class="page settings scroll" data-key="set"><div>${settingsHtml()}</div></div>`;
   return `<div class="shell-desk desk">
     <header class="top"><div class="brand"><svg class="brand-icon" aria-hidden="true"><use href="#logo"/></svg>
-      <div><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Mon Money Lover</span> ${latestBadge()}</div><div class="brand-desc">Ghi chi tiêu, thu nhập · đồng bộ PC và điện thoại</div></div></div>
+      <div><div class="brand-name"><span class="m">Mon</span> <span class="a">Money Lover</span> ${latestBadge()}</div><div class="brand-desc">Ghi chi tiêu, thu nhập · đồng bộ PC và điện thoại</div></div></div>
       <div class="spacer"></div><div style="display:flex;gap:8px;align-items:center">
       <span class="sync" title="${esc(store.user?.email || 'Chưa đăng nhập')}">${syncDot()}${syncText()}</span>
       <button class="btn" type="button" data-search title="Tìm giao dịch (Ctrl+F)">${I('search')}Tìm</button>${updButton(true)}
@@ -85,7 +85,7 @@ function mobileHtml(mode) {
   else if (view.tab === 'groups') body = `<div class="p-body scroll" data-key="p">${groupsMobileHtml()}</div>`;
   else body = `<div class="p-body scroll" data-key="p" style="${mode === 'tab' ? 'max-width:720px;margin:0 auto;width:100%' : ''}">${settingsHtml()}</div>`;
   return `<div class="shell-m ${mode}">
-    <div class="p-top"><svg class="brand-icon" aria-hidden="true"><use href="#logo"/></svg><div style="min-width:0"><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Mon Money Lover</span> ${latestBadge()}</div>
+    <div class="p-top"><svg class="brand-icon" aria-hidden="true"><use href="#logo"/></svg><div style="min-width:0"><div class="brand-name"><span class="m">Mon</span> <span class="a">Money Lover</span> ${latestBadge()}</div>
       <div class="brand-desc">${mode === 'tab' ? 'Ghi chi tiêu, thu nhập · ' : ''}${syncText()}</div></div><div class="spacer"></div>
       <button class="icb" type="button" data-search title="Tìm giao dịch" aria-label="Tìm giao dịch">${I('search')}</button>${updButton(false)}</div>
     ${body}
@@ -119,6 +119,7 @@ export function render(root) {
   root.querySelectorAll('.rise').forEach((e) => { if (render.done) e.classList.remove('rise'); });
   render.done = true;
   placeTabs(root);
+  syncTones(root);
   // đổi màn hình: nội dung hiện ra nhẹ từ dưới lên
   if (render.tab && render.tab !== view.tab) root.querySelector('.shell-m .p-body, .shell-m .inner-grid, .shell-desk .main')?.classList.add('screen-in');
   render.tab = view.tab;

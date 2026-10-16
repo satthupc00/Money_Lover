@@ -67,8 +67,18 @@ export function confirmBox(title, text, okLabel = 'Đồng ý', danger = false) 
 
 // tabs có thanh trượt: đặt vị trí .ind theo nút đang chọn
 const tabPos = {};
+export const forgetTab = (key) => delete tabPos[key];
+// đổi chi / thu: màu nền chạy từ màu cũ sang màu mới (các khối được vẽ lại)
+const tonePrev = {};
+export function syncTones(root) {
+  root.querySelectorAll('[data-tone-key]').forEach((e) => {
+    const k = e.dataset.toneKey, t = e.dataset.tone;
+    if (tonePrev[k] && tonePrev[k] !== t) e.classList.add('tone-in');
+    tonePrev[k] = t;
+  });
+}
 export function placeTabs(root) {
-  root.querySelectorAll('.tabs, .io').forEach((t, i) => {
+  root.querySelectorAll('.tabs, .io, .seg2').forEach((t, i) => {
     const ind = t.querySelector('.ind'), on = t.querySelector('button.on');
     if (!ind || !on) return;
     const key = t.dataset.tabkey || 'tabs' + i, to = [on.offsetLeft, on.offsetWidth], from = tabPos[key];

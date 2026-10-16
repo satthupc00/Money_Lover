@@ -29,7 +29,7 @@ function boundsOk(b) {
 function createWindow(hidden) {
   const b = boundsOk(prefs.bounds) ? prefs.bounds : { width: 1280, height: 820 };
   win = new BrowserWindow({
-    ...b, minWidth: 1000, minHeight: 660, show: false, title: 'Mondiro Mon Money Lover', icon: ICON,
+    ...b, minWidth: 1000, minHeight: 660, show: false, title: 'Mon Money Lover', icon: ICON,
     backgroundColor: '#FFF6EC',
     titleBarStyle: 'hidden', titleBarOverlay: { color: '#3E2A22', symbolColor: '#FFFFFF', height: 58 },
     webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true },
@@ -61,7 +61,7 @@ function notify(title, body, onClick) {
 
 function makeTray() {
   tray = new Tray(nativeImage.createFromPath(ICON).resize({ width: 16, height: 16 }));
-  tray.setToolTip('Mondiro Mon Money Lover');
+  tray.setToolTip('Mon Money Lover');
   tray.setContextMenu(Menu.buildFromTemplate([
     { label: 'Mở Mon Money Lover', click: showWin },
     { label: 'Thêm giao dịch', click: () => { showWin(); send('open-add'); } },

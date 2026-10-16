@@ -45,7 +45,7 @@ export function heroHtml() {
   for (const t of txs) { if (t.exclude) continue; t.type === 'inc' ? (inc += t.amount) : (exp += t.amount); }
   const k = view.heroKind, v = k === 'exp' ? exp : inc, rest = inc - exp;
   const pw = view.period === 'day' ? 'hôm đó' : periodWord();
-  return `<div class="hero ${k === 'inc' ? 'inc' : ''}">
+  return `<div class="hero ${k === 'inc' ? 'inc' : ''}" data-tone="${k}" data-tone-key="hero">
     <span class="rem" title="Thu trừ chi ${pw}">Còn lại ${rest < 0 ? '−' : ''}${shortM(rest)}</span>
     <small>${k === 'exp' ? 'Chi tiêu' : 'Thu nhập'} ${pw}${view.group ? ' · ' + esc(gById(view.group)?.name) : ''}</small>
     <div class="bal num" data-bal="${v}">${vnd(v)}</div>

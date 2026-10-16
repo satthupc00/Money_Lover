@@ -1,22 +1,24 @@
-## Mon Money Lover 1.0.11 · đồng bộ Firebase và hiệu ứng mượt hơn
+## Mon Money Lover 1.0.12 · logo mới và hiệu ứng mượt hơn
 
 **Tải về**
-- **Điện thoại Android:** `MonMoneyLover-1.0.11.apk`
-- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.11.exe`
+- **Điện thoại Android:** `MonMoneyLover-1.0.12.apk`
+- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.12.exe`
 
-**Đồng bộ PC và điện thoại**
-- Đã gắn sẵn Firebase của bạn, không cần dán cấu hình nữa.
-- Vào **Cài đặt**, máy đầu tiên bấm **Tạo tài khoản** (dữ liệu trên máy đó sẽ tự đưa lên), máy còn lại bấm **Đăng nhập** bằng cùng email và mật khẩu.
+**Logo và tên mới**
+- Logo mới: cuốn sổ ghi chi tiêu cùng đồng xu vàng, nền kem và sóng cam.
+- Tên trên đầu app chỉ còn "Mon Money Lover", chữ "Mon" màu đỏ.
 
-**Hiệu ứng**
-- Biểu đồ: bật Tháng trước / TB 3 tháng thì đường được vẽ dần ra, tắt thì đường rút lại; thang số co giãn mượt theo.
-- Sổ: nút Chi tiêu / Thu nhập trượt qua lại, đàn hồi nhẹ; số tổng chạy mượt tới số mới.
-- Sửa lỗi số to trên khung Chi tiêu bị nháy khi vuốt đổi tháng.
-- Đổi màn hình (Sổ, Báo cáo, Nhóm, Cài đặt): nội dung hiện ra nhẹ từ dưới lên.
+**Báo cáo**
+- Biểu đồ không còn nhảy khung khi bật / tắt Tháng trước, TB 3 tháng: ô chi tiết luôn chừa sẵn chỗ cho cả 3 số.
+- Ô chi tiết gọn hơn: chỉ hiện số, phân biệt bằng màu (đỏ: tháng này, xanh: tháng trước, nâu: TB 3 tháng).
+- Bấm vào nhóm trong danh sách "Chi theo nhóm" để mở / thu nhóm con có hiệu ứng trượt.
 
-**Chữ to hơn**
-- Toàn bộ chữ to thêm khoảng 20%.
-- Cài đặt trên điện thoại: nút điều khiển tự xuống dòng khi thiếu chỗ, không còn ép chữ.
-- Chữ "LATEST" màu xanh lá hiện cả trên màn hình ngoài của Fold.
+**Nhóm**
+- Thêm nút "Tạo nhóm mới" trên cả điện thoại và PC.
+- Nhóm cha thu gọn / mở rộng được; có nút "Thu gọn tất cả" / "Mở rộng tất cả". App nhớ lựa chọn của bạn.
+
+**Màu chi / thu**
+- Đổi giữa Chi tiêu và Thu nhập: màu nền chuyển mượt đỏ ↔ xanh lá (thẻ tổng ở Sổ, form nhập giao dịch, tab Nhóm chi / Nhóm thu).
+- Nút Khoản chi / Khoản thu trong form nhập cũng trượt qua lại, đàn hồi nhẹ.
 
 Created by Mondiro

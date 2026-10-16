@@ -3,11 +3,39 @@ import { store, gById, tops, kids, txCount, addGroup, updateGroup, moveGroup, me
 import { view, setView } from '../state.js';
 import { LIB } from '../defaults.js';
 import { I } from '../icons.js';
-import { esc } from '../util.js';
+import { esc, ls } from '../util.js';
 import { tile, emo, dialog, sheet, toast, confirmBox } from './common.js';
 
 const blank = (type) => ({ id: null, name: '', icon: type === 'inc' ? 'e:1f45b' : 'e:1f36a', color: type === 'inc' ? 'green' : 'orange', parent: '', type });
 const gs = { selected: new Set(), ed: blank('exp'), libTab: 'Ăn uống' };
+
+// ---------- thu gọn / mở rộng nhóm cha (nhớ trên máy) ----------
+const shut = new Set(ls.get('mml.gfold', []));
+const foldBtn = (id) => `<button type="button" class="foldbtn" data-fold="${id}" aria-expanded="${!shut.has(id)}" title="Thu gọn / mở rộng">${I('chevron-down')}</button>`;
+const foldAllBtn = () => {
+  const ids = tops(view.gmType).filter((g) => kids(g.id).length).map((g) => g.id);
+  const allShut = ids.length && ids.every((i) => shut.has(i));
+  return `<button type="button" class="linkbtn" data-foldall="${allShut ? 'open' : 'shut'}">${I(allShut ? 'chevrons-up-down' : 'chevrons-down-up')}${allShut ? 'Mở rộng tất cả' : 'Thu gọn tất cả'}</button>`;
+};
+function wireFold(root) {
+  const set = (box, id, on) => {
+    box.classList.toggle('open', on);
+    box.querySelector(`[data-fold="${id}"]`)?.setAttribute('aria-expanded', on);
+    on ? shut.delete(id) : shut.add(id);
+  };
+  const syncAll = () => { const a = root.querySelector('[data-foldall]'); if (a) { a.outerHTML = foldAllBtn(); wireAll(); } };
+  root.querySelectorAll('[data-fold]').forEach((b) => (b.onclick = (e) => {
+    e.stopPropagation();
+    const box = b.closest('[data-fold-box]');
+    set(box, b.dataset.fold, !box.classList.contains('open'));
+    ls.set('mml.gfold', [...shut]); syncAll();
+  }));
+  const wireAll = () => {
+    const a = root.querySelector('[data-foldall]');
+    if (a) a.onclick = () => { const on = a.dataset.foldall === 'open'; root.querySelectorAll('[data-fold-box]').forEach((box) => set(box, box.dataset.foldBox, on)); ls.set('mml.gfold', [...shut]); syncAll(); };
+  };
+  wireAll();
+}
 
 // ---------- hộp chọn nhóm đích ----------
 function pickTarget(compact, title, text, filter, onPick) {
@@ -92,7 +120,7 @@ function editInto(id) {
   gs.libTab = Object.keys(LIB).find((k) => LIB[k].includes(String(g.icon).slice(2))) || gs.libTab;
 }
 
-const typeTabs = () => `<div class="tabs" data-tabkey="gmtype">${[['exp', 'Nhóm chi'], ['inc', 'Nhóm thu']].map(([k, n]) => `<button type="button" data-gmtype="${k}" class="${view.gmType === k ? 'on' : ''}">${n}</button>`).join('')}<span class="ind"></span></div>`;
+const typeTabs = () => `<div class="tabs" data-tabkey="gmtype" data-tone="${view.gmType}" data-tone-key="gmtype">${[['exp', 'Nhóm chi'], ['inc', 'Nhóm thu']].map(([k, n]) => `<button type="button" data-gmtype="${k}" class="${view.gmType === k ? 'on' : ''}">${n}</button>`).join('')}<span class="ind"></span></div>`;
 const setType = (t) => {
   if (t === view.gmType) return;
   gs.selected.clear(); if (!gs.ed.id) gs.ed = blank(t);
@@ -105,14 +133,15 @@ const setType = (t) => {
 export function groupsDeskHtml() {
   if (gs.ed.type !== view.gmType && !gs.ed.id) gs.ed = blank(view.gmType);
   const row = (g, child) => `<div class="grow${child ? ' child' : ''}" draggable="true" data-id="${g.id}" data-drop="${g.id}">
-    <input type="checkbox" ${gs.selected.has(g.id) ? 'checked' : ''} aria-label="Chọn ${esc(g.name)}" data-sel="${g.id}">${I('grip-vertical', 'grip')}${tile(g, child ? 38 : 46)}
+    <input type="checkbox" ${gs.selected.has(g.id) ? 'checked' : ''} aria-label="Chọn ${esc(g.name)}" data-sel="${g.id}">${child ? '' : kids(g.id).length ? foldBtn(g.id) : '<span class="foldsp"></span>'}${tile(g, child ? 38 : 46)}
     <div class="nm"><b>${esc(g.name)}</b><small>${txCount(g.id)} giao dịch${!child && kids(g.id).length ? ' · ' + kids(g.id).length + ' nhóm con' : ''}</small></div>
     <div class="acts"><button type="button" data-act="move" title="Chuyển sang nhóm cha khác">${I('folder-input')}Chuyển</button><button type="button" data-act="merge" title="Gộp vào nhóm khác">${I('merge')}Gộp</button><button type="button" data-act="edit" title="Sửa tên, icon, màu">${I('pencil')}Sửa</button><button type="button" data-act="del" title="Xoá nhóm">${I('trash-2')}</button></div></div>`;
   const n = [...gs.selected].filter(gById).length;
-  return `<div class="bar">${typeTabs()}<span class="lbl" style="font-size:15.5px">Kéo một nhóm thả lên nhóm khác để biến nó thành nhóm con</span><div class="spacer"></div>
+  return `<div class="bar">${typeTabs()}<span class="lbl hint" title="Kéo một nhóm thả lên nhóm khác để biến nó thành nhóm con">Kéo thả nhóm lên nhóm khác để làm nhóm con</span>${foldAllBtn()}
+      <button class="btn primary" type="button" data-newg-desk>${I('plus')}Tạo nhóm mới</button>
       <button class="btn" type="button" data-mergesel ${n < 2 ? 'disabled' : ''}>${I('merge')}Gộp ${n >= 2 ? n + ' ' : ''}nhóm đã chọn</button></div>
     <div class="gm"><div class="panel gm-list scroll" data-key="gmlist"><div class="dropTop" data-drop="__top">Thả vào đây để biến thành nhóm cha</div>
-      ${tops(view.gmType).map((g) => `<div class="gcard">${row(g)}${kids(g.id).map((k) => row(k, 1)).join('')}</div>`).join('')}</div>
+      ${tops(view.gmType).map((g) => { const ks = kids(g.id); return `<div class="gcard ${ks.length && !shut.has(g.id) ? 'open' : ''}" data-fold-box="${g.id}">${row(g)}${ks.length ? `<div class="fold"><div>${ks.map((k) => row(k, 1)).join('')}</div></div>` : ''}</div>`; }).join('')}</div>
       <div class="panel editor" data-editor>${editorHtml(false)}</div></div>`;
 }
 export function wireGroupsDesk(root, rerender) {
@@ -121,6 +150,9 @@ export function wireGroupsDesk(root, rerender) {
   const edEl = root.querySelector('[data-editor]');
   const redrawEd = () => { edEl.innerHTML = editorHtml(false); wireEditor(edEl, false, redrawEd, () => rerender()); };
   wireEditor(edEl, false, redrawEd, () => rerender());
+  wireFold(root);
+  const ng = root.querySelector('[data-newg-desk]');
+  if (ng) ng.onclick = () => { gs.ed = blank(view.gmType); redrawEd(); edEl.querySelector('#edName')?.focus(); };
   list.addEventListener('change', (e) => { const cb = e.target.closest('[data-sel]'); if (cb) { cb.checked ? gs.selected.add(cb.dataset.sel) : gs.selected.delete(cb.dataset.sel); rerender(); } });
   list.addEventListener('click', (e) => {
     const b = e.target.closest('[data-act]');
@@ -155,9 +187,10 @@ export function wireGroupsDesk(root, rerender) {
 // ---------- điện thoại ----------
 export function groupsMobileHtml() {
   const row = (g, child) => `<button type="button" class="tx" data-gact="${g.id}" style="${child ? 'padding-left:28px' : ''}">${tile(g, child ? 40 : 48)}<div class="t"><div>${esc(g.name)}</div><small>${txCount(g.id)} giao dịch${!child && kids(g.id).length ? ' · ' + kids(g.id).length + ' nhóm con' : ''}</small></div>${I('ellipsis')}</button>`;
-  return `<div style="display:flex;gap:8px;align-items:center">${typeTabs()}<div class="spacer"></div><button class="btn primary" type="button" data-newgroup>${I('plus')}Tạo nhóm</button></div>
+  return `${typeTabs()}
+    <div class="gm-tools"><button class="btn primary" type="button" data-newgroup>${I('plus')}Tạo nhóm mới</button>${foldAllBtn()}</div>
     <div class="lbl" style="padding:0 4px">Chạm vào nhóm để chuyển, gộp, sửa</div>
-    ${tops(view.gmType).map((g) => `<div class="plist">${row(g)}${kids(g.id).map((k) => row(k, 1)).join('')}</div>`).join('')}`;
+    ${tops(view.gmType).map((g) => { const ks = kids(g.id); return `<div class="plist ${ks.length && !shut.has(g.id) ? 'open' : ''}" data-fold-box="${g.id}"><div class="prow">${row(g)}${ks.length ? foldBtn(g.id) : ''}</div>${ks.length ? `<div class="fold"><div>${ks.map((k) => row(k, 1)).join('')}</div></div>` : ''}</div>`; }).join('')}`;
 }
 // mở form tạo / sửa nhóm. opts: { type, compact, onDone(idMới) } — dùng cả khi đang nhập giao dịch
 export function openEditorSheet(id, opts = {}) {
@@ -174,6 +207,7 @@ export function openEditorSheet(id, opts = {}) {
 }
 export function wireGroupsMobile(root) {
   root.querySelectorAll('[data-gmtype]').forEach((b) => (b.onclick = () => setType(b.dataset.gmtype)));
+  wireFold(root);
   const nb = root.querySelector('[data-newgroup]');
   if (nb) nb.onclick = () => openEditorSheet(null);
   root.querySelectorAll('[data-gact]').forEach((b) => (b.onclick = () => {

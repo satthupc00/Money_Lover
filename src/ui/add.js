@@ -4,7 +4,7 @@
 import { store, gById, tops, kids, addTx, updateTx, deleteTx } from '../store.js';
 import { I } from '../icons.js';
 import { esc, fmt, ymd, dkey, dmy, parseYmd, WD } from '../util.js';
-import { tile, dialog, sheet, toast, confirmBox } from './common.js';
+import { tile, dialog, sheet, toast, confirmBox, placeTabs, forgetTab } from './common.js';
 
 const WDL = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
 const dateLabel = (s) => {
@@ -99,7 +99,7 @@ export function openTxForm(tx, { compact = false, date } = {}) {
   const title = tx ? 'Sửa giao dịch' : 'Thêm giao dịch';
   const body = `
     <div class="tf-head">${compact ? '<button type="button" class="icb" data-x title="Đóng" aria-label="Đóng">' + I('x') + '</button>' : ''}<h3>${title}</h3><div class="spacer"></div>${tx ? `<button type="button" class="icb" data-del title="Xoá giao dịch" aria-label="Xoá giao dịch">${I('trash-2')}</button>` : ''}</div>
-    <div class="seg2" role="tablist"><button type="button" data-type="exp">Khoản chi</button><button type="button" data-type="inc">Khoản thu</button></div>
+    <div class="seg2" role="tablist" data-tabkey="txtype"><span class="ind"></span><button type="button" data-type="exp">Khoản chi</button><button type="button" data-type="inc">Khoản thu</button></div>
     <div class="tf">
       <div class="tf-row ddwrap"><span class="tf-ic cur">VND</span>
         ${compact ? '<div class="tf-amt" data-amtview aria-live="polite"></div>' : '<input id="txAmt" class="tf-amt" inputmode="numeric" placeholder="0" autocomplete="off">'}
@@ -127,6 +127,8 @@ export function openTxForm(tx, { compact = false, date } = {}) {
   const drawType = () => {
     el.querySelectorAll('[data-type]').forEach((b) => { b.classList.toggle('on', b.dataset.type === st.type); b.classList.toggle('inc', b.dataset.type === 'inc'); });
     el.classList.toggle('is-inc', st.type === 'inc');
+    el.dataset.tone = st.type;
+    placeTabs(el);
     const q = el.querySelector('[data-quick]');
     if (q) q.innerHTML = quickAmounts(st.type).map((v) => `<button type="button" class="chip txt" data-qa="${v}">${fmt(v)}</button>`).join('');
   };
@@ -241,7 +243,7 @@ export function openTxForm(tx, { compact = false, date } = {}) {
     }
   };
 
-  drawType(); drawGroup(); drawAmt(); drawDate();
+  forgetTab('txtype'); drawType(); drawGroup(); drawAmt(); drawDate();
   if (amtIn) setTimeout(() => amtIn.focus(), 60);
   return box;
 }
