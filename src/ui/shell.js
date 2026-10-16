@@ -6,7 +6,7 @@ import { updateAction } from './update.js';
 import { getReminder } from '../reminder.js';
 import { isElectron, isNative } from '../platform.js';
 import { I } from '../icons.js';
-import { esc, shortM, dkey, ymd } from '../util.js';
+import { esc, shortM, dkey, ymd, vnd } from '../util.js';
 import { tile, placeTabs, dialog } from './common.js';
 import { heroHtml, listHtml, wireLedger, periodTabs, periodNav, groupFilterChip, range, txRow } from './ledger.js';
 import { mountTrend, mountBreakdown } from './trend.js';
@@ -55,7 +55,7 @@ function deskHtml() {
       <div class="page report"><div class="panel scroll card rise" data-key="rep1"><div class="trend"></div></div>
       <div class="panel scroll card brkcard rise" data-key="rep2"></div></div>`;
   } else if (view.tab === 'groups') main = groupsDeskHtml();
-  else main = `<div class="bar"><h2 style="margin:0;font-size:18px;font-weight:800">Cài đặt</h2></div><div class="page settings scroll" data-key="set"><div>${settingsHtml()}</div></div>`;
+  else main = `<div class="bar"><h2 style="margin:0;font-size:21.5px;font-weight:800">Cài đặt</h2></div><div class="page settings scroll" data-key="set"><div>${settingsHtml()}</div></div>`;
   return `<div class="shell-desk desk">
     <header class="top"><div class="brand"><svg class="brand-icon" aria-hidden="true"><use href="#logo"/></svg>
       <div><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Mon Money Lover</span> ${latestBadge()}</div><div class="brand-desc">Ghi chi tiêu, thu nhập · đồng bộ PC và điện thoại</div></div></div>
@@ -119,6 +119,10 @@ export function render(root) {
   root.querySelectorAll('.rise').forEach((e) => { if (render.done) e.classList.remove('rise'); });
   render.done = true;
   placeTabs(root);
+  // đổi màn hình: nội dung hiện ra nhẹ từ dưới lên
+  if (render.tab && render.tab !== view.tab) root.querySelector('.shell-m .p-body, .shell-m .inner-grid, .shell-desk .main')?.classList.add('screen-in');
+  render.tab = view.tab;
+  countBal(root);
 
   root.querySelectorAll('[data-tab]').forEach((b) => (b.onclick = () => { pressedTab = b.closest('.bnav') ? b.dataset.tab : null; setView({ tab: b.dataset.tab }); }));
   if (pressedTab) { const nb = root.querySelector(`.bnav [data-tab="${pressedTab}"]`); pressedTab = null; if (nb) { nb.classList.add('bounce'); setTimeout(() => nb.classList.remove('bounce'), 450); } }
@@ -136,6 +140,25 @@ export function render(root) {
   root.querySelectorAll('.brkcard').forEach((b) => mountBreakdown(b));
   if (view.tab === 'groups') (mode === 'desk' ? wireGroupsDesk(root, () => render(root)) : wireGroupsMobile(root));
   if (view.tab === 'settings') wireSettings(root);
+}
+
+// số tổng trên thẻ Chi tiêu / Thu nhập chạy mượt tới giá trị mới thay vì nháy lại
+const balAnim = { shown: null, raf: 0 };
+function countBal(root) {
+  const el = root.querySelector('.hero .bal');
+  cancelAnimationFrame(balAnim.raf);
+  if (!el) { balAnim.shown = null; return; }
+  const to = +el.dataset.bal, from = balAnim.shown;
+  if (from == null || from === to || matchMedia('(prefers-reduced-motion: reduce)').matches) { balAnim.shown = to; return; }
+  const t0 = performance.now(), dur = 480;
+  const step = (now) => {
+    const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+    balAnim.shown = Math.round(from + (to - from) * e);
+    el.textContent = vnd(balAnim.shown);
+    if (p < 1) balAnim.raf = requestAnimationFrame(step);
+  };
+  el.textContent = vnd(from);
+  balAnim.raf = requestAnimationFrame(step);
 }
 
 export function shortcuts(root) {

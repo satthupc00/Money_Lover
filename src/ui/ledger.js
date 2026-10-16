@@ -48,8 +48,8 @@ export function heroHtml() {
   return `<div class="hero ${k === 'inc' ? 'inc' : ''}">
     <span class="rem" title="Thu trừ chi ${pw}">Còn lại ${rest < 0 ? '−' : ''}${shortM(rest)}</span>
     <small>${k === 'exp' ? 'Chi tiêu' : 'Thu nhập'} ${pw}${view.group ? ' · ' + esc(gById(view.group)?.name) : ''}</small>
-    <div class="bal num">${vnd(v)}</div>
-    <div class="io" role="tablist"><button type="button" role="tab" data-hero="exp" class="${k === 'exp' ? 'on' : ''}">Chi tiêu</button><button type="button" role="tab" data-hero="inc" class="${k === 'inc' ? 'on' : ''}">Thu nhập</button></div></div>`;
+    <div class="bal num" data-bal="${v}">${vnd(v)}</div>
+    <div class="io" role="tablist" data-tabkey="hero"><span class="ind"></span><button type="button" role="tab" data-hero="exp" class="${k === 'exp' ? 'on' : ''}">Chi tiêu</button><button type="button" role="tab" data-hero="inc" class="${k === 'inc' ? 'on' : ''}">Thu nhập</button></div></div>`;
 }
 
 export const txRow = (t) => {

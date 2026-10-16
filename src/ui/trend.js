@@ -11,7 +11,7 @@ export const trendState = { g: 'all', show: { cur: true, prev: false, avg: true 
 document.addEventListener('pointerdown', (e) => {
   if (trendState.menu && !e.target.closest('.gsel')) { trendState.menu = false; document.querySelectorAll('.trend').forEach((t) => t._redraw && t._redraw()); }
 });
-const SER = { cur: ['Tháng này', '#E5383B'], prev: ['Tháng trước', '#5B8DEF'], avg: ['Trung bình 3 tháng', '#B3A396'] };
+const SER = { cur: ['Tháng này', '#E5383B'], prev: ['Tháng trước', '#5B8DEF'], avg: ['TB 3 tháng', '#B3A396'] };
 
 // tổng chi theo ngày của tháng (y, m: 0-11)
 function daily(y, m, ids) {
@@ -48,9 +48,49 @@ function niceStep(max) {
   return 10 * p;
 }
 
+// ---------- hiệu ứng khi bật / tắt đường, đổi nhóm ----------
+const EASE = 'cubic-bezier(.22, 1, .36, 1)';
+const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+function snapshot(el) {
+  const svg = el.querySelector('svg.tchart');
+  if (!svg) return null;
+  const shape = {}, grid = {};
+  svg.querySelectorAll('[data-k]').forEach((e) => (shape[e.dataset.k] = e.tagName === 'path' ? e.getAttribute('d') : +e.getAttribute('cy')));
+  svg.querySelectorAll('.gl').forEach((e) => (grid[e.dataset.v] = +e.querySelector('line').getAttribute('y1')));
+  return { shape, grid, oldY: svg._yy };
+}
+function morph(svg, b, yy) {
+  svg._yy = yy;
+  if (!b || still()) return;
+  svg.querySelectorAll('[data-k]').forEach((e) => {
+    const k = e.dataset.k, old = b.shape[k];
+    if (e.tagName === 'path') {
+      const now = e.getAttribute('d');
+      if (old && old !== now && old.split(/[ML]/).length === now.split(/[ML]/).length) e.animate([{ d: `path("${old}")` }, { d: `path("${now}")` }], { duration: 560, easing: EASE });
+      else if (!old && k === 'area') e.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, delay: 200, easing: 'ease-out', fill: 'backwards' });
+      else if (!old) e.animate([{ strokeDasharray: '1 1', strokeDashoffset: 1 }, { strokeDasharray: '1 1', strokeDashoffset: 0 }], { duration: 750, easing: EASE });
+    } else {
+      const now = +e.getAttribute('cy');
+      if (old != null && old !== now) e.animate([{ transform: `translateY(${old - now}px)` }, { transform: 'none' }], { duration: 560, easing: EASE });
+      else if (old == null) e.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, delay: 450, fill: 'backwards' });
+    }
+  });
+  svg.querySelectorAll('.gl').forEach((e) => {
+    const v = +e.dataset.v, now = +e.querySelector('line').getAttribute('y1');
+    const from = b.grid[v] ?? (b.oldY ? b.oldY(v) : now);
+    if (from !== now) e.animate([{ transform: `translateY(${from - now}px)`, opacity: b.grid[v] == null ? 0 : 1 }, { transform: 'none', opacity: 1 }], { duration: 560, easing: EASE });
+  });
+}
+function retract(svg, k) {
+  const ln = svg.querySelector(`path[data-k="${k}"]`), dt = svg.querySelector(`[data-k="d${k}"]`);
+  if (!ln || still()) return Promise.resolve();
+  dt?.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' });
+  return ln.animate([{ strokeDasharray: '1 1', strokeDashoffset: 0 }, { strokeDasharray: '1 1', strokeDashoffset: 1 }], { duration: 360, easing: 'cubic-bezier(.55, 0, .7, .2)', fill: 'forwards' }).finished.catch(() => {});
+}
+
 // vẽ vào el; tự vẽ lại khi đổi cỡ
 export function mountTrend(el) {
-  const draw = () => {
+  const draw = (anim = false) => {
     const y = view.cursor.getFullYear(), m = view.cursor.getMonth();
     if (trendState.g !== 'all' && !gById(trendState.g)) trendState.g = 'all';
     const key = `${y}-${m}-${trendState.g}`;
@@ -61,14 +101,14 @@ export function mountTrend(el) {
     const d = Math.min(sel ?? (s.upto || s.n), s.n);
     const vals = [on('cur') ? s.cur[s.upto - 1] || 0 : 0, on('prev') ? s.prev[s.n - 1] : 0, on('avg') ? s.avg[s.n - 1] : 0];
     const max = Math.max(...vals, 100000) * 1.05, step = niceStep(max), top = Math.ceil(max / step) * step;
-    const L = 6, R = 54, T = 10, B = 26, x = (i) => L + (i - 1) * (W - L - R) / (s.n - 1), yy = (v) => T + (H - T - B) * (1 - v / top);
+    const L = 6, R = 62, T = 10, B = 26, x = (i) => L + (i - 1) * (W - L - R) / (s.n - 1), yy = (v) => T + (H - T - B) * (1 - v / top);
     const path = (a) => a.map((v, i) => (i ? 'L' : 'M') + x(i + 1).toFixed(1) + ' ' + yy(v).toFixed(1)).join('');
     let g = '';
-    for (let v = 0; v <= top + 1; v += step) g += `<line x1="${L}" x2="${W - R + 6}" y1="${yy(v)}" y2="${yy(v)}" stroke="#EAD7C5" stroke-dasharray="${v ? '5 5' : '0'}" stroke-width="${v ? 1.2 : 1.6}"/><text x="${W - R + 12}" y="${yy(v) + 4}">${v ? shortM(v) : '0'}</text>`;
+    for (let v = 0; v <= top + 1; v += step) g += `<g class="gl" data-v="${v}"><line x1="${L}" x2="${W - R + 6}" y1="${yy(v)}" y2="${yy(v)}" stroke="#EAD7C5" stroke-dasharray="${v ? '5 5' : '0'}" stroke-width="${v ? 1.2 : 1.6}"/><text x="${W - R + 12}" y="${yy(v) + 4}">${v ? shortM(v) : '0'}</text></g>`;
     const mm = String(m + 1).padStart(2, '0'), dd = String(d).padStart(2, '0');
     const cv = d <= s.upto ? s.cur[d - 1] : null;
-    const line = (a, col, w, dash) => a.length ? `<path d="${path(a)}" fill="none" stroke="${col}" stroke-width="${w}" ${dash ? 'stroke-dasharray="7 6"' : ''} stroke-linejoin="round" stroke-linecap="round"/>` : '';
-    const dot = (v, col, r) => `<circle cx="${x(d)}" cy="${yy(v)}" r="${r}" fill="#fff" stroke="${col}" stroke-width="2.6"/>`;
+    const line = (k, a, col, w, dash) => a.length ? `<path data-k="${k}" pathLength="1" d="${path(a)}" fill="none" stroke="${col}" stroke-width="${w}" ${dash ? 'stroke-dasharray="7 6"' : ''} stroke-linejoin="round" stroke-linecap="round"/>` : '';
+    const dot = (k, v, col, r) => `<circle data-k="${k}" cx="${x(d)}" cy="${yy(v)}" r="${r}" fill="#fff" stroke="${col}" stroke-width="2.6"/>`;
     let verdict = '';
     const ref = on('avg') ? ['avg', 'trung bình 3 tháng trước'] : on('prev') ? ['prev', 'tháng trước'] : null;
     if (ref && s.upto) {
@@ -77,6 +117,7 @@ export function mountTrend(el) {
     }
     const cg = trendState.g === 'all' ? null : gById(trendState.g);
     const menu = trendState.menu ? `<div class="gmenu" role="listbox"><button type="button" data-g="all" class="${trendState.g === 'all' ? 'on' : ''}"><span class="allic">${I('layers')}</span>Tất cả nhóm</button>${tops('exp').flatMap((t) => [t, ...kids(t.id)]).map((g) => `<button type="button" data-g="${g.id}" class="${g.parent ? 'child' : ''} ${trendState.g === g.id ? 'on' : ''}">${tile(g, g.parent ? 26 : 30)}${esc(g.name)}</button>`).join('')}</div>` : '';
+    const before = anim ? snapshot(el) : null;
     el.innerHTML = `<div class="trend-h"><h3>Xu hướng chi tiêu</h3>
         <div class="gsel"><button type="button" class="chip ${cg ? '' : 'txt'} on" data-gmenu aria-expanded="${trendState.menu}">${cg ? tile(cg, 24) : ''}${cg ? esc(cg.name) : 'Tất cả'}${I('chevron-down')}</button>${menu}</div></div>
       <div class="tip">${on('cur') ? `<div class="l1">${dd}/${mm}/${y}: ${cv != null ? `<b>${fmt(cv)}</b>` : '<span style="color:var(--dim)">chưa tới ngày này</span>'}</div>` : `<div class="l1">Ngày ${dd}/${mm}</div>`}
@@ -84,16 +125,17 @@ export function mountTrend(el) {
         ${on('avg') ? `<div class="l2"><i class="sw" style="background:${SER.avg[1]}"></i>TB 3 tháng trước: <b>${fmt(s.avg[d - 1])}</b></div>` : ''}</div>
       <svg class="tchart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Biểu đồ chi tiêu cộng dồn">
         <defs><linearGradient id="trArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E5383B" stop-opacity=".28"/><stop offset="1" stop-color="#E5383B" stop-opacity="0"/></linearGradient></defs>${g}
-        ${on('avg') ? line(s.avg, SER.avg[1], 1.8) : ''}${on('prev') ? line(s.prev, SER.prev[1], 1.8) : ''}
-        ${on('cur') && s.upto ? `<path d="${path(s.cur)}L${x(s.upto)} ${yy(0)}L${x(1)} ${yy(0)}Z" fill="url(#trArea)"/>` + line(s.cur, SER.cur[1], 2.4) : ''}
+        ${on('avg') ? line('avg', s.avg, SER.avg[1], 1.8) : ''}${on('prev') ? line('prev', s.prev, SER.prev[1], 1.8) : ''}
+        ${on('cur') && s.upto ? `<path data-k="area" d="${path(s.cur)}L${x(s.upto)} ${yy(0)}L${x(1)} ${yy(0)}Z" fill="url(#trArea)"/>` + line('cur', s.cur, SER.cur[1], 2.4) : ''}
         <line x1="${x(d)}" x2="${x(d)}" y1="${T}" y2="${yy(0)}" stroke="#D9C6B5" stroke-width="1.4"/>
-        ${on('avg') ? dot(s.avg[d - 1], SER.avg[1], 4.5) : ''}${on('prev') ? dot(s.prev[d - 1], SER.prev[1], 4.5) : ''}
-        ${on('cur') && cv != null ? `<circle cx="${x(d)}" cy="${yy(cv)}" r="6" fill="#fff" stroke="#E5383B" stroke-width="2.6"/>` : ''}
+        ${on('avg') ? dot('davg', s.avg[d - 1], SER.avg[1], 4.5) : ''}${on('prev') ? dot('dprev', s.prev[d - 1], SER.prev[1], 4.5) : ''}
+        ${on('cur') && cv != null ? `<circle data-k="dcur" cx="${x(d)}" cy="${yy(cv)}" r="6" fill="#fff" stroke="#E5383B" stroke-width="2.6"/>` : ''}
         <text x="${x(1)}" y="${H - 6}" text-anchor="start">01/${mm}</text><text x="${x(s.n)}" y="${H - 6}" text-anchor="end">${s.n}/${mm}</text>
         <rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/></svg>
       <div class="tlegend two">${['prev', 'avg'].map((k) => `<label class="lchk" style="--c:${SER[k][1]}"><input type="checkbox" data-s="${k}" ${on(k) ? 'checked' : ''}>${SER[k][0]}</label>`).join('')}</div>
       ${verdict}`;
     const svg = el.querySelector('svg.tchart');
+    morph(svg, before, (v) => yy(v));
     // chọn ngày trên biểu đồ: điểm được giữ lại sau khi thả tay
     const pick = (e) => { const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) * (W / r.width); const v = Math.max(1, Math.min(s.n, Math.round((px - L) / ((W - L - R) / (s.n - 1))) + 1)); if (v !== trendState.sel) { trendState.sel = v; draw(); } };
     let down = false;
@@ -101,8 +143,13 @@ export function mountTrend(el) {
     svg.onpointermove = (e) => { if (down || e.pointerType === 'mouse') pick(e); };
     svg.onpointerup = svg.onpointercancel = () => { down = false; };
     el.querySelector('[data-gmenu]').onclick = (e) => { e.stopPropagation(); trendState.menu = !trendState.menu; draw(); };
-    el.querySelectorAll('[data-g]').forEach((b) => (b.onclick = () => { trendState.g = b.dataset.g; trendState.menu = false; draw(); }));
-    el.querySelectorAll('[data-s]').forEach((b) => (b.onchange = () => { trendState.show[b.dataset.s] = b.checked; draw(); }));
+    el.querySelectorAll('[data-g]').forEach((b) => (b.onclick = () => { const ch = trendState.g !== b.dataset.g; trendState.g = b.dataset.g; trendState.menu = false; draw(ch); }));
+    el.querySelectorAll('[data-s]').forEach((b) => (b.onchange = () => {
+      const k = b.dataset.s;
+      if (b.checked) { trendState.show[k] = true; draw(true); return; }
+      // tắt: rút đường lại rồi mới vẽ lại thang mới
+      retract(svg, k).then(() => { trendState.show[k] = false; draw(true); });
+    }));
     el.querySelector('.gmenu .on')?.scrollIntoView({ block: 'nearest' });
   };
   draw();

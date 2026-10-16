@@ -1,21 +1,22 @@
-## Mon Money Lover 1.0.10 · icon 3D và font mới
+## Mon Money Lover 1.0.11 · đồng bộ Firebase và hiệu ứng mượt hơn
 
 **Tải về**
-- **Điện thoại Android:** `MonMoneyLover-1.0.10.apk`
-- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.10.exe`
+- **Điện thoại Android:** `MonMoneyLover-1.0.11.apk`
+- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.11.exe`
 
-**Giao diện mới**
-- Bộ icon nhóm 3D màu rực rỡ, 219 icon chia 8 chủ đề trong thư viện. Không còn chọn màu, chỉ cần chọn icon.
-- Nhóm cũ tự đổi sang icon 3D tương ứng, giao dịch giữ nguyên.
-- Font chữ Roboto giống Money Lover, số tiền dùng Roboto Condensed cao ráo hơn.
-- Số tiền trong sổ bỏ dấu + −: chi màu đỏ, thu màu xanh lá.
+**Đồng bộ PC và điện thoại**
+- Đã gắn sẵn Firebase của bạn, không cần dán cấu hình nữa.
+- Vào **Cài đặt**, máy đầu tiên bấm **Tạo tài khoản** (dữ liệu trên máy đó sẽ tự đưa lên), máy còn lại bấm **Đăng nhập** bằng cùng email và mật khẩu.
 
-**Tiện hơn**
-- Khi nhập giao dịch, trong hộp chọn nhóm có nút "+ Tạo nhóm mới".
-- Mở app sẽ hiện tháng có giao dịch gần nhất.
-- Tab Nhóm chi / Nhóm thu có hiệu ứng thanh trượt qua lại.
-- Các nút Sổ, Báo cáo, Nhóm, Cài đặt nhún nhẹ khi bấm.
+**Hiệu ứng**
+- Biểu đồ: bật Tháng trước / TB 3 tháng thì đường được vẽ dần ra, tắt thì đường rút lại; thang số co giãn mượt theo.
+- Sổ: nút Chi tiêu / Thu nhập trượt qua lại, đàn hồi nhẹ; số tổng chạy mượt tới số mới.
+- Sửa lỗi số to trên khung Chi tiêu bị nháy khi vuốt đổi tháng.
+- Đổi màn hình (Sổ, Báo cáo, Nhóm, Cài đặt): nội dung hiện ra nhẹ từ dưới lên.
 
-Icon 3D: Fluent Emoji 3D của Microsoft (giấy phép MIT).
+**Chữ to hơn**
+- Toàn bộ chữ to thêm khoảng 20%.
+- Cài đặt trên điện thoại: nút điều khiển tự xuống dòng khi thiếu chỗ, không còn ép chữ.
+- Chữ "LATEST" màu xanh lá hiện cả trên màn hình ngoài của Fold.
 
 Created by Mondiro

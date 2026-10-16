@@ -57,7 +57,7 @@ function editorHtml(compact) {
   const ed = gs.ed;
   const parents = tops(ed.type).filter((g) => g.id !== ed.id);
   return `<h3>${ed.id ? 'Sửa nhóm' : 'Tạo nhóm mới'}</h3>
-    <div class="prevrow">${tile(ed, 58)}<div style="min-width:0"><div style="font-weight:800;font-size:16px" data-prevname>${esc(ed.name || 'Tên nhóm')}</div><small style="color:var(--muted);font-weight:700">${ed.parent && gById(ed.parent) ? 'Nhóm con của ' + esc(gById(ed.parent).name) : 'Nhóm cha'} · ${ed.type === 'inc' ? 'nhóm thu' : 'nhóm chi'}</small></div></div>
+    <div class="prevrow">${tile(ed, 58)}<div style="min-width:0"><div style="font-weight:800;font-size:19px" data-prevname>${esc(ed.name || 'Tên nhóm')}</div><small style="color:var(--muted);font-weight:700">${ed.parent && gById(ed.parent) ? 'Nhóm con của ' + esc(gById(ed.parent).name) : 'Nhóm cha'} · ${ed.type === 'inc' ? 'nhóm thu' : 'nhóm chi'}</small></div></div>
     <div class="two"><div class="field"><label for="edName">Tên nhóm</label><input id="edName" class="inp" value="${esc(ed.name)}" maxlength="40" autocomplete="off"></div>
       <div class="field"><label for="edPar">Thuộc nhóm cha</label><select id="edPar" class="inp"><option value="">(Không, là nhóm cha)</option>${parents.map((p) => `<option value="${p.id}" ${ed.parent === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div></div>
     <div class="field"><span class="lbl">Thư viện icon</span><div class="libtabs">${Object.keys(LIB).map((k) => `<button type="button" data-lt="${k}" class="${gs.libTab === k ? 'on' : ''}">${k}</button>`).join('')}</div></div>
@@ -109,7 +109,7 @@ export function groupsDeskHtml() {
     <div class="nm"><b>${esc(g.name)}</b><small>${txCount(g.id)} giao dịch${!child && kids(g.id).length ? ' · ' + kids(g.id).length + ' nhóm con' : ''}</small></div>
     <div class="acts"><button type="button" data-act="move" title="Chuyển sang nhóm cha khác">${I('folder-input')}Chuyển</button><button type="button" data-act="merge" title="Gộp vào nhóm khác">${I('merge')}Gộp</button><button type="button" data-act="edit" title="Sửa tên, icon, màu">${I('pencil')}Sửa</button><button type="button" data-act="del" title="Xoá nhóm">${I('trash-2')}</button></div></div>`;
   const n = [...gs.selected].filter(gById).length;
-  return `<div class="bar">${typeTabs()}<span class="lbl" style="font-size:13px">Kéo một nhóm thả lên nhóm khác để biến nó thành nhóm con</span><div class="spacer"></div>
+  return `<div class="bar">${typeTabs()}<span class="lbl" style="font-size:15.5px">Kéo một nhóm thả lên nhóm khác để biến nó thành nhóm con</span><div class="spacer"></div>
       <button class="btn" type="button" data-mergesel ${n < 2 ? 'disabled' : ''}>${I('merge')}Gộp ${n >= 2 ? n + ' ' : ''}nhóm đã chọn</button></div>
     <div class="gm"><div class="panel gm-list scroll" data-key="gmlist"><div class="dropTop" data-drop="__top">Thả vào đây để biến thành nhóm cha</div>
       ${tops(view.gmType).map((g) => `<div class="gcard">${row(g)}${kids(g.id).map((k) => row(k, 1)).join('')}</div>`).join('')}</div>

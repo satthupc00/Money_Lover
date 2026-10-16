@@ -17,7 +17,7 @@ import { dmy, fmt } from '../util.js';
 let bioOk = null;
 let prefs = null;
 
-const row = (icon, title, sub, right) => `<div class="set-row">${I(icon, 'ic')}<div class="t"><b>${title}</b>${sub ? `<small>${sub}</small>` : ''}</div>${right || ''}</div>`;
+const row = (icon, title, sub, right) => `<div class="set-row">${I(icon, 'ic')}<div class="t"><b>${title}</b>${sub ? `<small>${sub}</small>` : ''}</div>${right ? `<div class="set-r">${right}</div>` : ''}</div>`;
 const syncText = () => ({ synced: 'Đã đồng bộ', pending: 'Đang đồng bộ…', error: 'Lỗi đồng bộ, sẽ thử lại', local: 'Chỉ lưu trên máy này' }[store.syncState] || '');
 
 export function updLabel() {

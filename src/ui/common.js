@@ -68,7 +68,7 @@ export function confirmBox(title, text, okLabel = 'Đồng ý', danger = false) 
 // tabs có thanh trượt: đặt vị trí .ind theo nút đang chọn
 const tabPos = {};
 export function placeTabs(root) {
-  root.querySelectorAll('.tabs').forEach((t, i) => {
+  root.querySelectorAll('.tabs, .io').forEach((t, i) => {
     const ind = t.querySelector('.ind'), on = t.querySelector('button.on');
     if (!ind || !on) return;
     const key = t.dataset.tabkey || 'tabs' + i, to = [on.offsetLeft, on.offsetWidth], from = tabPos[key];
@@ -77,6 +77,8 @@ export function placeTabs(root) {
       ind.style.left = from[0] + 'px'; ind.style.width = from[1] + 'px';
       void ind.offsetWidth;
       ind.style.transition = '';
+      // thanh trượt co giãn nhẹ theo quán tính
+      ind.classList.remove('go'); void ind.offsetWidth; ind.classList.add('go');
     }
     ind.style.left = to[0] + 'px'; ind.style.width = to[1] + 'px';
     tabPos[key] = to;
