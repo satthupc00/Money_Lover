@@ -14,5 +14,7 @@ export default defineConfig(({ mode }) => ({
     emptyOutDir: true,
     target: 'es2020',
     chunkSizeWarningLimit: 2000,
+    // icon 3D để thành file riêng (bản preview thì plugin singlefile tự nhúng vào HTML)
+    ...(mode === 'preview' ? {} : { assetsInlineLimit: 0 }),
   },
 }));

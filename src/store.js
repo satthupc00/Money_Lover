@@ -1,5 +1,5 @@
 // Kho dữ liệu: chế độ "local" (chỉ trên máy) hoặc "cloud" (Firestore, có offline)
-import { DEFAULT_GROUPS, LEGACY } from './defaults.js';
+import { DEFAULT_GROUPS, LEGACY, LUC2E } from './defaults.js';
 import { ls, uid as newId } from './util.js';
 import { fb, initFirebase } from './firebase.js';
 
@@ -30,7 +30,7 @@ export const txCount = (id) => store.tx.reduce((n, t) => n + (t.groupId === id ?
 function loadLocal() {
   const d = ls.get(LS_DATA);
   if (d && Array.isArray(d.groups)) { store.groups = d.groups; store.tx = d.tx || []; }
-  else { store.groups = DEFAULT_GROUPS.map((g) => ({ ...g })); store.tx = []; saveLocal(); ls.set(MIGR_KEY('local'), 1); }
+  else { store.groups = DEFAULT_GROUPS.map((g) => ({ ...g })); store.tx = []; saveLocal(); ls.set(MIGR_KEY('local'), 1); ls.set(MIGR3_KEY('local'), 1); }
 }
 
 // Nâng cấp dữ liệu bản cũ: dùng cấu trúc nhóm Money Lover + bộ icon mới (chạy 1 lần cho mỗi kho dữ liệu)
@@ -54,13 +54,27 @@ function migrate(who) {
   ls.set(MIGR_KEY(who), 1);
   apply(ops);
 }
+// Bản 1.0.10: đổi icon nét sang icon 3D (nhóm mặc định lấy icon mới, nhóm tự tạo đổi theo icon tương ứng)
+const MIGR3_KEY = (who) => 'mml.migr3.' + who;
+function migrate3(who) {
+  if (ls.get(MIGR3_KEY(who))) return;
+  const ops = [];
+  for (const g of store.groups) {
+    if (String(g.icon || '').startsWith('e:')) continue;
+    const d = DEFAULT_GROUPS.find((x) => x.id === g.id);
+    const icon = d ? d.icon : LUC2E[g.icon] ? 'e:' + LUC2E[g.icon] : null;
+    if (icon) ops.push({ type: 'update', col: 'groups', id: g.id, data: { icon } });
+  }
+  ls.set(MIGR3_KEY(who), 1);
+  if (ops.length) apply(ops);
+}
 function saveLocal() { ls.set(LS_DATA, { groups: store.groups, tx: store.tx }); }
 
 // ---------- khởi động ----------
 let unwatch = null;
 export function initStore() {
   loadLocal();
-  migrate('local');
+  migrate('local'); migrate3('local');
   store.fbReady = initFirebase();
   if (store.fbReady) {
     fb.onUser(async (u) => {
@@ -74,7 +88,7 @@ export function initStore() {
         if (await fb.isEmpty(u.uid)) await seedCloud(u.uid);
       } catch (e) { console.warn('seed', e); }
       let gotG = false, gotT = false;
-      const ready = () => { if (gotG && gotT) migrate(u.uid); };
+      const ready = () => { if (gotG && gotT) { migrate(u.uid); migrate3(u.uid); } };
       unwatch = fb.watch(u.uid,
         (gs) => { store.groups = gs; store.syncState = 'synced'; gotG = true; ready(); emit(); },
         (ts) => { store.tx = ts; store.syncState = 'synced'; gotT = true; ready(); emit(); },

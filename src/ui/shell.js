@@ -55,7 +55,7 @@ function deskHtml() {
       <div class="page report"><div class="panel scroll card rise" data-key="rep1"><div class="trend"></div></div>
       <div class="panel scroll card brkcard rise" data-key="rep2"></div></div>`;
   } else if (view.tab === 'groups') main = groupsDeskHtml();
-  else main = `<div class="bar"><h2 style="margin:0;font-size:18px;font-weight:900">Cài đặt</h2></div><div class="page settings scroll" data-key="set"><div>${settingsHtml()}</div></div>`;
+  else main = `<div class="bar"><h2 style="margin:0;font-size:18px;font-weight:800">Cài đặt</h2></div><div class="page settings scroll" data-key="set"><div>${settingsHtml()}</div></div>`;
   return `<div class="shell-desk desk">
     <header class="top"><div class="brand"><svg class="brand-icon" aria-hidden="true"><use href="#logo"/></svg>
       <div><div class="brand-name"><span class="m">Mondiro</span> <span class="a">Mon Money Lover</span> ${latestBadge()}</div><div class="brand-desc">Ghi chi tiêu, thu nhập · đồng bộ PC và điện thoại</div></div></div>

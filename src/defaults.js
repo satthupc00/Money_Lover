@@ -6,107 +6,107 @@ export const PAL = {
 };
 
 export const LIB = {
-  'Ăn uống': ['utensils-crossed', 'utensils', 'egg-fried', 'sandwich', 'cooking-pot', 'soup', 'coffee', 'cup-soda', 'wine', 'beer', 'milk', 'tree-palm', 'candy', 'popcorn', 'cookie', 'cake', 'ice-cream-cone', 'pizza', 'croissant', 'salad', 'carrot', 'apple', 'fish', 'drumstick', 'chef-hat', 'wheat', 'hand-platter'],
-  'Đi lại': ['bus', 'car', 'bike', 'fuel', 'car-taxi-front', 'train-front', 'plane', 'plane-takeoff', 'luggage', 'waves', 'tent', 'umbrella', 'square-parking', 'wrench', 'map-pin', 'map-pin-house', 'trees'],
-  'Nhà cửa': ['house', 'house-plus', 'key-round', 'bed-double', 'bed', 'sofa', 'lamp', 'hammer', 'zap', 'droplets', 'droplet', 'flame', 'wifi', 'tv', 'signal', 'phone', 'washing-machine', 'package'],
-  'Mua sắm': ['shopping-bag', 'shopping-cart', 'backpack', 'shirt', 'gem', 'glasses', 'watch', 'scissors', 'bath', 'smartphone', 'laptop', 'cpu', 'lamp-desk', 'headphones', 'camera', 'app-window', 'person-standing', 'shapes', 'receipt', 'receipt-text'],
-  'Giải trí': ['clapperboard', 'film', 'gamepad-2', 'youtube', 'music', 'ticket', 'party-popper', 'palette', 'brush', 'pen-tool', 'book-open', 'graduation-cap', 'sparkles'],
-  'Sức khoẻ': ['heart-pulse', 'pill', 'stethoscope', 'dumbbell', 'shield-check', 'flower-2', 'sprout', 'baby', 'cat', 'dog', 'smile'],
-  'Người thân': ['heart', 'heart-handshake', 'handshake', 'users', 'gift', 'flower', 'mail', 'coins'],
-  'Tiền bạc': ['briefcase', 'wallet', 'banknote', 'badge-dollar-sign', 'hand-coins', 'piggy-bank', 'vault', 'landmark', 'scale', 'percent', 'trending-up', 'calendar-clock', 'credit-card', 'send', 'undo-2', 'notebook-pen'],
+  'Ăn uống': ["1f37d-fe0f", "1f373", "1f372", "1f371", "1f35c", "1f35d", "1f35b", "1f363", "1f364", "1f359", "1f35a", "1f95f", "1f956", "1f950", "1f96a", "1f354", "1f35f", "1f32d", "1f355", "1f32e", "1f957", "1f958", "1f362", "1f361", "1f366", "1f370", "1f382", "1f369", "1f36a", "1f36b", "1f36c", "1f37f", "1f964", "1f9cb", "2615", "1f375", "1f37a", "1f37b", "1f377", "1f942", "1f95b", "1f9c3", "1f965", "1f349", "1f34a", "1f34c", "1f34e", "1f96d", "1f347", "1f955", "1f966", "1f9c2", "1f9c8", "1f969", "1f357", "1f990", "1f41f"],
+  'Đi lại': ["1f687", "1f68c", "1f695", "1f697", "1f3cd-fe0f", "1f6f5", "1f6b2", "1f686", "2708-fe0f", "1f6eb", "26fd", "1f17f-fe0f", "1f527", "1f6de", "1f9f3", "1f5fa-fe0f", "1f3d6-fe0f", "26f1-fe0f", "1f3d5-fe0f", "1f3ee", "1f5fc", "1f6a2", "1f6a6"],
+  'Nhà cửa': ["1f3e0", "1f3e1", "1f3d8-fe0f", "1f3e2", "1f511", "1f6cf-fe0f", "1f6cb-fe0f", "1fa91", "1f6aa", "1f9f9", "1f9fa", "1f9fc", "1f9fb", "1faa3", "1f528", "1fa9b", "1f6e0-fe0f", "1f4a1", "26a1", "1f4a7", "1f525", "1f4fa", "1f310", "1f4f6", "1f4de", "1f4e6", "1f33f", "1fab4"],
+  'Mua sắm': ["1f6cd-fe0f", "1f6d2", "1f455", "1f457", "1f456", "1f9e5", "1f45f", "1f460", "1f45c", "1f392", "1f453", "1f576-fe0f", "1f484", "1f48d", "231a", "1f4f1", "1f4bb", "1f5a5-fe0f", "2328-fe0f", "1f5b1-fe0f", "1f3a7", "1f4f7", "1f4bf", "1f9f8", "1f5bc-fe0f", "1f9e9", "1f4ce", "2702-fe0f", "1f9f4", "1f488"],
+  'Giải trí': ["1f3ac", "1f37f", "1f3ae", "1f579-fe0f", "1f3b2", "1f3af", "1f3a4", "1f3a7", "1f3b8", "1f3a8", "1f58c-fe0f", "1f4da", "1f4d6", "1f393", "1f3ab", "1f39f-fe0f", "1f3ad", "1f3b3", "26bd", "1f3c0", "1f3f8", "1f3ca", "1f3cb-fe0f", "1f386", "1f389", "1f381", "25b6-fe0f"],
+  'Sức khoẻ': ["1f3e5", "1f48a", "1fa7a", "1fa79", "1f489", "1f9b7", "1f9d8", "1f4aa", "1f3c3", "1f6e1-fe0f", "1f431", "1f436", "1f43e", "1f420", "1f331", "1f490"],
+  'Người thân': ["1f46a", "1f476", "1f474", "1f475", "1f469", "1f468", "1f491", "1f497", "1f49d", "1f496", "2764-fe0f", "1f91d", "1f9e7", "1f381", "1f33e", "1f60a", "1f970"],
+  'Tiền bạc': ["1f4b0", "1f4b5", "1f4b6", "1f4b7", "1f4b8", "1f4b3", "1fa99", "1f3e6", "1f4bc", "1f4c8", "1f4c9", "1f4ca", "1f9fe", "1f4dd", "1f4cb", "1f4e4", "1f4e5", "1f510", "2696-fe0f", "1f4b9", "1f437"],
 };
 
 // Cấu trúc nhóm mặc định = cấu trúc nhóm của Money Lover cũ.
 // Mỗi dòng: id|tên|icon|màu|kiểu; dòng thụt vào là nhóm con của nhóm cha ngay phía trên.
 export const STRUCT = `
-an|Ăn uống|utensils-crossed|red
- an_sang|Ăn sáng|egg-fried|honey
- an_toi|Ăn tối|cooking-pot|red
- an_trua|Ăn trưa|sandwich|orange
- an_vatcty|ăn vặt trong cty|candy|pink
- an_bao|Bao ăn ún|hand-platter|teal
- an_cfsang|cafe sáng|coffee|brown
- an_cftrua|cafe trưa|cup-soda|teal
- an_nglieu|nguyên liệu nấu ăn|carrot|orange
- an_dua|nước dừa|tree-palm|green
- an_onha|đồ ăn uống ở nhà|chef-hat|honey
-anvk|ăn uống với K|wine|pink
-anvnha|Ăn uống với nhà|users|honey
-baoduong|Bảo dưỡng xe|wrench|blue
-baohiem|Bảo hiểm|shield-check|teal
-bibo|Bi Bo|cat|orange
-cpkhac2|Các chi phí khác|package|brown
-cattoc|Cắt tóc, gội đầu|scissors|purple
-codinh|Chi phí cố định cho nhà|house|honey
- luongcm|Lương cM|badge-dollar-sign|green
- thuenha|Thuê nhà|key-round|honey
- internet|Tiền internet|wifi|indigo
- nuoc|Tiền Nước|droplets|blue
- cap|Tiền truyền hình cáp|tv|purple
- dien|Tiền điện|zap|honey
- youtube|youtube|youtube|red
-cpkhac|Chi phí khác|receipt|orange
-dichuyen|Di chuyển|bus|blue
-canhan|Đồ dùng cá nhân|backpack|purple
- chamsoc|chăm sóc cơ thể|bath|pink
- decor|Decor PC|lamp-desk|honey
- dientu|Đồ điện tử|smartphone|blue
- docty|đồ linh tinh trong cty|briefcase|brown
- figure|Figure|person-standing|pink
- game|Game gủng|gamepad-2|teal
- pc|Linh kiện PC|cpu|indigo
- linhtinh|Linh tinh|shapes|orange
- phanmem|Phần mềm|app-window|blue
- quanao|Quần áo|shirt|pink
-xang|Đổ xăng|fuel|red
-dulich|Du lịch|luggage|teal
- tq|Trung Quốc|plane|red
- vungtau|Vũng Tàu|waves|blue
-noan|ghi nợ An|notebook-pen|orange
-guixe|gửi xe|square-parking|blue
-ktrano|K trả nợ|handshake|pink
- cdmuon|trả nợ cD mượn 20tr|banknote|green
-kuan|ku An|baby|teal
-muasam|Mua sắm|shopping-bag|purple
-outsource|Outsource|brush|indigo
-kphi|Phí tổng của K|heart|pink
- kchi|Chi phí cho K|heart-handshake|pink
- kmuon|cho K mượn|hand-coins|teal
- kco|K bệnh cái cổ|stethoscope|blue
- kbenh|K bệnh linh tinh|pill|red
- kba|K cho ba|gift|orange
- khoc|K học hành|graduation-cap|indigo
- kmua|K mua đồ|shopping-cart|purple
- klt|K phát sinh linh tinh|receipt-text|brown
- kque|K và quê K|trees|green
- ktro|tiền thuê trọ cho K|bed-double|honey
- kno|trả nợ cho K|wallet|green
-suanha|Sửa nhà|hammer|brown
-suckhoe|Sức khỏe|heart-pulse|red
-tet|Tết|flower|honey
- lixi|lì xì bên K|mail|red
- tetk|tiền tết K|coins|honey
-theduc|Thể dục thể thao|dumbbell|teal
-chuyendi|Tiền chuyển đi|send|blue
-dt3g|Tiền điện thoại, 3G|signal|indigo
-tragop|trả góp|calendar-clock|brown
-tralai|Trả lãi|percent|orange
-vequek|về quê K|map-pin-house|green
-phim|Xem phim|clapperboard|purple
-dodung|Đồ dùng linh tinh trong nhà|sofa|orange
- anvat|đồ ăn vặt|popcorn|honey
- giavi|Gia vị nấu ăn|wheat|brown
-vayno|Vay, trả nợ|scale|brown
- chovay|Cho vay|hand-coins|teal
- trano|Trả nợ|landmark|brown
-luong|Lương|briefcase|green|inc
-thukhac|Thu nhập khác|wallet|teal|inc
-job|Job|pen-tool|indigo|inc
-lai|Thu lãi|trending-up|honey|inc
-chothue|tiền cho thuê nhà|house-plus|green|inc
-ktra|K trả lại|undo-2|pink|inc
-antra|An trả lại|smile|teal|inc
-kgiu|K đưa giữ dùm|vault|brown|inc
+an|Ăn uống|e:1f37d-fe0f|red
+ an_sang|Ăn sáng|e:1f373|honey
+ an_toi|Ăn tối|e:1f372|red
+ an_trua|Ăn trưa|e:1f371|orange
+ an_vatcty|ăn vặt trong cty|e:1f36c|pink
+ an_bao|Bao ăn ún|e:1f354|teal
+ an_cfsang|cafe sáng|e:2615|brown
+ an_cftrua|cafe trưa|e:1f9cb|teal
+ an_nglieu|nguyên liệu nấu ăn|e:1f955|orange
+ an_dua|nước dừa|e:1f965|green
+ an_onha|đồ ăn uống ở nhà|e:1f958|honey
+anvk|ăn uống với K|e:1f377|pink
+anvnha|Ăn uống với nhà|e:1f46a|honey
+baoduong|Bảo dưỡng xe|e:1f527|blue
+baohiem|Bảo hiểm|e:1f6e1-fe0f|teal
+bibo|Bi Bo|e:1f431|orange
+cpkhac2|Các chi phí khác|e:1f4e6|brown
+cattoc|Cắt tóc, gội đầu|e:1f488|purple
+codinh|Chi phí cố định cho nhà|e:1f3e0|honey
+ luongcm|Lương cM|e:1f4b5|green
+ thuenha|Thuê nhà|e:1f511|honey
+ internet|Tiền internet|e:1f310|indigo
+ nuoc|Tiền Nước|e:1f4a7|blue
+ cap|Tiền truyền hình cáp|e:1f4fa|purple
+ dien|Tiền điện|e:26a1|honey
+ youtube|youtube|e:25b6-fe0f|red
+cpkhac|Chi phí khác|e:1f9fe|orange
+dichuyen|Di chuyển|e:1f687|blue
+canhan|Đồ dùng cá nhân|e:1f392|purple
+ chamsoc|chăm sóc cơ thể|e:1f9f4|pink
+ decor|Decor PC|e:1f5bc-fe0f|honey
+ dientu|Đồ điện tử|e:1f4f1|blue
+ docty|đồ linh tinh trong cty|e:1f4ce|brown
+ figure|Figure|e:1f9f8|pink
+ game|Game gủng|e:1f3ae|teal
+ pc|Linh kiện PC|e:1f5a5-fe0f|indigo
+ linhtinh|Linh tinh|e:1f9e9|orange
+ phanmem|Phần mềm|e:1f4bf|blue
+ quanao|Quần áo|e:1f455|pink
+xang|Đổ xăng|e:26fd|red
+dulich|Du lịch|e:1f9f3|teal
+ tq|Trung Quốc|e:1f3ee|red
+ vungtau|Vũng Tàu|e:1f3d6-fe0f|blue
+noan|ghi nợ An|e:1f4dd|orange
+guixe|gửi xe|e:1f17f-fe0f|blue
+ktrano|K trả nợ|e:1f91d|pink
+ cdmuon|trả nợ cD mượn 20tr|e:1f4b8|green
+kuan|ku An|e:1f476|teal
+muasam|Mua sắm|e:1f6cd-fe0f|purple
+outsource|Outsource|e:1f3a8|indigo
+kphi|Phí tổng của K|e:1f497|pink
+ kchi|Chi phí cho K|e:1f49d|pink
+ kmuon|cho K mượn|e:1f4b6|teal
+ kco|K bệnh cái cổ|e:1fa7a|blue
+ kbenh|K bệnh linh tinh|e:1f48a|red
+ kba|K cho ba|e:1f474|orange
+ khoc|K học hành|e:1f393|indigo
+ kmua|K mua đồ|e:1f6d2|purple
+ klt|K phát sinh linh tinh|e:1f4cb|brown
+ kque|K và quê K|e:1f33e|green
+ ktro|tiền thuê trọ cho K|e:1f6cf-fe0f|honey
+ kno|trả nợ cho K|e:1f45b|green
+suanha|Sửa nhà|e:1f528|brown
+suckhoe|Sức khỏe|e:1f3e5|red
+tet|Tết|e:1f386|honey
+ lixi|lì xì bên K|e:1f9e7|red
+ tetk|tiền tết K|e:1fa99|honey
+theduc|Thể dục thể thao|e:1f3c0|teal
+chuyendi|Tiền chuyển đi|e:1f4e4|blue
+dt3g|Tiền điện thoại, 3G|e:1f4f6|indigo
+tragop|trả góp|e:1f4b3|brown
+tralai|Trả lãi|e:1f4c9|orange
+vequek|về quê K|e:1f3e1|green
+phim|Xem phim|e:1f3ac|purple
+dodung|Đồ dùng linh tinh trong nhà|e:1f6cb-fe0f|orange
+ anvat|đồ ăn vặt|e:1f37f|honey
+ giavi|Gia vị nấu ăn|e:1f9c2|brown
+vayno|Vay, trả nợ|e:2696-fe0f|brown
+ chovay|Cho vay|e:1f4b7|teal
+ trano|Trả nợ|e:1f3e6|brown
+luong|Lương|e:1f4bc|green|inc
+thukhac|Thu nhập khác|e:1f4b0|teal|inc
+job|Job|e:1f4bb|indigo|inc
+lai|Thu lãi|e:1f4c8|honey|inc
+chothue|tiền cho thuê nhà|e:1f3d8-fe0f|green|inc
+ktra|K trả lại|e:1f496|pink|inc
+antra|An trả lại|e:1f60a|teal|inc
+kgiu|K đưa giữ dùm|e:1f510|brown|inc
 `;
 export const DEFAULT_GROUPS = (() => {
   const out = [];
@@ -138,3 +138,6 @@ export const LEGACY = {
   mg_chovay: 'ml_chovay', mg_trano: 'ml_trano', mg_noan: 'ml_noan', mg_linhtinh: 'ml_linhtinh', mg_cpkhac: 'ml_cpkhac', mg_lai: 'ml_lai', mg_chothue: 'ml_chothue',
   mg_ktra: 'ml_ktra', mg_antra: 'ml_antra', mg_kgiu: 'ml_kgiu', mg_k: 'ml_kphi', mg_work: 'ml_outsource', mg_debt: 'ml_vayno', mg_back: 'ml_thukhac',
 };
+
+// icon cũ (lucide) -> icon 3D tương ứng, dùng khi nâng cấp nhóm người dùng tự tạo
+export const LUC2E = {"utensils-crossed": "1f37d-fe0f", "egg-fried": "1f373", "cooking-pot": "1f372", "sandwich": "1f371", "candy": "1f36c", "hand-platter": "1f354", "coffee": "2615", "cup-soda": "1f9cb", "carrot": "1f955", "tree-palm": "1f965", "chef-hat": "1f958", "wine": "1f377", "users": "1f46a", "wrench": "1f527", "shield-check": "1f6e1-fe0f", "cat": "1f431", "package": "1f4e6", "scissors": "1f488", "house": "1f3e0", "badge-dollar-sign": "1f4b5", "key-round": "1f511", "wifi": "1f310", "droplets": "1f4a7", "tv": "1f4fa", "zap": "26a1", "youtube": "25b6-fe0f", "receipt": "1f9fe", "bus": "1f687", "backpack": "1f392", "bath": "1f9f4", "lamp-desk": "1f5bc-fe0f", "smartphone": "1f4f1", "briefcase": "1f4ce", "person-standing": "1f9f8", "gamepad-2": "1f3ae", "cpu": "1f5a5-fe0f", "shapes": "1f9e9", "app-window": "1f4bf", "shirt": "1f455", "fuel": "26fd", "luggage": "1f9f3", "plane": "1f3ee", "waves": "1f3d6-fe0f", "notebook-pen": "1f4dd", "square-parking": "1f17f-fe0f", "handshake": "1f91d", "banknote": "1f4b8", "baby": "1f476", "shopping-bag": "1f6cd-fe0f", "brush": "1f3a8", "heart": "1f497", "heart-handshake": "1f49d", "hand-coins": "1f4b6", "stethoscope": "1fa7a", "pill": "1f48a", "gift": "1f474", "graduation-cap": "1f393", "shopping-cart": "1f6d2", "receipt-text": "1f4cb", "trees": "1f33e", "bed-double": "1f6cf-fe0f", "wallet": "1f45b", "hammer": "1f528", "heart-pulse": "1f3e5", "flower": "1f386", "mail": "1f9e7", "coins": "1fa99", "dumbbell": "1f3c0", "send": "1f4e4", "signal": "1f4f6", "calendar-clock": "1f4b3", "percent": "1f4c9", "map-pin-house": "1f3e1", "clapperboard": "1f3ac", "sofa": "1f6cb-fe0f", "popcorn": "1f37f", "wheat": "1f9c2", "scale": "2696-fe0f", "landmark": "1f3e6", "pen-tool": "1f4bb", "trending-up": "1f4c8", "house-plus": "1f3d8-fe0f", "undo-2": "1f496", "smile": "1f60a", "vault": "1f510", "utensils": "1f374", "soup": "1f35c", "beer": "1f37a", "milk": "1f95b", "cookie": "1f36a", "cake": "1f370", "ice-cream-cone": "1f366", "pizza": "1f355", "croissant": "1f950", "salad": "1f957", "apple": "1f34e", "fish": "1f41f", "drumstick": "1f357", "car": "1f697", "bike": "1f6b2", "car-taxi-front": "1f695", "train-front": "1f686", "plane-takeoff": "1f6eb", "tent": "1f3d5-fe0f", "umbrella": "26f1-fe0f", "map-pin": "1f5fa-fe0f", "bed": "1f6cf-fe0f", "lamp": "1f4a1", "droplet": "1f4a7", "flame": "1f525", "phone": "1f4de", "washing-machine": "1f9fa", "gem": "1f48d", "glasses": "1f453", "watch": "231a", "laptop": "1f4bb", "headphones": "1f3a7", "camera": "1f4f7", "film": "1f3ac", "music": "1f3b8", "ticket": "1f3ab", "party-popper": "1f389", "palette": "1f3a8", "book-open": "1f4d6", "sparkles": "1f389", "flower-2": "1f490", "sprout": "1f331", "dog": "1f436", "piggy-bank": "1f437", "credit-card": "1f4b3"};

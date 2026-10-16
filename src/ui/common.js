@@ -2,9 +2,17 @@ import { I } from '../icons.js';
 import { PAL } from '../defaults.js';
 import { esc } from '../util.js';
 
+// icon 3D (Fluent Emoji 3D của Microsoft, giấy phép MIT)
+const EMOJI = import.meta.glob('../assets/emoji/*.webp', { eager: true, query: '?url', import: 'default' });
+export const emojiSrc = (code) => EMOJI[`../assets/emoji/${code}.webp`] || EMOJI['../assets/emoji/1f9fe.webp'];
+export const emo = (code, cls = '') => `<img class="emo ${cls}" src="${emojiSrc(code)}" alt="" draggable="false" decoding="async">`;
+
 export const tile = (g, s = 40) => {
+  const ic = g?.icon || 'e:1f9fe';
+  if (ic.startsWith('e:')) return `<span class="tile e3" style="width:${s}px;height:${s}px">${emo(ic.slice(2))}</span>`;
+  // nhóm cũ còn icon nét (lucide)
   const p = PAL[g?.color] || PAL.red;
-  return `<span class="tile" style="width:${s}px;height:${s}px;--fg-t:${p[0]};--bg-t:${p[1]}">${I(g?.icon || 'receipt')}</span>`;
+  return `<span class="tile" style="width:${s}px;height:${s}px;--fg-t:${p[0]};--bg-t:${p[1]}">${I(ic)}</span>`;
 };
 
 const overlay = () => document.getElementById('overlay');

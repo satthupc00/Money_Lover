@@ -1,12 +1,12 @@
 // Quản lý nhóm: kéo thả đổi nhóm cha, chuyển, gộp, tạo / sửa nhóm với thư viện icon
 import { store, gById, tops, kids, txCount, addGroup, updateGroup, moveGroup, mergeGroups, deleteGroup, canMove } from '../store.js';
 import { view, setView } from '../state.js';
-import { PAL, LIB } from '../defaults.js';
+import { LIB } from '../defaults.js';
 import { I } from '../icons.js';
 import { esc } from '../util.js';
-import { tile, dialog, sheet, toast, confirmBox } from './common.js';
+import { tile, emo, dialog, sheet, toast, confirmBox } from './common.js';
 
-const blank = (type) => ({ id: null, name: '', icon: type === 'inc' ? 'wallet' : 'cookie', color: type === 'inc' ? 'green' : 'orange', parent: '', type });
+const blank = (type) => ({ id: null, name: '', icon: type === 'inc' ? 'e:1f45b' : 'e:1f36a', color: type === 'inc' ? 'green' : 'orange', parent: '', type });
 const gs = { selected: new Set(), ed: blank('exp'), libTab: 'Ăn uống' };
 
 // ---------- hộp chọn nhóm đích ----------
@@ -57,18 +57,16 @@ function editorHtml(compact) {
   const ed = gs.ed;
   const parents = tops(ed.type).filter((g) => g.id !== ed.id);
   return `<h3>${ed.id ? 'Sửa nhóm' : 'Tạo nhóm mới'}</h3>
-    <div class="prevrow">${tile(ed, 58)}<div style="min-width:0"><div style="font-weight:900;font-size:16px" data-prevname>${esc(ed.name || 'Tên nhóm')}</div><small style="color:var(--muted);font-weight:800">${ed.parent && gById(ed.parent) ? 'Nhóm con của ' + esc(gById(ed.parent).name) : 'Nhóm cha'} · ${ed.type === 'inc' ? 'nhóm thu' : 'nhóm chi'}</small></div></div>
+    <div class="prevrow">${tile(ed, 58)}<div style="min-width:0"><div style="font-weight:800;font-size:16px" data-prevname>${esc(ed.name || 'Tên nhóm')}</div><small style="color:var(--muted);font-weight:700">${ed.parent && gById(ed.parent) ? 'Nhóm con của ' + esc(gById(ed.parent).name) : 'Nhóm cha'} · ${ed.type === 'inc' ? 'nhóm thu' : 'nhóm chi'}</small></div></div>
     <div class="two"><div class="field"><label for="edName">Tên nhóm</label><input id="edName" class="inp" value="${esc(ed.name)}" maxlength="40" autocomplete="off"></div>
       <div class="field"><label for="edPar">Thuộc nhóm cha</label><select id="edPar" class="inp"><option value="">(Không, là nhóm cha)</option>${parents.map((p) => `<option value="${p.id}" ${ed.parent === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div></div>
-    <div class="field"><span class="lbl">Màu</span><div class="swatches">${Object.keys(PAL).map((k) => `<button type="button" data-c="${k}" class="${ed.color === k ? 'on' : ''}" style="background:${PAL[k][0]}" aria-label="Màu ${k}"></button>`).join('')}</div></div>
     <div class="field"><span class="lbl">Thư viện icon</span><div class="libtabs">${Object.keys(LIB).map((k) => `<button type="button" data-lt="${k}" class="${gs.libTab === k ? 'on' : ''}">${k}</button>`).join('')}</div></div>
-    <div class="lib" style="${compact ? 'max-height:220px' : ''}">${LIB[gs.libTab].map((n) => `<button type="button" data-ic="${n}" class="${ed.icon === n ? 'on' : ''}" title="${n}">${I(n)}</button>`).join('')}</div>
+    <div class="lib" style="${compact ? 'max-height:220px' : ''}">${LIB[gs.libTab].map((n) => `<button type="button" data-ic="e:${n}" class="${ed.icon === 'e:' + n ? 'on' : ''}">${emo(n)}</button>`).join('')}</div>
     <div class="actions">${ed.id ? '<button class="btn" type="button" data-cancel>Huỷ sửa</button>' : compact ? '<button class="btn" type="button" data-x>Huỷ</button>' : ''}<button class="btn primary" type="button" data-save>${I(ed.id ? 'check' : 'plus')}${ed.id ? 'Lưu thay đổi' : 'Tạo nhóm'}</button></div>`;
 }
 function wireEditor(el, compact, rerender, done) {
   el.querySelector('#edName').oninput = (e) => { gs.ed.name = e.target.value; el.querySelector('[data-prevname]').textContent = gs.ed.name || 'Tên nhóm'; };
   el.querySelector('#edPar').onchange = (e) => { gs.ed.parent = e.target.value; rerender(); };
-  el.querySelectorAll('[data-c]').forEach((b) => (b.onclick = () => { gs.ed.color = b.dataset.c; rerender(); }));
   el.querySelectorAll('[data-lt]').forEach((b) => (b.onclick = () => { gs.libTab = b.dataset.lt; rerender(); }));
   el.querySelectorAll('[data-ic]').forEach((b) => (b.onclick = () => { gs.ed.icon = b.dataset.ic; rerender(); }));
   const c = el.querySelector('[data-cancel]');
@@ -91,7 +89,7 @@ function wireEditor(el, compact, rerender, done) {
 function editInto(id) {
   const g = gById(id);
   gs.ed = { id, name: g.name, icon: g.icon, color: g.color, parent: g.parent || '', type: g.type };
-  gs.libTab = Object.keys(LIB).find((k) => LIB[k].includes(g.icon)) || gs.libTab;
+  gs.libTab = Object.keys(LIB).find((k) => LIB[k].includes(String(g.icon).slice(2))) || gs.libTab;
 }
 
 const typeTabs = () => `<div class="tabs" data-tabkey="gmtype">${[['exp', 'Nhóm chi'], ['inc', 'Nhóm thu']].map(([k, n]) => `<button type="button" data-gmtype="${k}" class="${view.gmType === k ? 'on' : ''}">${n}</button>`).join('')}<span class="ind"></span></div>`;
@@ -142,7 +140,7 @@ export function wireGroupsDesk(root, rerender) {
   const ms = root.querySelector('[data-mergesel]');
   if (ms) ms.onclick = () => {
     const ids = [...gs.selected].filter(gById);
-    const box = dialog(`<h3>Gộp ${ids.length} nhóm</h3><p>Giữ lại tên và icon của nhóm nào?</p><div class="pick">${ids.map((i) => `<button type="button" data-t="${i}">${tile(gById(i), 34)}${esc(gById(i).name)}<span style="color:var(--muted);font-weight:700;margin-left:auto">${txCount(i)} giao dịch</span></button>`).join('')}</div><div class="actions"><button class="btn" type="button" data-x>Huỷ</button></div>`);
+    const box = dialog(`<h3>Gộp ${ids.length} nhóm</h3><p>Giữ lại tên và icon của nhóm nào?</p><div class="pick">${ids.map((i) => `<button type="button" data-t="${i}">${tile(gById(i), 34)}${esc(gById(i).name)}<span style="color:var(--muted);font-weight:500;margin-left:auto">${txCount(i)} giao dịch</span></button>`).join('')}</div><div class="actions"><button class="btn" type="button" data-x>Huỷ</button></div>`);
     box.el.querySelectorAll('[data-t]').forEach((x) => (x.onclick = () => { box.close(); doMerge(ids, x.dataset.t); }));
   };
   // kéo thả
@@ -180,7 +178,7 @@ export function wireGroupsMobile(root) {
   if (nb) nb.onclick = () => openEditorSheet(null);
   root.querySelectorAll('[data-gact]').forEach((b) => (b.onclick = () => {
     const id = b.dataset.gact, g = gById(id);
-    const box = sheet(`<div class="asheet"><div style="display:flex;align-items:center;gap:12px;padding:4px 12px 8px">${tile(g, 44)}<div><div style="font-weight:900">${esc(g.name)}</div><small style="color:var(--muted);font-weight:700">${g.parent ? 'Nhóm con của ' + esc(gById(g.parent)?.name) : 'Nhóm cha'} · ${txCount(id)} giao dịch</small></div></div>
+    const box = sheet(`<div class="asheet"><div style="display:flex;align-items:center;gap:12px;padding:4px 12px 8px">${tile(g, 44)}<div><div style="font-weight:800">${esc(g.name)}</div><small style="color:var(--muted);font-weight:500">${g.parent ? 'Nhóm con của ' + esc(gById(g.parent)?.name) : 'Nhóm cha'} · ${txCount(id)} giao dịch</small></div></div>
       <button type="button" class="act" data-a="move">${I('folder-input')}Chuyển sang nhóm cha khác</button>
       ${g.parent ? `<button type="button" class="act" data-a="top">${I('corner-down-right')}Biến thành nhóm cha</button>` : ''}
       <button type="button" class="act" data-a="merge">${I('merge')}Gộp vào nhóm khác</button>

@@ -1,17 +1,21 @@
-## Mon Money Lover 1.0.9 · chỉnh báo cáo và hiệu ứng vuốt
+## Mon Money Lover 1.0.10 · icon 3D và font mới
 
 **Tải về**
-- **Điện thoại Android:** `MonMoneyLover-1.0.9.apk`
-- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.9.exe`
+- **Điện thoại Android:** `MonMoneyLover-1.0.10.apk`
+- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.10.exe`
 
-**Báo cáo**
-- Sửa lỗi mở nhóm con trong "Chi theo nhóm" làm tràn khung.
-- Biểu đồ: đường tháng này mảnh hơn; tháng trước (xanh) và trung bình 3 tháng (xám nâu) là nét liền, mảnh. Bỏ chú thích "Tháng này", chỉ còn 2 nút bật / tắt chia đều.
-- Vòng tròn tỷ lệ: bấm "+n nhóm khác" để xem đủ tất cả nhóm, có nút "Thu gọn".
-- Vuốt trái / phải để đổi tháng, các bảng chạy theo hướng vuốt.
+**Giao diện mới**
+- Bộ icon nhóm 3D màu rực rỡ, 219 icon chia 8 chủ đề trong thư viện. Không còn chọn màu, chỉ cần chọn icon.
+- Nhóm cũ tự đổi sang icon 3D tương ứng, giao dịch giữ nguyên.
+- Font chữ Roboto giống Money Lover, số tiền dùng Roboto Condensed cao ráo hơn.
+- Số tiền trong sổ bỏ dấu + −: chi màu đỏ, thu màu xanh lá.
 
-**Vuốt**
-- Sổ giao dịch: khi vuốt chỉ danh sách và chữ tháng / năm chạy, thẻ tổng chi đứng yên.
-- Tab Nhóm: vuốt trái / phải để đổi giữa Nhóm chi và Nhóm thu.
+**Tiện hơn**
+- Khi nhập giao dịch, trong hộp chọn nhóm có nút "+ Tạo nhóm mới".
+- Mở app sẽ hiện tháng có giao dịch gần nhất.
+- Tab Nhóm chi / Nhóm thu có hiệu ứng thanh trượt qua lại.
+- Các nút Sổ, Báo cáo, Nhóm, Cài đặt nhún nhẹ khi bấm.
+
+Icon 3D: Fluent Emoji 3D của Microsoft (giấy phép MIT).
 
 Created by Mondiro

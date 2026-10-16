@@ -51,7 +51,7 @@ export function planImport(text) {
     let g = BY_NAME.get(keyOf(cat));
     if (!g || g.type !== type) {
       const id = 'ml_x' + hash(keyOf(cat) + type);
-      g = extra.get(id) || { id, name: cat, icon: type === 'inc' ? 'wallet' : 'receipt', color: 'brown', type, parent: null };
+      g = extra.get(id) || { id, name: cat, icon: type === 'inc' ? 'e:1f45b' : 'e:1f9fe', color: 'brown', type, parent: null };
       extra.set(id, g);
     }
     const st = stats.get(cat) || { cat, target: g.id, n: 0, type };
