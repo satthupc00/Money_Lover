@@ -41,6 +41,7 @@ export function planImport(text) {
   const stats = new Map();
   const tx = [];
   let min = '9999', max = '0000', bad = 0;
+  const seen = new Map(); // giao dịch giống hệt nhau trong file: đánh số thứ tự để vẫn tách riêng
   for (const r of rows.slice(1)) {
     const amt = Math.round(parseFloat(String(r[iAmt]).replace(/[^\d.-]/g, '')));
     const m = String(r[iDate] || '').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
@@ -56,8 +57,12 @@ export function planImport(text) {
     }
     const st = stats.get(cat) || { cat, target: g.id, n: 0, type };
     st.n++; stats.set(cat, st);
-    const id = 'ml' + hash([r[iId], date, amt, cat, r[iNote]].join('|'));
-    tx.push({ id, amount: Math.abs(amt), type, groupId: g.id, note: String(r[iNote] || '').trim(), date, exclude: String(r[iEx]).toLowerCase() === 'true', cat, createdAt: Date.now() - tx.length, updatedAt: Date.now(), src: 'moneylover' });
+    // mã giao dịch không phụ thuộc số thứ tự dòng (cột Id đổi mỗi lần xuất file) -> nhập lại file mới không bị nhân đôi
+    const note = String(r[iNote] || '').trim();
+    const key = contentKey(date, type, Math.abs(amt), cat, note);
+    const nth = (seen.get(key) || 0) + 1; seen.set(key, nth);
+    const id = 'mk' + hash(key + '#' + nth);
+    tx.push({ id, amount: Math.abs(amt), type, groupId: g.id, note, date, exclude: String(r[iEx]).toLowerCase() === 'true', cat, createdAt: Date.now() - tx.length, updatedAt: Date.now(), src: 'moneylover' });
     if (date < min) min = date;
     if (date > max) max = date;
   }
@@ -66,8 +71,6 @@ export function planImport(text) {
   const allGroups = [...LAYOUT, ...extra.values()];
   // nhóm sẽ xoá: nhóm trống (sau khi nhập) không thuộc cấu trúc Money Lover
   const used = new Set(tx.map((t) => t.groupId));
-  const imported = new Set(tx.map((t) => t.id));
-  for (const t of store.tx) if (!imported.has(t.id)) used.add(t.groupId);
   const keep = new Set(allGroups.map((g) => g.id));
   const remove = store.groups.filter((g) => !keep.has(g.id) && !used.has(g.id));
   const removed = new Set(remove.map((g) => g.id));
@@ -77,12 +80,31 @@ export function planImport(text) {
     const to = BY_NAME.get(keyOf(old?.name));
     return [g.id, to && !to.parent && to.type === g.type ? to.id : null];
   });
-  const existing = new Set(store.tx.map((t) => t.id));
-  return { tx, groups, remove, reparent, stats: [...stats.values()].sort((a, b) => b.n - a.n), min, max, bad, dup: tx.filter((t) => existing.has(t.id)).length };
+  // THAY THẾ: dữ liệu sau khi nhập = đúng nội dung file. Giao dịch cũ trùng nội dung thì giữ nguyên (đỡ ghi lên mây),
+  // phần thừa (kể cả bản bị nhân đôi, giao dịch nhập tay) bị xoá.
+  const pool = new Map();
+  for (const t of store.tx) {
+    const k = contentKey(t.date, t.type, t.amount, t.cat || gById(t.groupId)?.name || '', t.note || '');
+    if (!pool.has(k)) pool.set(k, []);
+    pool.get(k).push(t);
+  }
+  const write = [];
+  let same = 0, added = 0;
+  for (const t of tx) {
+    const old = pool.get(contentKey(t.date, t.type, t.amount, t.cat, t.note))?.pop();
+    if (!old) { write.push(t); added++; continue; }
+    t.id = old.id;
+    if (old.groupId === t.groupId && !!old.exclude === t.exclude) same++;
+    else write.push({ ...old, groupId: t.groupId, exclude: t.exclude, cat: t.cat, updatedAt: Date.now() });
+  }
+  const del = [...pool.values()].flat().map((t) => t.id);
+  const manual = [...pool.values()].flat().filter((t) => !t.cat).length;
+  return { tx, write, del, manual, same, added, kept: tx.length - added, have: store.tx.length, groups, remove, reparent, stats: [...stats.values()].sort((a, b) => b.n - a.n), min, max, bad };
 }
+const contentKey = (date, type, amount, cat, note) => [date, type, Math.round(amount), keyOf(cat), String(note).trim()].join('|');
 
 export function runImport(plan, clean = true) {
-  importData(plan.groups, plan.tx, clean ? plan.remove.map((g) => g.id) : [], clean ? plan.reparent : []);
+  importData(plan.groups, plan.write, clean ? plan.remove.map((g) => g.id) : [], clean ? plan.reparent : [], plan.del);
 }
 
 // tên hiển thị của nhóm đích (kể cả nhóm sắp tạo)

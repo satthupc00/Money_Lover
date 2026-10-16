@@ -187,14 +187,16 @@ export function deleteGroup(id) {
 }
 
 // nhập hàng loạt (từ file CSV): ghi đè theo id nên nhập lại không bị trùng
-export function importData(groups, tx, removeIds = [], reparent = []) {
+export function importData(groups, tx, removeIds = [], reparent = [], delTx = []) {
   const ops = [
+    ...delTx.map((id) => ({ type: 'delete', col: 'tx', id })),
     ...groups.map((g) => ({ type: 'set', col: 'groups', id: g.id, data: { name: g.name, icon: g.icon, color: g.color, type: g.type, parent: g.parent || null, order: g.order ?? 0 } })),
     ...tx.map((t) => ({ type: 'set', col: 'tx', id: t.id, data: strip(t) })),
     ...reparent.map(([id, parent]) => ({ type: 'update', col: 'groups', id, data: { parent } })),
     ...removeIds.map((id) => ({ type: 'delete', col: 'groups', id })),
   ];
   if (store.mode === 'cloud' && store.user) { cloud(fb.batch(store.user.uid, ops)); return; }
+  if (delTx.length) { const dt = new Set(delTx); store.tx = store.tx.filter((t) => !dt.has(t.id)); }
   const gi = new Map(store.groups.map((g, i) => [g.id, i]));
   const ti = new Map(store.tx.map((t, i) => [t.id, i]));
   for (const o of ops) {

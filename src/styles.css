@@ -670,3 +670,5 @@ body[data-swipe=next] .shell-m .p-body > .plist, body[data-swipe=next] .gm-list 
 .gm-list .grow .acts button { padding: 0 6px; }
 .fold > div { grid-template-columns: minmax(0, 1fr); } .gcard, .plist { min-width: 0; }
 .grow .nm small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.warnbox { display: flex; gap: 10px; align-items: flex-start; background: var(--red-soft); color: #A3262A; border-radius: 14px; padding: 10px 14px; margin: 4px 0 10px; font-size: 15.5px; }
+.warnbox .lc { width: 22px; height: 22px; flex: 0 0 auto; margin-top: 2px; }

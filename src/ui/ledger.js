@@ -25,10 +25,20 @@ export function periodLabel(short = false) {
 }
 const periodWord = () => (view.period === 'day' ? 'hôm đó' : view.period === 'year' ? `năm ${view.cursor.getFullYear()}` : `tháng ${view.cursor.getMonth() + 1}`);
 
+// tháng mới nhất có giao dịch trong năm y (năm nay thì không vượt quá tháng hiện tại)
+export function latestMonthIn(y) {
+  const now = new Date(), pre = String(y);
+  let last = '';
+  for (const t of store.tx) if (t.date?.startsWith(pre) && t.date > last) last = t.date;
+  const cap = y === now.getFullYear() ? now.getMonth() : 11;
+  const m = last ? Math.min(+last.slice(5, 7) - 1, cap) : cap;
+  return new Date(y, m, 1);
+}
+
 export function shiftPeriod(k) {
   const c = new Date(view.cursor);
   if (view.period === 'day') c.setDate(c.getDate() + k);
-  else if (view.period === 'year') c.setFullYear(c.getFullYear() + k, 0, 1);
+  else if (view.period === 'year') { setView({ cursor: latestMonthIn(c.getFullYear() + k) }); return; }
   else c.setMonth(c.getMonth() + k, 1);
   setView({ cursor: c });
 }
@@ -94,7 +104,14 @@ export function wireLedger(root, openTx) {
   root.querySelectorAll('[data-hero]').forEach((b) => (b.onclick = () => setView({ heroKind: b.dataset.hero })));
   root.querySelectorAll('[data-tx]').forEach((b) => (b.onclick = () => openTx(store.tx.find((t) => t.id === b.dataset.tx))));
   root.querySelectorAll('[data-month]').forEach((b) => (b.onclick = () => setView({ period: 'month', cursor: new Date(view.cursor.getFullYear(), +b.dataset.month, 1) })));
-  root.querySelectorAll('[data-period]').forEach((b) => (b.onclick = () => setView({ period: b.dataset.period, cursor: b.dataset.period === 'day' && sameMonth(view.cursor, new Date()) ? new Date() : view.cursor })));
+  root.querySelectorAll('[data-period]').forEach((b) => (b.onclick = () => {
+    const p = b.dataset.period;
+    let cursor = view.cursor;
+    if (p === 'day' && sameMonth(view.cursor, new Date())) cursor = new Date();
+    // từ xem theo năm sang xem theo tháng: về tháng mới nhất của năm đó (không nhảy về tháng 1)
+    else if (p === 'month' && view.period === 'year') cursor = latestMonthIn(view.cursor.getFullYear());
+    setView({ period: p, cursor });
+  }));
   root.querySelectorAll('[data-shift]').forEach((b) => (b.onclick = () => shiftPeriod(+b.dataset.shift)));
   root.querySelectorAll('[data-clear-group]').forEach((b) => (b.onclick = () => setView({ group: null })));
 }

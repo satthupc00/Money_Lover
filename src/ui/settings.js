@@ -52,7 +52,7 @@ export function settingsHtml() {
     <div class="set-h">Cập nhật</div><div class="set-group">
       ${row('refresh-cw', `Phiên bản ${APP_VERSION}`, updLabel(), updBtn)}</div>
     <div class="set-h">Dữ liệu</div><div class="set-group">
-      ${row('folder-input', 'Nhập từ app Money Lover', 'Chọn file CSV xuất từ Money Lover. Nhập lại nhiều lần không bị trùng.', '<button class="btn" type="button" data-import>Chọn file</button><input type="file" accept=".csv,text/csv,text/comma-separated-values,text/plain" data-importfile hidden>')}
+      ${row('folder-input', 'Nhập từ app Money Lover', 'Chọn file CSV xuất từ Money Lover. Dữ liệu cũ sẽ được thay bằng nội dung file, không bị trùng.', '<button class="btn" type="button" data-import>Chọn file</button><input type="file" accept=".csv,text/csv,text/comma-separated-values,text/plain" data-importfile hidden>')}
       ${!isNative ? row('receipt', 'Xuất file Excel (CSV)', `${store.tx.length.toLocaleString('vi-VN')} giao dịch`, '<button class="btn" type="button" data-csv>Xuất CSV</button>') : ''}</div>
     <div class="credit" style="text-align:center;padding:18px 0 6px">Created by Mondiro</div>`;
 }
@@ -176,17 +176,18 @@ function importFlow(text) {
   let plan;
   try { plan = planImport(text); } catch (e) { toast(e.message || 'Không đọc được file'); return; }
   if (!plan.tx.length) { toast('File không có giao dịch nào'); return; }
-  const fresh = plan.tx.length - plan.dup;
   const d = dialog(`<h3>${I('folder-input')}Nhập từ Money Lover</h3>
-    <p><b>${fmt(plan.tx.length)}</b> giao dịch từ ${dmy(plan.min)} đến ${dmy(plan.max)}${plan.dup ? ` · ${fmt(plan.dup)} giao dịch đã có sẽ được ghi đè, không bị trùng` : ''}${plan.bad ? ` · bỏ qua ${plan.bad} dòng lỗi` : ''}.
+    <p><b>${fmt(plan.tx.length)}</b> giao dịch từ ${dmy(plan.min)} đến ${dmy(plan.max)}${plan.bad ? ` · bỏ qua ${plan.bad} dòng lỗi` : ''}.</p>
+    ${plan.have ? `<div class="warnbox">${I('triangle-alert')}<div><b>Dữ liệu cũ sẽ được thay thế bằng file này.</b> Hiện có ${fmt(plan.have)} giao dịch: giữ ${fmt(plan.kept)} giao dịch trùng với file, thêm ${fmt(plan.added)} giao dịch mới, xoá ${fmt(plan.del.length)} giao dịch không có trong file${plan.manual ? ` (trong đó ${fmt(plan.manual)} giao dịch nhập trong app)` : ''}.</div></div>` : ''}
+    <p>
     Nhóm được dựng theo đúng cấu trúc của Money Lover (sửa, chuyển, gộp lại được trong Quản lý nhóm):</p>
     <div class="pick" style="max-height:46vh">${plan.stats.map((s) => `<div class="maprow"><span>${esc(s.cat)}</span>${I('arrow-right')}<b>${esc(targetName(plan, s.target))}</b><em>${fmt(s.n)}</em></div>`).join('')}</div>
     ${plan.remove.length ? `<label class="lchk" style="--c:var(--red);border:0;padding:4px 0"><input type="checkbox" data-clean checked>Xoá ${plan.remove.length} nhóm trống không có trong Money Lover (${esc(plan.remove.slice(0, 4).map((g) => g.name).join(', '))}${plan.remove.length > 4 ? '…' : ''})</label>` : ''}
-    <div class="actions"><button class="btn" type="button" data-x>Huỷ</button><button class="btn primary" type="button" data-go>${I('check')}Nhập ${fmt(plan.tx.length)} giao dịch</button></div>`, { wide: true });
+    <div class="actions"><button class="btn" type="button" data-x>Huỷ</button><button class="btn primary" type="button" data-go>${I('check')}${plan.have ? 'Thay thế dữ liệu' : `Nhập ${fmt(plan.tx.length)} giao dịch`}</button></div>`, { wide: true });
   d.el.querySelector('[data-go]').onclick = () => {
     runImport(plan, d.el.querySelector('[data-clean]')?.checked ?? true);
     d.close();
-    toast(`Đã nhập ${fmt(fresh)} giao dịch mới${plan.dup ? `, cập nhật ${fmt(plan.dup)}` : ''}`);
+    toast(`Đã nhập ${fmt(plan.tx.length)} giao dịch${plan.del.length ? `, xoá ${fmt(plan.del.length)} giao dịch cũ` : ''}`);
     setView({ tab: 'ledger' });
   };
 }
