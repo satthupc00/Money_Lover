@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hướng dẫn tạo Firebase</title>
+<style>
+  :root { --bg:#FFF6EC; --card:#fff; --line:#F1DECB; --text:#4A3328; --muted:#9A7D6B; --red:#E5383B; --soft:#FFF1E3; --green:#1FA463; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 24px; margin: 0 0 4px; line-height: 1.25; }
+  h1 .m { color: var(--red); }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  .note { background: var(--soft); border-radius: 14px; padding: 12px 16px; margin: 0 0 20px; font-size: 15px; }
+  ol.steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; counter-reset: s; }
+  ol.steps > li { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px 14px 60px; position: relative; counter-increment: s; }
+  ol.steps > li::before { content: counter(s); position: absolute; left: 14px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--red); color: #fff; font-weight: 800; display: grid; place-items: center; }
+  ol.steps h2 { font-size: 17px; margin: 2px 0 6px; }
+  ol.steps p, ol.steps ul { margin: 6px 0; }
+  ul { padding-left: 20px; }
+  b.btn { background: var(--soft); border: 1px solid var(--line); border-radius: 8px; padding: 1px 7px; font-weight: 700; white-space: nowrap; }
+  a { color: var(--red); font-weight: 700; word-break: break-all; }
+  pre { background: #3E2A22; color: #FBEDE0; border-radius: 12px; padding: 12px 14px; overflow-x: auto; font-size: 13.5px; line-height: 1.5; margin: 8px 0; }
+  .ok { color: var(--green); font-weight: 700; }
+  .warn { background: #FFE4E1; color: #A3262A; border-radius: 12px; padding: 10px 14px; margin-top: 8px; font-size: 15px; }
+  .foot { color: var(--muted); font-size: 13px; text-align: right; margin-top: 24px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><span class="m">Mondiro</span> Mon Money Lover · tạo Firebase để đồng bộ</h1>
+  <p class="sub">Miễn phí, khoảng 5 phút. Làm trên máy tính sẽ dễ hơn trên điện thoại.</p>
+
+  <div class="note">Firebase là nơi lưu dữ liệu trên mạng để PC và điện thoại thấy cùng một sổ chi tiêu. Bạn chỉ cần tạo <b>1 lần</b>. Nhớ dùng đúng <b>1 tài khoản Google</b> từ đầu đến cuối.</div>
+
+  <ol class="steps">
+    <li>
+      <h2>Tạo project</h2>
+      <p>Vào <a href="https://console.firebase.google.com">console.firebase.google.com</a> (kiểm tra ảnh đại diện góc trên bên phải là đúng tài khoản Google).</p>
+      <ul>
+        <li>Bấm <b class="btn">Create a project</b> (hoặc <b class="btn">Add project</b>).</li>
+        <li>Đặt tên, ví dụ <code>mon-money-lover</code> → <b class="btn">Continue</b>.</li>
+        <li>Tắt <b>Google Analytics</b> cho gọn → <b class="btn">Create project</b>.</li>
+        <li><b>Chờ tới khi hiện "Your new project is ready"</b> rồi bấm <b class="btn">Continue</b>. Đừng đóng trang giữa chừng, project sẽ không được tạo.</li>
+      </ul>
+    </li>
+    <li>
+      <h2>Bật đăng nhập bằng email</h2>
+      <ul>
+        <li>Menu bên trái: <b>Build → Authentication</b> → <b class="btn">Get started</b>.</li>
+        <li>Tab <b>Sign-in method</b> → chọn <b>Email/Password</b> → bật công tắc đầu tiên <b>Enable</b> → <b class="btn">Save</b>.</li>
+      </ul>
+    </li>
+    <li>
+      <h2>Tạo nơi lưu dữ liệu (Firestore)</h2>
+      <ul>
+        <li>Menu bên trái: <b>Build → Firestore Database</b> → <b class="btn">Create database</b>.</li>
+        <li>Location: chọn <b>asia-southeast1 (Singapore)</b>, gần Việt Nam nên nhanh hơn.</li>
+        <li>Chọn <b>Start in production mode</b> → <b class="btn">Create</b>.</li>
+      </ul>
+    </li>
+    <li>
+      <h2>Dán quy tắc bảo mật</h2>
+      <p>Trong Firestore, mở tab <b>Rules</b>, xoá hết nội dung cũ, dán đoạn dưới đây rồi bấm <b class="btn">Publish</b>:</p>
+<pre>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}</pre>
+      <p class="ok">Nhờ đoạn này, mỗi tài khoản chỉ đọc / ghi được dữ liệu của chính mình.</p>
+    </li>
+    <li>
+      <h2>Lấy đoạn cấu hình cho app</h2>
+      <ul>
+        <li>Bấm bánh răng ⚙ cạnh <b>Project Overview</b> → <b>Project settings</b>.</li>
+        <li>Kéo xuống mục <b>Your apps</b> → bấm biểu tượng <b class="btn">&lt;/&gt;</b> (Web).</li>
+        <li>Đặt tên app, ví dụ <code>Mon Money Lover</code>, <b>không</b> tick Firebase Hosting → <b class="btn">Register app</b>.</li>
+        <li>Copy nguyên đoạn có dạng:</li>
+      </ul>
+<pre>const firebaseConfig = {
+  apiKey: "AIza...",
+  authDomain: "mon-money-lover.firebaseapp.com",
+  projectId: "mon-money-lover",
+  storageBucket: "mon-money-lover.firebasestorage.app",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:abc123"
+};</pre>
+      <p>Đoạn này <b>không phải mật khẩu</b>, gửi qua chat được.</p>
+    </li>
+    <li>
+      <h2>Đưa vào app</h2>
+      <p><b>Cách nhanh nhất:</b> gửi đoạn trên cho Claude. Claude sẽ gắn sẵn vào bản app tiếp theo, bạn không phải dán trên từng máy.</p>
+      <p><b>Hoặc tự dán:</b> trong app vào <b>Cài đặt → Kết nối Firebase</b> → dán → <b class="btn">Lưu và mở lại app</b>. Làm trên cả PC và điện thoại.</p>
+    </li>
+    <li>
+      <h2>Đăng nhập trong app</h2>
+      <ul>
+        <li>Vào <b>Cài đặt</b>, nhập email + mật khẩu (từ 6 ký tự).</li>
+        <li>Máy đầu tiên: bấm <b class="btn">Tạo tài khoản</b>. Dữ liệu đang có trên máy đó sẽ tự đưa lên tài khoản.</li>
+        <li>Máy thứ hai: bấm <b class="btn">Đăng nhập</b> với <b>cùng email, mật khẩu</b>.</li>
+      </ul>
+      <p class="ok">Xong: đầu app hiện "Đã đồng bộ", PC và điện thoại thấy cùng dữ liệu.</p>
+    </li>
+  </ol>
+
+  <div class="warn"><b>Nếu project biến mất:</b> kiểm tra lại đúng tài khoản Google, hoặc xem ở <a href="https://console.cloud.google.com/cloud-resource-manager?pendingDeletion=true">trang project chờ xoá</a> (khôi phục được trong 30 ngày).</div>
+
+  <p class="foot">Created by Mondiro</p>
+</div>
+</body>
+</html>
