@@ -244,8 +244,7 @@ export function openTxForm(tx, { compact = false, date } = {}) {
     const data = { amount: v, type: st.type, groupId: st.groupId, note: st.note, date: st.date };
     if (tx) { updateTx(tx.id, data); toast('Đã lưu thay đổi'); }
     else {
-      const id = addTx(data);
-      toast(`Đã ghi ${st.type === 'inc' ? '+' : '−'}${fmt(v)} ₫ · ${gById(st.groupId).name}`, { label: 'Hoàn tác', run: () => deleteTx(id) });
+      addTx(data);
     }
     box.close();
   };

@@ -1,15 +1,15 @@
-## Mon Money Lover 1.0.16 · ẩn số tiền, đánh dấu chủ nhật
+## Mon Money Lover 1.0.17 · đầu mục ngày rõ hơn, lưu nhanh hơn
 
 **Tải về**
-- **Điện thoại Android:** `MonMoneyLover-1.0.16.apk`
-- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.16.exe`
+- **Điện thoại Android:** `MonMoneyLover-1.0.17.apk`
+- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.17.exe`
 
 **Sổ giao dịch**
-- Ngày chủ nhật được tô nền nhẹ và chữ "Chủ nhật" màu đỏ, dễ nhận ra khi xem theo tháng.
-- Thẻ tổng Chi tiêu / Thu nhập có nút con mắt để ẩn / hiện số tiền. App nhớ lựa chọn cho lần mở sau.
+- Đầu mục mỗi ngày có nền màu nhẹ để tách biệt các ngày.
+- Chủ nhật: chỉ tô đầu mục ngày, màu đậm hơn một chút; các giao dịch bên dưới giữ nền trắng.
 
 **Nhập giao dịch**
-- Gợi ý ghi chú có thêm dòng **"Chỉ dùng ghi chú"**: chọn dòng này chỉ điền ghi chú, không đổi nhóm và số tiền. Dòng đầy đủ bên dưới vẫn điền cả nhóm và số tiền như trước.
-- Gợi ý ưu tiên ghi chú có từ bắt đầu đúng chữ bạn gõ (vd gõ "ăn" sẽ ra "ăn trưa…" trước "cafe sáng").
+- Bấm Lưu là xong, không còn hiện bảng "Hoàn tác".
+- Chọn nhóm: kết quả tìm kiếm nằm ngay dưới ô tìm, không còn bị đẩy xuống cuối màn hình.
 
 Created by Mondiro
