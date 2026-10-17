@@ -56,9 +56,9 @@ export function heroHtml() {
   const k = view.heroKind, v = k === 'exp' ? exp : inc, rest = inc - exp;
   const pw = view.period === 'day' ? 'hôm đó' : periodWord();
   return `<div class="hero ${k === 'inc' ? 'inc' : ''}" data-tone="${k}" data-tone-key="hero">
-    <span class="rem" title="Thu trừ chi ${pw}">Còn lại ${rest < 0 ? '−' : ''}${shortM(rest)}</span>
+    <span class="rem" title="Thu trừ chi ${pw}">Còn lại ${view.hideAmt ? '•••' : (rest < 0 ? '−' : '') + shortM(rest)}</span>
     <small>${k === 'exp' ? 'Chi tiêu' : 'Thu nhập'} ${pw}${view.group ? ' · ' + esc(gById(view.group)?.name) : ''}</small>
-    <div class="bal num" data-bal="${v}">${vnd(v)}</div>
+    <div class="balrow"><div class="bal num" ${view.hideAmt ? 'data-hidden="1"' : `data-bal="${v}"`}>${view.hideAmt ? '••••••• ₫' : vnd(v)}</div><button type="button" class="eye" data-hideamt aria-pressed="${view.hideAmt}" title="${view.hideAmt ? 'Hiện số tiền' : 'Ẩn số tiền'}" aria-label="${view.hideAmt ? 'Hiện số tiền' : 'Ẩn số tiền'}">${I(view.hideAmt ? 'eye-off' : 'eye')}</button></div>
     <div class="io" role="tablist" data-tabkey="hero"><span class="ind"></span><button type="button" role="tab" data-hero="exp" class="${k === 'exp' ? 'on' : ''}">Chi tiêu</button><button type="button" role="tab" data-hero="inc" class="${k === 'inc' ? 'on' : ''}">Thu nhập</button></div></div>`;
 }
 
@@ -84,7 +84,7 @@ export function listHtml() {
     const dt = new Date(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10));
     const today = ymd(), yd = new Date(); yd.setDate(yd.getDate() - 1);
     const rel = d === today ? 'Hôm nay' : d === ymd(yd) ? 'Hôm qua' : ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'][dt.getDay()];
-    h += `<section class="dayblk"><header class="dayhd"><span class="dnum">${dt.getDate()}</span><span class="dmeta"><b>${rel}</b><small>tháng ${dt.getMonth() + 1} ${dt.getFullYear()}</small></span><span class="dsum num ${s > 0 ? 'inc' : s < 0 ? 'exp' : ''}">${vnd(s)}</span></header>${ts.map(txRow).join('')}</section>`;
+    h += `<section class="dayblk${dt.getDay() === 0 ? ' sun' : ''}"><header class="dayhd"><span class="dnum">${dt.getDate()}</span><span class="dmeta"><b>${rel}</b><small>tháng ${dt.getMonth() + 1} ${dt.getFullYear()}</small></span><span class="dsum num ${s > 0 ? 'inc' : s < 0 ? 'exp' : ''}">${vnd(s)}</span></header>${ts.map(txRow).join('')}</section>`;
   }
   return h;
 }
@@ -102,6 +102,7 @@ function yearHtml(txs) {
 
 export function wireLedger(root, openTx) {
   root.querySelectorAll('[data-hero]').forEach((b) => (b.onclick = () => setView({ heroKind: b.dataset.hero })));
+  root.querySelectorAll('[data-hideamt]').forEach((b) => (b.onclick = () => setView({ hideAmt: !view.hideAmt })));
   root.querySelectorAll('[data-tx]').forEach((b) => (b.onclick = () => openTx(store.tx.find((t) => t.id === b.dataset.tx))));
   root.querySelectorAll('[data-month]').forEach((b) => (b.onclick = () => setView({ period: 'month', cursor: new Date(view.cursor.getFullYear(), +b.dataset.month, 1) })));
   root.querySelectorAll('[data-period]').forEach((b) => (b.onclick = () => {

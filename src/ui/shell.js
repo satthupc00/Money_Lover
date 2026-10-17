@@ -148,7 +148,7 @@ const balAnim = { shown: null, raf: 0 };
 function countBal(root) {
   const el = root.querySelector('.hero .bal');
   cancelAnimationFrame(balAnim.raf);
-  if (!el) { balAnim.shown = null; return; }
+  if (!el || el.dataset.hidden) { balAnim.shown = null; return; }
   const to = +el.dataset.bal, from = balAnim.shown;
   if (from == null || from === to || matchMedia('(prefers-reduced-motion: reduce)').matches) { balAnim.shown = to; return; }
   const t0 = performance.now(), dur = 480;

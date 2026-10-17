@@ -32,12 +32,27 @@ function amtHits(v, type) {
   return items.length ? { total: ts.length, items } : null;
 }
 function noteHits(q, type) {
-  q = dkey(q.trim());
+  const raw = q.trim().toLowerCase();
+  q = dkey(raw);
   if (!q) return null;
-  const items = collect(store.tx.filter((t) => t.type === type && t.note && dkey(t.note).includes(q)), (t) => t.groupId + '|' + t.note + '|' + t.amount).slice(0, 6);
+  // ưu tiên: đầu từ đúng dấu > khớp đúng dấu > đầu từ không dấu > khớp bất kỳ, rồi mới tới số lần dùng
+  const score = (n) => {
+    const l = ' ' + n.toLowerCase(), d = ' ' + dkey(n);
+    return l.includes(' ' + raw) ? 0 : l.includes(raw) ? 1 : d.includes(' ' + q) ? 2 : 3;
+  };
+  const full = collect(store.tx.filter((t) => t.type === type && t.note && dkey(t.note).includes(q)), (t) => t.groupId + '|' + t.note + '|' + t.amount)
+    .map((e) => ({ ...e, s: score(e.t.note) })).sort((a, b) => a.s - b.s).slice(0, 5);
+  // mỗi ghi chú có thêm 1 dòng "chỉ ghi chú" (không đổi nhóm, số tiền) đứng trước dòng đầy đủ, giống Money Lover
+  const items = [], seen = new Set();
+  for (const e of full) {
+    const k = dkey(e.t.note);
+    if (!seen.has(k)) { seen.add(k); items.push({ ...e, only: true }); }
+    items.push(e);
+  }
   return items.length ? { items } : null;
 }
-const ddHtml = (head, items) => `<div class="dd" role="listbox">${items.map(({ t, c }, i) => {
+const ddHtml = (head, items) => `<div class="dd" role="listbox">${items.map(({ t, c, only }, i) => {
+  if (only) return `<button type="button" role="option" class="only" data-pick="${i}"><span class="ddnote">${I('notebook-pen')}</span><span class="t"><b>${esc(t.note)}</b><small>Chỉ dùng ghi chú</small></span></button>`;
   const g = gById(t.groupId);
   return `<button type="button" role="option" data-pick="${i}">${tile(g, 36)}<span class="t"><b>${esc(t.note || g.name)}</b><small>${esc(g.name)}${c > 1 ? ' · đã dùng ' + c + ' lần' : ''}</small></span><span class="meta"><b class="${t.type === 'inc' ? 'inc' : ''}">${fmt(t.amount)} ₫</b>${dmy(t.date)}</span></button>`;
 }).join('')}</div>`;
@@ -150,6 +165,7 @@ export function openTxForm(tx, { compact = false, date } = {}) {
     const t = hits?.[i]?.t;
     if (!t) return;
     st.note = t.note; note.value = t.note;
+    if (hits[i].only) { close(); return; }
     st.type = t.type; st.groupId = t.groupId;
     if (fromNote || !amount()) st.expr = String(t.amount);
     close(); drawType(); drawGroup(); drawAmt();

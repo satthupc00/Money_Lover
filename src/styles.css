@@ -725,3 +725,20 @@ html[data-theme=gray] .hero .io .ind { box-shadow: 0 2px 6px rgba(20, 24, 32, .1
 .upd-tip { display: flex; gap: 10px; align-items: flex-start; background: var(--soft); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 15px; line-height: 1.45; }
 .upd-tip > .lc { width: 22px; height: 22px; flex: 0 0 auto; color: var(--red); margin-top: 1px; }
 .upd-tip .linkbtn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 0 2px; }
+/* thẻ tổng: nút con mắt ẩn / hiện số tiền */
+.hero .balrow { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; min-width: 0; }
+.hero .balrow .bal { margin: 0; min-width: 0; }
+.hero .eye { flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%; border: 0; display: grid; place-items: center; cursor: pointer; background: rgba(255, 255, 255, .2); color: inherit; position: relative; z-index: 1; }
+.hero .eye:hover { background: rgba(255, 255, 255, .32); }
+.hero .eye .lc { width: 22px; height: 22px; }
+html[data-theme=gray] .hero .eye { background: var(--soft2); color: var(--muted); }
+html[data-theme=gray] .hero .eye:hover { color: var(--text); }
+/* ngày chủ nhật tô nền nhẹ cho dễ nhận ra */
+.dayblk.sun { background: #FFF1EB; }
+.dayblk.sun .dmeta b { color: var(--red); }
+html[data-theme=gray] .dayblk.sun { background: #FFF4F4; }
+/* gợi ý ghi chú: dòng "chỉ dùng ghi chú" */
+.dd .ddnote { width: 36px; height: 36px; flex: 0 0 auto; display: grid; place-items: center; color: var(--dim); }
+.dd .ddnote .lc { width: 22px; height: 22px; }
+.dd button.only .t { padding-right: 0; }
+.dd button.only .t b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
