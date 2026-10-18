@@ -1,4 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><defs><linearGradient id="bgc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6E6"/><stop offset="1" stop-color="#FFEBCF"/></linearGradient>
-<linearGradient id="wav" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFAA55"/><stop offset="1" stop-color="#FF8F3A"/></linearGradient></defs>
-<g><rect x="0" y="0" width="1024" height="1024" fill="url(#bgc)"/>
-<path d="M0 640 C 250 575 420 600 560 660 C 700 720 840 640 1024 590 L1024 1024 L0 1024 Z" fill="url(#wav)"/></g></svg>

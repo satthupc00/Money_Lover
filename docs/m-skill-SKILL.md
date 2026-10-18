@@ -122,7 +122,7 @@ Luôn dùng skill logo-design (anthropic-skills:logo-design) mỗi khi vẽ mớ
 - Có **highlight**: vệt/ellipse trắng opacity .3–.7 ở góc trên-trái; có **bóng đổ** ellipse đen opacity ~.28 dưới chân.
 - Màu bão hoà, tươi (vd xanh dương #3D9BFF→#1747B8, vàng #FFE680→#E8930A, tím #7B5CFF→#4B2BD6, xanh ngọc #22C3A6, đỏ #FF7E80→#A3161A). Không dùng tông xám bệt cho mảng chính.
 - Vẫn giữ 1 điểm nhấn đỏ Mondiro và vẫn đọc rõ ở 16px (gradient/bóng không được làm mờ hình chính).
-Tham chiếu: icon **Mondiro Spine Preview** (chuỗi bone + nút play đỏ, gradient + bóng đổ) và **Mondiro Mon Money Lover** (sổ ghi chú + đồng xu đỏ nổi khối có dấu cộng).
+Tham chiếu: icon **Mondiro Spine Preview** (chuỗi bone + nút play đỏ, gradient + bóng đổ) và **Money Tracking / Mon Money Lover** (dùng chung logo ví nhỏ ôm đồng xu, có mầm cây, không khung nền).
 
 - Motif trung tâm: 1 biểu tượng nói đúng chức năng app (bone Spine, ảnh, khung phim, đồng hồ, xu…). Giữ ít khối lớn, không vụn.
 - Desktop: KHÔNG có khung/nền bọc (không squircle, không ô vuông nền). Motif tự đứng một mình và chiếm gần hết canvas (lề ≤ ~4% mỗi cạnh) để khi nằm cạnh icon app khác trên taskbar/desktop thì không bị nhỏ hơn. Vì không có nền, motif phải tự đọc được trên cả taskbar tối lẫn sáng: dùng mảng màu đậm/trung tính, hoặc viền outline #1F2126 quanh mảng sáng (kem trên nền trắng sẽ chìm).

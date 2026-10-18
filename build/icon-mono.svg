@@ -1,4 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><defs><mask id="mk"><rect width="1024" height="1024" fill="#fff"/><circle cx="704" cy="660" r="190" fill="#000"/></mask>
-<mask id="mc"><rect width="1024" height="1024" fill="#fff"/><g transform="translate(706 668)" fill="none" stroke="#000" stroke-linecap="round"><path d="M40 -46 C 32 -64 14 -70 -4 -70 C -32 -70 -48 -54 -48 -35 C -48 -12 -26 -5 2 3 C 31 11 50 20 50 43 C 50 64 30 76 2 76 C -22 76 -42 66 -50 48" stroke-width="30"/><path d="M0 -102 V-70 M0 76 V106" stroke-width="28"/></g></mask></defs>
-<g fill="#fff"><g mask="url(#mk)"><g transform="rotate(4.5 444 502)"><rect x="172" y="198" width="545" height="607" rx="62"/><rect x="290" y="140" width="80" height="140" rx="40"/><rect x="520" y="140" width="80" height="140" rx="40"/></g></g>
-<circle cx="704" cy="660" r="170" mask="url(#mc)"/></g></svg>

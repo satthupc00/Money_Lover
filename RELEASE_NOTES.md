@@ -1,17 +1,11 @@
-## Mon Money Lover 1.0.18 · màn hình điện thoại gọn hơn
+## Mon Money Lover 1.0.19 · logo mới
 
 **Tải về**
-- **Điện thoại Android:** `MonMoneyLover-1.0.18.apk`
-- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.18.exe`
+- **Điện thoại Android:** `MonMoneyLover-1.0.19.apk`
+- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.19.exe`
 
-**Điện thoại**
-- Bỏ logo và tên app ở đầu màn hình, chỉ còn 1 hàng icon nhỏ ở góc phải trên, nội dung hiện lên cao hơn.
-
-**Đồng bộ và cập nhật (PC + điện thoại)**
-- Chấm tròn ở góc trên báo trạng thái đồng bộ: xám = chỉ lưu trên máy, vàng nhấp nháy = đang đồng bộ, **xanh lá = đồng bộ xong**, đỏ = lỗi. Chạm vào chấm để xem chi tiết.
-- Nút mũi tên xoay để kiểm tra cập nhật; khi đã là bản mới nhất, icon chuyển xanh lá kèm chữ "latest".
-
-**Báo cáo trên PC**
-- Bấm chọn 1 ngày trên biểu đồ thì điểm đứng yên, rê chuột không làm điểm chạy theo nữa. Muốn đổi thì bấm ngày khác hoặc giữ chuột kéo.
+**Logo**
+- Dùng chung logo với app Money Tracking: chiếc ví nhỏ ôm đồng xu, có mầm cây.
+- Đã thay ở icon trên điện thoại (kể cả icon tròn và icon 1 màu theo theme), icon Windows, màn hình mở app, màn hình khoá và đầu app trên PC.
 
 Created by Mondiro
