@@ -89,6 +89,12 @@ function retract(svg, k) {
 }
 
 // vẽ vào el; tự vẽ lại khi đổi cỡ
+// trạng thái đang kéo trên biểu đồ: để ngoài draw() vì mỗi lần chọn điểm biểu đồ được vẽ lại
+const drag = { on: false };
+const stopDrag = () => { drag.on = false; };
+document.addEventListener('pointerup', stopDrag);
+document.addEventListener('pointercancel', stopDrag);
+
 export function mountTrend(el) {
   const draw = (anim = false) => {
     const y = view.cursor.getFullYear(), m = view.cursor.getMonth();
@@ -138,10 +144,9 @@ export function mountTrend(el) {
     morph(svg, before, (v) => yy(v));
     // chọn ngày trên biểu đồ: điểm được giữ lại sau khi thả tay
     const pick = (e) => { const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) * (W / r.width); const v = Math.max(1, Math.min(s.n, Math.round((px - L) / ((W - L - R) / (s.n - 1))) + 1)); if (v !== trendState.sel) { trendState.sel = v; draw(); } };
-    let down = false;
-    svg.onpointerdown = (e) => { down = true; pick(e); };
-    svg.onpointermove = (e) => { if (down || e.pointerType === 'mouse') pick(e); };
-    svg.onpointerup = svg.onpointercancel = () => { down = false; };
+    // chỉ đổi điểm khi bấm / kéo; rê chuột không làm điểm chạy theo
+    svg.onpointerdown = (e) => { drag.on = true; pick(e); };
+    svg.onpointermove = (e) => { if (drag.on) pick(e); };
     el.querySelector('[data-gmenu]').onclick = (e) => { e.stopPropagation(); trendState.menu = !trendState.menu; draw(); };
     el.querySelectorAll('[data-g]').forEach((b) => (b.onclick = () => { const ch = trendState.g !== b.dataset.g; trendState.g = b.dataset.g; trendState.menu = false; draw(ch); }));
     el.querySelectorAll('[data-s]').forEach((b) => (b.onchange = () => {

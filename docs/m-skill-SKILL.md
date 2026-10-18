@@ -84,6 +84,28 @@ Góc trái trên cùng: **icon app** → bên phải là **"Mondiro"** (đỏ) +
 - `<title>` và `BrowserWindow.title` = đúng tên hiển thị trên header ("Mondiro Tên App" hoặc "Mon Tên App"). `backgroundColor:'#1F2126'` để không chớp trắng khi mở.
 - Ghi chú tên: luôn là **Mondiro** (không phải "Mondrio"). Dòng "Created by Mondiro" (§3) giữ nguyên ở mọi app, kể cả app dạng "Mon".
 
+## 2b. Góc trên: chấm đồng bộ + nút kiểm tra cập nhật (BẮT BUỘC, desktop + Android)
+
+**Chấm tròn đồng bộ** — mọi app có đồng bộ (Firebase, cloud…) dùng **1 chấm tròn** ở **góc phải trên**, không ghi chữ "Đã đồng bộ" dài dòng:
+- Chấm 12px, có quầng mờ 4px cùng màu. Màu theo trạng thái: **xám** `#A6A9B0` = chỉ lưu trên máy / chưa đăng nhập; **vàng nhấp nháy** `#F5A623` = đang đồng bộ; **xanh lá** = đồng bộ xong (`#1FA463` trên nền sáng, `#3DDC8A` trên header tối); **đỏ** `#E5383B` = lỗi.
+- Chấm là nút 38px: `title`/tooltip ghi trạng thái (+ email tài khoản); chạm vào hiện toast trạng thái. Đổi màu có transition .3s; có reduced-motion tắt nhấp nháy.
+```html
+<button type="button" class="syncdot synced" title="Đã đồng bộ · email" aria-label="Đồng bộ: Đã đồng bộ"><i></i></button>
+```
+```css
+.syncdot{width:38px;height:38px;border:0;background:none;border-radius:50%;display:grid;place-items:center;cursor:pointer}
+.syncdot i{width:12px;height:12px;border-radius:50%;background:#A6A9B0;box-shadow:0 0 0 4px rgba(166,169,176,.2);transition:background-color .3s,box-shadow .3s}
+.syncdot.synced i{background:#1FA463;box-shadow:0 0 0 4px rgba(31,164,99,.18)}
+.syncdot.pending i{background:#F5A623;animation:syncPulse 1s ease-in-out infinite}
+.syncdot.error i{background:#E5383B}
+@keyframes syncPulse{50%{transform:scale(.7);opacity:.6}}
+```
+
+**Nút kiểm tra cập nhật** — icon **mũi tên xoay** (lucide `refresh-cw`), tách riêng với chấm đồng bộ:
+- Đang kiểm tra: icon xoay. Có bản mới: icon xanh lá nhấp nháy (pulse). Đã là bản mới nhất: icon **xanh lá** + chữ **"latest"** xanh lá ngay cạnh icon.
+- Desktop: vẫn có badge "LATEST" xanh lá cạnh tên app trên header (§2) và nút "Kiểm tra bản cập nhật" có chữ.
+- Thứ tự góc phải trên: `[chấm đồng bộ] [các nút khác, vd Tìm] [cập nhật]`.
+
 ## 3. "Created by Mondiro" (BẮT BUỘC mọi app)
 
 - Desktop: góc phải footer/status bar: `.credit{color:#6B707A;font-size:11px;white-space:nowrap}`.
@@ -127,6 +149,7 @@ Kiểm tra bằng mockup taskbar Windows (nền tối và sáng, cỡ 24/32px) �
 - Không hiện đường dẫn dài làm vỡ layout — cắt bằng ellipsis hoặc ẩn.
 
 **Android — Samsung Galaxy Z Fold 7**
+- **Không có header logo + tên app** (để dành diện tích cho nội dung). Đầu màn hình chỉ là **1 hàng mỏng** (padding trên = safe-area + 2px), các icon nhỏ 38px dồn về **góc phải**: chấm đồng bộ → nút phụ (Tìm…) → nút cập nhật (§2b). Tên app chỉ còn ở launcher / màn hình khoá.
 - Hai màn hình: **màn ngoài ~6.5" (2520×1080, ~21:9, dài hẹp)** và **màn trong ~8" (2184×1968, gần vuông)**.
 - Thiết kế responsive theo window size class: màn ngoài = compact (1 cột), màn trong = medium/expanded (2 cột hoặc list-detail).
 - Xử lý gập/mở không mất trạng thái (`configChanges` hoặc lưu state đúng cách), không khoá orientation.
@@ -213,7 +236,8 @@ input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.25);box-shadow:0
 
 ## 8. Checklist trước khi giao
 
-- [ ] Header đúng §2 (icon 34px, "Mondiro" hoặc "Mon" đỏ 17px bold + phần tên còn lại trắng, mô tả 11.5px muted).
+- [ ] Desktop: header đúng §2 (icon 34px, "Mondiro" hoặc "Mon" đỏ 17px bold + phần tên còn lại trắng, mô tả 11.5px muted). Android: không header logo/tên, chỉ hàng icon mỏng góc phải.
+- [ ] Góc phải trên đúng §2b: chấm đồng bộ (xanh lá khi xong) + nút cập nhật mũi tên xoay (xanh lá + "latest" khi là bản mới nhất).
 - [ ] Có "Created by Mondiro".
 - [ ] Có icon mới (app mới) hợp với app, đủ size .png/.ico (+ .svg gốc) hoặc adaptive icon.
 - [ ] Dùng đúng token màu §1, không màu lạ ngoài bảng.

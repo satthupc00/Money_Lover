@@ -7,7 +7,7 @@ import { getReminder } from '../reminder.js';
 import { isElectron, isNative } from '../platform.js';
 import { I } from '../icons.js';
 import { esc, shortM, dkey, ymd, vnd } from '../util.js';
-import { tile, placeTabs, dialog, syncTones } from './common.js';
+import { tile, placeTabs, dialog, syncTones, toast } from './common.js';
 import { heroHtml, listHtml, wireLedger, periodTabs, periodNav, groupFilterChip, range, txRow } from './ledger.js';
 import { mountTrend, mountBreakdown } from './trend.js';
 import { openTxForm } from './add.js';
@@ -20,14 +20,16 @@ export const openTx = (tx) => openTxForm(tx, { compact: layout() !== 'desk', dat
 export const openAdd = () => openTx(null);
 
 const latestBadge = () => (upd.status === 'latest' ? '<span class="latest" title="Đang dùng bản mới nhất">LATEST</span>' : '');
-const syncDot = () => `<span class="dot ${store.syncState}"></span>`;
+// chấm tròn đồng bộ (chuẩn chung các app Mondiro): xám = chỉ trên máy, vàng nhấp nháy = đang đồng bộ, xanh lá = đồng bộ xong, đỏ = lỗi
+const syncDot = () => { const t = syncText() + (store.user?.email ? ' · ' + store.user.email : ''); return `<button type="button" class="syncdot ${store.syncState}" data-syncdot title="${esc(t)}" aria-label="Đồng bộ: ${esc(t)}"><i></i></button>`; };
 const syncText = () => ({ synced: 'Đã đồng bộ', pending: 'Đang đồng bộ…', error: 'Lỗi đồng bộ', local: 'Chỉ lưu trên máy' }[store.syncState] || '');
 
 function updButton(desk) {
   const av = upd.status === 'available' || upd.status === 'ready';
   const label = av ? (upd.status === 'ready' ? 'Cài bản mới' : `Có bản mới ${upd.version}`) : upd.status === 'downloading' ? `Đang tải ${Math.round(upd.progress)}%` : 'Kiểm tra bản cập nhật';
   if (desk) return `<button class="btn ${av ? 'upd-av' : ''} ${upd.status === 'checking' ? 'spin' : ''}" type="button" data-upd title="${esc(updLabel())}">${I('refresh-cw')}${label}</button>`;
-  return `<button class="icb ${av ? 'upd-av' : ''} ${upd.status === 'checking' ? 'spin' : ''}" type="button" data-upd title="${esc(av ? label : 'Kiểm tra bản cập nhật')}" aria-label="${esc(label)}">${I('refresh-cw')}</button>`;
+  const ok = upd.status === 'latest';
+  return `<button class="icb updbtn ${av ? 'upd-av' : ''} ${ok ? 'ok' : ''} ${upd.status === 'checking' ? 'spin' : ''}" type="button" data-upd title="${esc(av ? label : ok ? 'Đang dùng bản mới nhất · bấm để kiểm tra lại' : 'Kiểm tra bản cập nhật')}" aria-label="${esc(ok ? 'Đang dùng bản mới nhất' : label)}">${I('refresh-cw')}${ok ? '<span class="lt">latest</span>' : ''}</button>`;
 }
 
 function miniTree() {
@@ -60,7 +62,7 @@ function deskHtml() {
     <header class="top"><div class="brand"><svg class="brand-icon" aria-hidden="true"><use href="#logo"/></svg>
       <div><div class="brand-name"><span class="m">Mon</span> <span class="a">Money Lover</span> ${latestBadge()}</div><div class="brand-desc">Ghi chi tiêu, thu nhập · đồng bộ PC và điện thoại</div></div></div>
       <div class="spacer"></div><div style="display:flex;gap:8px;align-items:center">
-      <span class="sync" title="${esc(store.user?.email || 'Chưa đăng nhập')}">${syncDot()}${syncText()}</span>
+      ${syncDot()}
       <button class="btn" type="button" data-search title="Tìm giao dịch (Ctrl+F)">${I('search')}Tìm</button>${updButton(true)}
       <button class="avatar" type="button" data-tab="settings" title="${esc(store.user?.email || 'Cài đặt')}">${esc((store.user?.email || 'M')[0].toUpperCase())}</button></div></header>
     <div class="body"><aside class="side"><nav class="nav">${NAV.map(([k, ic, n]) => `<button type="button" class="li ${view.tab === k ? 'on' : ''}" data-tab="${k}">${I(ic)}${n}</button>`).join('')}</nav>
@@ -85,9 +87,7 @@ function mobileHtml(mode) {
   else if (view.tab === 'groups') body = `<div class="p-body scroll" data-key="p">${groupsMobileHtml()}</div>`;
   else body = `<div class="p-body scroll" data-key="p" style="${mode === 'tab' ? 'max-width:720px;margin:0 auto;width:100%' : ''}">${settingsHtml()}</div>`;
   return `<div class="shell-m ${mode}">
-    <div class="p-top"><svg class="brand-icon" aria-hidden="true"><use href="#logo"/></svg><div style="min-width:0"><div class="brand-name"><span class="m">Mon</span> <span class="a">Money Lover</span> ${latestBadge()}</div>
-      <div class="brand-desc">${mode === 'tab' ? 'Ghi chi tiêu, thu nhập · ' : ''}${syncText()}</div></div><div class="spacer"></div>
-      <button class="icb" type="button" data-search title="Tìm giao dịch" aria-label="Tìm giao dịch">${I('search')}</button>${updButton(false)}</div>
+    <div class="p-top">${syncDot()}<button class="icb" type="button" data-search title="Tìm giao dịch" aria-label="Tìm giao dịch">${I('search')}</button>${updButton(false)}</div>
     ${body}
     <div class="credit p-credit">Created by Mondiro</div>
     <nav class="bnav">${BN.map((b) => b ? `<button type="button" class="${view.tab === b[0] ? 'on' : ''}" data-tab="${b[0]}">${I(b[1])}${b[2]}</button>` : `<button type="button" class="fab" data-add title="Thêm giao dịch" aria-label="Thêm giao dịch">${I('plus')}</button>`).join('')}</nav></div>`;
@@ -133,6 +133,7 @@ export function render(root) {
   }));
   swipePeriods(root);
   root.querySelectorAll('[data-search]').forEach((b) => (b.onclick = searchBox));
+  root.querySelectorAll('[data-syncdot]').forEach((b) => (b.onclick = () => toast(store.syncState === 'local' ? 'Chỉ lưu trên máy này · đăng nhập trong Cài đặt để đồng bộ' : b.title)));
   root.querySelectorAll('[data-upd]').forEach((b) => (b.onclick = updateAction));
   root.querySelectorAll('[data-fg]').forEach((b) => (b.onclick = () => setView({ group: view.group === b.dataset.fg ? null : b.dataset.fg })));
   root.querySelectorAll('[data-mshift]').forEach((b) => (b.onclick = () => { const c = new Date(view.cursor); c.setMonth(c.getMonth() + +b.dataset.mshift, 1); setView({ cursor: c }); }));

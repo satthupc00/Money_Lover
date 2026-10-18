@@ -754,3 +754,21 @@ html[data-theme=gray] .dayhd { background: #F6F7F9; }
 html[data-theme=gray] .dayblk.sun { background: var(--surface); }
 html[data-theme=gray] .dayblk.sun .dayhd { background: #FDE3E3; }
 .dayblk { flex-shrink: 0; }
+
+/* ===== chấm tròn đồng bộ (chuẩn chung app Mondiro) ===== */
+.syncdot { width: 38px; height: 38px; border: 0; background: none; border-radius: 50%; display: grid; place-items: center; cursor: pointer; flex: 0 0 auto; padding: 0; }
+.syncdot i { width: 12px; height: 12px; border-radius: 50%; background: #A6A9B0; box-shadow: 0 0 0 4px rgba(166, 169, 176, .2); transition: background-color .3s ease, box-shadow .3s ease; }
+.syncdot.synced i { background: #1FA463; box-shadow: 0 0 0 4px rgba(31, 164, 99, .18); }
+.syncdot.pending i { background: #F5A623; box-shadow: 0 0 0 4px rgba(245, 166, 35, .2); animation: syncPulse 1s ease-in-out infinite; }
+.syncdot.error i { background: #E5383B; box-shadow: 0 0 0 4px rgba(229, 56, 59, .2); }
+.top .syncdot.synced i { background: #3DDC8A; box-shadow: 0 0 0 4px rgba(61, 220, 138, .2); }
+.syncdot:hover { background: rgba(127, 127, 127, .12); }
+@keyframes syncPulse { 50% { transform: scale(.7); opacity: .6; } }
+
+/* ===== điện thoại: không còn logo + tên app, chỉ 1 hàng mỏng icon ở góc phải trên ===== */
+.p-top { padding: calc(2px + var(--sat)) 6px 0; justify-content: flex-end; gap: 2px; min-height: 0; }
+.p-top .icb { width: 38px; height: 38px; }
+.updbtn.ok { color: var(--green); width: auto !important; padding: 0 8px; gap: 4px; display: inline-flex; align-items: center; border-radius: 19px; }
+.updbtn .lt { font-size: 13px; font-weight: 800; letter-spacing: .03em; }
+.top .updbtn.ok { color: #3DDC8A; }
+@media (prefers-reduced-motion: reduce) { .syncdot.pending i { animation: none; } }
