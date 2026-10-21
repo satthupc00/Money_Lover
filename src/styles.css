@@ -796,3 +796,6 @@ html[data-theme=gray] .dayblk.sun .dayhd { background: #FDE3E3; }
 .shell-m .tlegend.two .lchk { min-height: 44px; }
 /* "Created by Mondiro" nằm gọn ở góc dưới phải */
 .p-credit { align-self: flex-end; width: auto; }
+/* bảng nhập trên điện thoại: vùng bấm ≥ 42px */
+.sheet .seg2 button { height: 42px; }
+.sheet .quick .chip { height: 42px; }
