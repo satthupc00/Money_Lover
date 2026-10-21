@@ -1,5 +1,5 @@
 // Biểu đồ xu hướng chi tiêu (đường cộng dồn chồng lên nhau) + phân bổ theo nhóm
-import { store, gById, tops, kids, groupIds } from '../store.js';
+import { store, gById, tops, kids, groupIds, flatTree, rootOf } from '../store.js';
 import { view } from '../state.js';
 import { fmt, shortM, esc, daysIn } from '../util.js';
 import { I } from '../icons.js';
@@ -123,7 +123,7 @@ export function mountTrend(el) {
       if (b > 0) { const pc = (a - b) / b * 100; verdict = `<div class="verdict ${pc <= 0 ? 'good' : ''}"><span>Đến ${s.upto}/${m + 1}: ${pc > 0 ? 'nhiều' : 'ít'} hơn <b>${Math.abs(pc).toFixed(0)}%</b> so với ${ref[1]} cùng kỳ</span></div>`; }
     } else if (!s.upto) verdict = '<div class="verdict idle">Tháng này chưa bắt đầu</div>';
     const cg = trendState.g === 'all' ? null : gById(trendState.g);
-    const menu = trendState.menu ? `<div class="gmenu" role="listbox"><button type="button" data-g="all" class="${trendState.g === 'all' ? 'on' : ''}"><span class="allic">${I('layers')}</span>Tất cả nhóm</button>${tops('exp').flatMap((t) => [t, ...kids(t.id)]).map((g) => `<button type="button" data-g="${g.id}" class="${g.parent ? 'child' : ''} ${trendState.g === g.id ? 'on' : ''}">${tile(g, g.parent ? 26 : 30)}${esc(g.name)}</button>`).join('')}</div>` : '';
+    const menu = trendState.menu ? `<div class="gmenu" role="listbox"><button type="button" data-g="all" class="${trendState.g === 'all' ? 'on' : ''}"><span class="allic">${I('layers')}</span>Tất cả nhóm</button>${flatTree('exp').map(({ g, depth }) => `<button type="button" data-g="${g.id}" class="${depth ? 'child d' + depth : ''} ${trendState.g === g.id ? 'on' : ''}">${tile(g, depth ? 26 : 30)}${esc(g.name)}</button>`).join('')}</div>` : '';
     const before = anim ? snapshot(el) : null;
     el.innerHTML = `<div class="trend-h"><h3>Xu hướng chi tiêu</h3>
         <div class="gsel"><button type="button" class="chip ${cg ? '' : 'txt'} on" data-gmenu aria-expanded="${trendState.menu}">${cg ? tile(cg, 24) : ''}${cg ? esc(cg.name) : 'Tất cả'}${I('chevron-down')}</button>${menu}</div></div>
@@ -186,7 +186,7 @@ function monthSums() {
   const seen = new Set();
   for (const gid of Object.keys(byGroup)) {
     const g = gById(gid);
-    const top = g ? (g.parent ? gById(g.parent) || g : g) : null;
+    const top = g ? rootOf(g) : null;
     const id = top ? top.id : '?';
     if (seen.has(id)) continue;
     seen.add(id);

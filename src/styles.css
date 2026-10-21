@@ -799,3 +799,13 @@ html[data-theme=gray] .dayblk.sun .dayhd { background: #FDE3E3; }
 /* bảng nhập trên điện thoại: vùng bấm ≥ 42px */
 .sheet .seg2 button { height: 42px; }
 .sheet .quick .chip { height: 42px; }
+/* ===== nhóm con cấp 2 ===== */
+.grow.child.d2 { margin-left: 68px; }
+.gsub > .fold > div, .psub > .fold > div { display: grid; gap: 2px; grid-template-columns: minmax(0, 1fr); }
+.gsub, .psub { min-width: 0; }
+.pick button.child.d2 { padding-left: 56px; font-weight: 500; }
+.gmenu button.child.d2 { padding-left: 46px; }
+.gpicklist button.child.d2 { padding-left: 56px; }
+/* icon cập nhật luôn nằm giữa vòng tròn */
+.updbtn { justify-content: center; }
+.top .updbtn { border-radius: 50%; }

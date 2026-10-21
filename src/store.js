@@ -23,7 +23,16 @@ export const gById = (id) => store.groups.find((g) => g.id === id);
 export const kids = (id) => store.groups.filter((g) => g.parent === id).sort(byOrder);
 export const tops = (type) => store.groups.filter((g) => !g.parent && g.type === type).sort(byOrder);
 function byOrder(a, b) { return (a.order ?? 0) - (b.order ?? 0) || a.name.localeCompare(b.name, 'vi'); }
-export const groupIds = (id) => [id, ...kids(id).map((k) => k.id)];
+// cây nhóm tối đa 3 cấp: nhóm cha (0) › nhóm con (1) › nhóm con cấp 2 (2)
+export const MAX_DEPTH = 2;
+export const groupIds = (id) => [id, ...kids(id).flatMap((k) => groupIds(k.id))];
+export function depthOf(id) { let d = 0, g = gById(id); while (g?.parent && d < 5) { g = gById(g.parent); d++; } return d; }
+export const heightOf = (id) => { const ks = kids(id); return ks.length ? 1 + Math.max(...ks.map((k) => heightOf(k.id))) : 0; };
+export function rootOf(g) { let r = g, n = 0; while (r?.parent && gById(r.parent) && n < 5) { r = gById(r.parent); n++; } return r; }
+// danh sách phẳng theo thứ tự cây (dùng cho hộp chọn nhóm): [{ g, depth }]
+export const flatTree = (type) => { const out = []; const walk = (g, d) => { out.push({ g, depth: d }); kids(g.id).forEach((k) => walk(k, d + 1)); }; tops(type).forEach((t) => walk(t, 0)); return out; };
+// nhóm có thể làm nhóm cha của id (id = null khi tạo nhóm mới)
+export const parentChoices = (type, id) => flatTree(type).filter(({ g, depth }) => depth < MAX_DEPTH && (!id || (!groupIds(id).includes(g.id) && depth + 1 + heightOf(id) <= MAX_DEPTH)));
 export const txCount = (id) => store.tx.reduce((n, t) => n + (t.groupId === id ? 1 : 0), 0);
 
 // ---------- local ----------
@@ -155,8 +164,9 @@ export function canMove(id, parent) {
   const p = gById(parent);
   if (id === parent) return 'Không thể thả vào chính nó';
   if (!p) return 'Không tìm thấy nhóm cha';
-  if (p.parent) return 'Chỉ có 2 cấp: không thể thả vào nhóm con';
-  if (kids(id).length) return `"${g.name}" đang có nhóm con, hãy chuyển các nhóm con đi trước`;
+  if (groupIds(id).includes(parent)) return 'Không thể chuyển nhóm vào nhóm con của chính nó';
+  if (depthOf(parent) >= MAX_DEPTH) return 'Chỉ có 3 cấp: không thể thả vào nhóm con cấp 2';
+  if (depthOf(parent) + 1 + heightOf(id) > MAX_DEPTH) return `"${g.name}" đang có nhóm con cấp 2, chuyển vào đây sẽ vượt quá 3 cấp`;
   if (p.type !== g.type) return 'Không thể trộn nhóm chi với nhóm thu';
   if (g.parent === parent) return `"${g.name}" đã nằm trong "${p.name}"`;
   return '';
@@ -172,10 +182,20 @@ export function mergeGroups(ids, target) {
   for (const id of ids) {
     if (id === target) continue;
     for (const x of store.tx) if (x.groupId === id) { ops.push({ type: 'update', col: 'tx', id: x.id, data: { groupId: target } }); moved++; }
-    for (const k of kids(id)) if (k.id !== target) ops.push({ type: 'update', col: 'groups', id: k.id, data: { parent: t.parent || t.id } });
+    // nhóm con của nhóm bị gộp: chuyển sang dưới nhóm đích nếu còn trong giới hạn 3 cấp, không thì lên 1 cấp
+    for (const k of kids(id)) {
+      if (k.id === target || ids.includes(k.id)) continue;
+      const place = [t.id, t.parent, null].find((p) => !p || (!groupIds(k.id).includes(p) && depthOf(p) + 1 + heightOf(k.id) <= MAX_DEPTH));
+      ops.push({ type: 'update', col: 'groups', id: k.id, data: { parent: place || null } });
+    }
     ops.push({ type: 'delete', col: 'groups', id });
   }
-  if (t.parent && ids.includes(t.parent)) ops.push({ type: 'update', col: 'groups', id: t.id, data: { parent: null } });
+  // nhóm đích nằm trong nhóm bị gộp: kéo lên nhóm tổ tiên gần nhất còn giữ lại
+  if (t.parent && ids.includes(t.parent)) {
+    let p = gById(t.parent);
+    while (p && ids.includes(p.id)) p = p.parent ? gById(p.parent) : null;
+    ops.push({ type: 'update', col: 'groups', id: t.id, data: { parent: p ? p.id : null } });
+  }
   apply(ops);
   return moved;
 }

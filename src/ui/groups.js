@@ -1,5 +1,5 @@
 // Quản lý nhóm: kéo thả đổi nhóm cha, chuyển, gộp, tạo / sửa nhóm với thư viện icon
-import { store, gById, tops, kids, txCount, addGroup, updateGroup, moveGroup, mergeGroups, deleteGroup, canMove } from '../store.js';
+import { store, gById, tops, kids, txCount, addGroup, updateGroup, moveGroup, mergeGroups, deleteGroup, canMove, groupIds, flatTree, parentChoices } from '../store.js';
 import { view, setView } from '../state.js';
 import { LIB } from '../defaults.js';
 import { I } from '../icons.js';
@@ -13,7 +13,7 @@ const gs = { selected: new Set(), ed: blank('exp'), libTab: 'Ăn uống' };
 const shut = new Set(ls.get('mml.gfold', []));
 const foldBtn = (id) => `<button type="button" class="foldbtn" data-fold="${id}" aria-expanded="${!shut.has(id)}" title="Thu gọn / mở rộng">${I('chevron-down')}</button>`;
 const foldAllBtn = () => {
-  const ids = tops(view.gmType).filter((g) => kids(g.id).length).map((g) => g.id);
+  const ids = flatTree(view.gmType).filter(({ g }) => kids(g.id).length).map(({ g }) => g.id);
   const allShut = ids.length && ids.every((i) => shut.has(i));
   return `<button type="button" class="linkbtn" data-foldall="${allShut ? 'open' : 'shut'}">${I(allShut ? 'chevrons-up-down' : 'chevrons-down-up')}${allShut ? 'Mở rộng tất cả' : 'Thu gọn tất cả'}</button>`;
 };
@@ -39,8 +39,8 @@ function wireFold(root) {
 
 // ---------- hộp chọn nhóm đích ----------
 function pickTarget(compact, title, text, filter, onPick) {
-  const items = tops(view.gmType).flatMap((g) => [g, ...kids(g.id)]).filter(filter);
-  const html = `<h3>${title}</h3>${text ? `<p>${text}</p>` : ''}<div class="pick">${items.map((g) => `<button type="button" class="${g.parent ? 'child' : ''}" data-t="${g.id}">${tile(g, 34)}${esc(g.name)}</button>`).join('') || '<p>Không có nhóm phù hợp.</p>'}</div>
+  const items = flatTree(view.gmType).filter(({ g }) => filter(g));
+  const html = `<h3>${title}</h3>${text ? `<p>${text}</p>` : ''}<div class="pick">${items.map(({ g, depth }) => `<button type="button" class="${depth ? 'child d' + depth : ''}" data-t="${g.id}">${tile(g, 34)}${esc(g.name)}</button>`).join('') || '<p>Không có nhóm phù hợp.</p>'}</div>
     ${compact ? '' : '<div class="actions"><button class="btn" type="button" data-x>Huỷ</button></div>'}`;
   const box = compact ? sheet(html) : dialog(html);
   box.el.querySelectorAll('[data-t]').forEach((b) => (b.onclick = () => { box.close(); onPick(b.dataset.t); }));
@@ -65,13 +65,12 @@ async function doMerge(ids, target) {
 
 export function moveFlow(id, compact) {
   const g = gById(id);
-  if (kids(id).length) { toast(`"${g.name}" đang có nhóm con, hãy chuyển các nhóm con đi trước`); return; }
-  pickTarget(compact, `Chuyển "${esc(g.name)}" tới…`, 'Chọn nhóm cha mới.', (x) => !x.parent && x.id !== id && x.id !== g.parent && x.type === g.type, (t) => doMove(id, t));
+  pickTarget(compact, `Chuyển "${esc(g.name)}" tới…`, 'Chọn nhóm cha mới (tối đa 3 cấp).', (x) => canMove(id, x.id) === '', (t) => doMove(id, t));
 }
 export function mergeFlow(id, compact) {
   const g = gById(id);
   pickTarget(compact, `Gộp "${esc(g.name)}" vào…`, `${txCount(id)} giao dịch${kids(id).length ? ' và ' + kids(id).length + ' nhóm con' : ''} sẽ chuyển sang nhóm bạn chọn.`,
-    (x) => x.id !== id && x.parent !== id && x.type === g.type, (t) => doMerge([id], t));
+    (x) => !groupIds(id).includes(x.id) && x.type === g.type, (t) => doMerge([id], t));
 }
 async function deleteFlow(id) {
   const g = gById(id);
@@ -83,11 +82,11 @@ async function deleteFlow(id) {
 // ---------- form tạo / sửa ----------
 function editorHtml(compact) {
   const ed = gs.ed;
-  const parents = tops(ed.type).filter((g) => g.id !== ed.id);
+  const parents = parentChoices(ed.type, ed.id);
   return `<h3>${ed.id ? 'Sửa nhóm' : 'Tạo nhóm mới'}</h3>
     <div class="prevrow">${tile(ed, 58)}<div style="min-width:0"><div style="font-weight:800;font-size:19px" data-prevname>${esc(ed.name || 'Tên nhóm')}</div><small style="color:var(--muted);font-weight:700">${ed.parent && gById(ed.parent) ? 'Nhóm con của ' + esc(gById(ed.parent).name) : 'Nhóm cha'} · ${ed.type === 'inc' ? 'nhóm thu' : 'nhóm chi'}</small></div></div>
     <div class="two"><div class="field"><label for="edName">Tên nhóm</label><input id="edName" class="inp" value="${esc(ed.name)}" maxlength="40" autocomplete="off"></div>
-      <div class="field"><label for="edPar">Thuộc nhóm cha</label><select id="edPar" class="inp"><option value="">(Không, là nhóm cha)</option>${parents.map((p) => `<option value="${p.id}" ${ed.parent === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div></div>
+      <div class="field"><label for="edPar">Thuộc nhóm cha</label><select id="edPar" class="inp"><option value="">(Không, là nhóm cha)</option>${parents.map(({ g: p, depth }) => `<option value="${p.id}" ${ed.parent === p.id ? 'selected' : ''}>${depth ? '\u00A0\u00A0\u00A0└ ' : ''}${esc(p.name)}</option>`).join('')}</select></div></div>
     <div class="field"><span class="lbl">Thư viện icon</span><div class="libtabs">${Object.keys(LIB).map((k) => `<button type="button" data-lt="${k}" class="${gs.libTab === k ? 'on' : ''}">${k}</button>`).join('')}</div></div>
     <div class="lib" style="${compact ? 'max-height:220px' : ''}">${LIB[gs.libTab].map((n) => `<button type="button" data-ic="e:${n}" class="${ed.icon === 'e:' + n ? 'on' : ''}">${emo(n)}</button>`).join('')}</div>
     <div class="actions">${ed.id ? '<button class="btn" type="button" data-cancel>Huỷ sửa</button>' : compact ? '<button class="btn" type="button" data-x>Huỷ</button>' : ''}<button class="btn primary" type="button" data-save>${I(ed.id ? 'check' : 'plus')}${ed.id ? 'Lưu thay đổi' : 'Tạo nhóm'}</button></div>`;
@@ -103,7 +102,8 @@ function wireEditor(el, compact, rerender, done) {
     const ed = gs.ed, name = ed.name.trim();
     if (!name) { toast('Hãy đặt tên cho nhóm'); el.querySelector('#edName').focus(); return; }
     if (ed.id) {
-      if (ed.parent && kids(ed.id).length) { toast('Nhóm đang có nhóm con nên không thể làm nhóm con'); return; }
+      const err = ed.parent && ed.parent !== (gById(ed.id)?.parent || '') ? canMove(ed.id, ed.parent) : '';
+      if (err) { toast(err); return; }
       updateGroup(ed.id, { name, icon: ed.icon, color: ed.color, parent: ed.parent || null });
       toast(`Đã lưu "${name}"`);
     } else {
@@ -132,16 +132,22 @@ const setType = (t) => {
 // ---------- PC ----------
 export function groupsDeskHtml() {
   if (gs.ed.type !== view.gmType && !gs.ed.id) gs.ed = blank(view.gmType);
-  const row = (g, child) => `<div class="grow${child ? ' child' : ''}" draggable="true" data-id="${g.id}" data-drop="${g.id}">
-    <input type="checkbox" ${gs.selected.has(g.id) ? 'checked' : ''} aria-label="Chọn ${esc(g.name)}" data-sel="${g.id}">${child ? '' : kids(g.id).length ? foldBtn(g.id) : '<span class="foldsp"></span>'}${tile(g, child ? 38 : 46)}
-    <div class="nm"><b>${esc(g.name)}</b><small>${txCount(g.id)} giao dịch${!child && kids(g.id).length ? ' · ' + kids(g.id).length + ' nhóm con' : ''}</small></div>
+  const row = (g, depth) => `<div class="grow${depth ? ' child d' + depth : ''}" draggable="true" data-id="${g.id}" data-drop="${g.id}">
+    <input type="checkbox" ${gs.selected.has(g.id) ? 'checked' : ''} aria-label="Chọn ${esc(g.name)}" data-sel="${g.id}">${kids(g.id).length ? foldBtn(g.id) : '<span class="foldsp"></span>'}${tile(g, depth ? 38 : 46)}
+    <div class="nm"><b>${esc(g.name)}</b><small>${txCount(g.id)} giao dịch${kids(g.id).length ? ' · ' + kids(g.id).length + ' nhóm con' : ''}</small></div>
     <div class="acts"><button type="button" data-act="move" title="Chuyển sang nhóm cha khác">${I('folder-input')}Chuyển</button><button type="button" data-act="merge" title="Gộp vào nhóm khác">${I('merge')}Gộp</button><button type="button" data-act="edit" title="Sửa tên, icon, màu">${I('pencil')}Sửa</button><button type="button" data-act="del" title="Xoá nhóm">${I('trash-2')}</button></div></div>`;
+  // cây nhóm: nhóm có nhóm con thì bọc trong khối gập / mở được (tối đa 3 cấp)
+  const node = (g, depth) => {
+    const ks = kids(g.id);
+    if (!ks.length) return depth ? row(g, depth) : `<div class="gcard">${row(g, 0)}</div>`;
+    return `<div class="${depth ? 'gsub' : 'gcard'} ${shut.has(g.id) ? '' : 'open'}" data-fold-box="${g.id}">${row(g, depth)}<div class="fold"><div>${ks.map((k) => node(k, depth + 1)).join('')}</div></div></div>`;
+  };
   const n = [...gs.selected].filter(gById).length;
   return `<div class="bar">${typeTabs()}<span class="lbl hint" title="Kéo một nhóm thả lên nhóm khác để biến nó thành nhóm con">Kéo thả nhóm lên nhóm khác để làm nhóm con</span>${foldAllBtn()}
       <button class="btn primary" type="button" data-newg-desk>${I('plus')}Tạo nhóm mới</button>
       <button class="btn" type="button" data-mergesel ${n < 2 ? 'disabled' : ''}>${I('merge')}Gộp ${n >= 2 ? n + ' ' : ''}nhóm đã chọn</button></div>
     <div class="gm"><div class="panel gm-list scroll" data-key="gmlist"><div class="dropTop" data-drop="__top">Thả vào đây để biến thành nhóm cha</div>
-      ${tops(view.gmType).map((g) => { const ks = kids(g.id); return `<div class="gcard ${ks.length && !shut.has(g.id) ? 'open' : ''}" data-fold-box="${g.id}">${row(g)}${ks.length ? `<div class="fold"><div>${ks.map((k) => row(k, 1)).join('')}</div></div>` : ''}</div>`; }).join('')}</div>
+      ${tops(view.gmType).map((g) => node(g, 0)).join('')}</div>
       <div class="panel editor" data-editor>${editorHtml(false)}</div></div>`;
 }
 export function wireGroupsDesk(root, rerender) {
@@ -162,7 +168,7 @@ export function wireGroupsDesk(root, rerender) {
     else if (b.dataset.act === 'move') {
       const g = gById(id);
       if (g.parent) {
-        pickTarget(false, `Chuyển "${esc(g.name)}" tới…`, 'Chọn nhóm cha mới, hoặc để nó thành nhóm cha.', (x) => !x.parent && x.id !== g.parent && x.id !== id && x.type === g.type, (t) => doMove(id, t));
+        pickTarget(false, `Chuyển "${esc(g.name)}" tới…`, 'Chọn nhóm cha mới, hoặc để nó thành nhóm cha.', (x) => canMove(id, x.id) === '', (t) => doMove(id, t));
         const pk = document.querySelector('#overlay .pick');
         if (pk) { pk.insertAdjacentHTML('afterbegin', `<button type="button" data-top>${I('corner-down-right')}Biến thành nhóm cha</button>`); pk.querySelector('[data-top]').onclick = () => { document.querySelector('#overlay .scrim:last-child')?.remove(); doMove(id, null); }; }
       } else moveFlow(id, false);
@@ -186,11 +192,17 @@ export function wireGroupsDesk(root, rerender) {
 
 // ---------- điện thoại ----------
 export function groupsMobileHtml() {
-  const row = (g, child) => `<button type="button" class="tx" data-gact="${g.id}" style="${child ? 'padding-left:28px' : ''}">${tile(g, child ? 40 : 48)}<div class="t"><div>${esc(g.name)}</div><small>${txCount(g.id)} giao dịch${!child && kids(g.id).length ? ' · ' + kids(g.id).length + ' nhóm con' : ''}</small></div>${I('ellipsis')}</button>`;
+  const row = (g, depth) => `<button type="button" class="tx" data-gact="${g.id}" style="${depth ? 'padding-left:' + 28 * depth + 'px' : ''}">${tile(g, depth ? 40 : 48)}<div class="t"><div>${esc(g.name)}</div><small>${txCount(g.id)} giao dịch${kids(g.id).length ? ' · ' + kids(g.id).length + ' nhóm con' : ''}</small></div>${I('ellipsis')}</button>`;
+  const node = (g, depth) => {
+    const ks = kids(g.id);
+    const cls = depth ? 'psub' : 'plist';
+    if (!ks.length) return depth ? row(g, depth) : `<div class="plist">${row(g, 0)}</div>`;
+    return `<div class="${cls} ${shut.has(g.id) ? '' : 'open'}" data-fold-box="${g.id}"><div class="prow">${row(g, depth)}${foldBtn(g.id)}</div><div class="fold"><div>${ks.map((k) => node(k, depth + 1)).join('')}</div></div></div>`;
+  };
   return `${typeTabs()}
     <div class="gm-tools"><button class="btn primary" type="button" data-newgroup>${I('plus')}Tạo nhóm mới</button>${foldAllBtn()}</div>
     <div class="lbl" style="padding:0 4px">Chạm vào nhóm để chuyển, gộp, sửa</div>
-    ${tops(view.gmType).map((g) => { const ks = kids(g.id); return `<div class="plist ${ks.length && !shut.has(g.id) ? 'open' : ''}" data-fold-box="${g.id}"><div class="prow">${row(g)}${ks.length ? foldBtn(g.id) : ''}</div>${ks.length ? `<div class="fold"><div>${ks.map((k) => row(k, 1)).join('')}</div></div>` : ''}</div>`; }).join('')}`;
+    ${tops(view.gmType).map((g) => node(g, 0)).join('')}`;
 }
 // mở form tạo / sửa nhóm. opts: { type, compact, onDone(idMới) } — dùng cả khi đang nhập giao dịch
 export function openEditorSheet(id, opts = {}) {

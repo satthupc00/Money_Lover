@@ -1,7 +1,7 @@
 // Form thêm / sửa giao dịch, gọn kiểu Money Lover: các dòng Số tiền / Nhóm / Ghi chú / Ngày.
 // Nhóm chỉ hiện khi bấm "Chọn nhóm"; bấm vào ngày là mở lịch. Điện thoại có bàn phím tính toán.
 // Gợi ý dạng menu thả xuống: theo số tiền (khi đã nhập >= 3 lần) và theo ghi chú.
-import { store, gById, tops, kids, addTx, updateTx, deleteTx } from '../store.js';
+import { store, gById, tops, kids, flatTree, addTx, updateTx, deleteTx } from '../store.js';
 import { I } from '../icons.js';
 import { esc, fmt, ymd, dkey, dmy, parseYmd, WD } from '../util.js';
 import { tile, dialog, sheet, toast, confirmBox, placeTabs, forgetTab } from './common.js';
@@ -82,7 +82,7 @@ const prettyExpr = (e) => e.replace(/\d+/g, (d) => (+d).toLocaleString('vi-VN'))
 // ---- chọn nhóm
 export function pickGroup(type, current, compact) {
   return new Promise((resolve) => {
-    const list = () => tops(type).map((g) => [g, ...kids(g.id)]).flat();
+    const list = () => flatTree(type);
     const html = `<h3 class="pg-h">${I('folder-tree')}Chọn nhóm ${type === 'inc' ? 'thu' : 'chi'}</h3>
       <div class="pg-tools"><input class="inp" id="gq" placeholder="Tìm nhóm" autocomplete="off"><button type="button" class="btn primary" data-newg>${I('plus')}Tạo nhóm mới</button></div><div class="pick gpicklist"></div>
       ${compact ? '' : '<div class="actions"><button class="btn" type="button" data-x>Huỷ</button></div>'}`;
@@ -91,8 +91,8 @@ export function pickGroup(type, current, compact) {
     const out = box.el.querySelector('.gpicklist'), q = box.el.querySelector('#gq');
     const draw = () => {
       const s = dkey(q.value.trim());
-      const rows = list().filter((g) => !s || dkey(g.name).includes(s) || (g.parent && dkey(gById(g.parent)?.name).includes(s)));
-      out.innerHTML = rows.map((g) => `<button type="button" class="${g.parent && !s ? 'child' : ''} ${g.id === current ? 'on' : ''}" data-t="${g.id}">${tile(g, g.parent ? 34 : 40)}<span>${esc(g.name)}${s && g.parent ? `<small> · ${esc(gById(g.parent).name)}</small>` : ''}</span>${g.id === current ? I('check') : ''}</button>`).join('') || '<p>Không có nhóm nào khớp.</p>';
+      const rows = list().filter(({ g }) => !s || dkey(g.name).includes(s) || (g.parent && dkey(gById(g.parent)?.name).includes(s)));
+      out.innerHTML = rows.map(({ g, depth }) => `<button type="button" class="${depth && !s ? 'child d' + depth : ''} ${g.id === current ? 'on' : ''}" data-t="${g.id}">${tile(g, depth ? 34 : 40)}<span>${esc(g.name)}${s && g.parent ? `<small> · ${esc(gById(g.parent).name)}</small>` : ''}</span>${g.id === current ? I('check') : ''}</button>`).join('') || '<p>Không có nhóm nào khớp.</p>';
       out.querySelectorAll('[data-t]').forEach((b) => (b.onclick = () => { done = true; resolve(b.dataset.t); box.close(); }));
     };
     q.oninput = draw; draw();
