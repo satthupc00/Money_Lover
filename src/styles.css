@@ -809,3 +809,12 @@ html[data-theme=gray] .dayblk.sun .dayhd { background: #FDE3E3; }
 /* icon cập nhật luôn nằm giữa vòng tròn */
 .updbtn { justify-content: center; }
 .top .updbtn { border-radius: 50%; }
+/* giữ & kéo đổi thứ tự giao dịch */
+.dayblk > .tx { -webkit-touch-callout: none; }
+.dayblk.reordering > .tx { transition: transform .2s cubic-bezier(.22, 1, .36, 1); }
+.dayblk.reordering > .tx.lifting { transition: none; position: relative; z-index: 5; background: var(--surface); border-radius: 14px; box-shadow: 0 14px 30px rgba(0, 0, 0, .18), 0 0 0 1.5px var(--line); scale: 1.03; cursor: grabbing; }
+.dayblk.reordering > .tx.lifting.settling { transition: transform .18s ease-out, scale .18s ease-out; scale: 1; }
+.dayblk.reordering { overflow: visible; }
+@media (prefers-reduced-motion: reduce) { .dayblk.reordering > .tx { transition: none; } }
+.shell-m .foldbtn { width: 44px; height: 44px; }
+.shell-m .gm-tools .btn, .shell-m .gm-tools .linkbtn { min-height: 44px; }

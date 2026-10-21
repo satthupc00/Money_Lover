@@ -1,6 +1,6 @@
 // Sổ giao dịch: thẻ tổng (2 tab Chi / Thu) + danh sách theo ngày / tháng / năm
-import { store, gById, groupIds } from '../store.js';
-import { view, setView } from '../state.js';
+import { store, gById, groupIds, reorderTx } from '../store.js';
+import { view, setView, ui } from '../state.js';
 import { I } from '../icons.js';
 import { fmt, vnd, esc, ymd, shortM, daysIn } from '../util.js';
 import { tile } from './common.js';
@@ -68,7 +68,8 @@ export const txRow = (t) => {
   return `<button type="button" class="tx" data-tx="${t.id}">${tile(g, 44)}<div class="t"><div>${esc(g.name)}</div>${sub ? `<small>${esc(sub)}</small>` : ''}</div><div class="amt num ${t.type === 'inc' ? 'inc' : 'exp'}">${vnd(t.amount)}</div></button>`;
 };
 
-const sortTx = (a, b) => (b.date.localeCompare(a.date)) || ((b.createdAt || 0) - (a.createdAt || 0));
+// trong 1 ngày: theo thứ tự người dùng đã kéo (pos); giao dịch mới chưa có pos nằm trên cùng, mới nhất trước
+const sortTx = (a, b) => (b.date.localeCompare(a.date)) || ((a.pos ?? -1) - (b.pos ?? -1)) || ((b.createdAt || 0) - (a.createdAt || 0));
 
 export function listHtml() {
   const txs = periodTx();
@@ -115,6 +116,96 @@ export function wireLedger(root, openTx) {
   }));
   root.querySelectorAll('[data-shift]').forEach((b) => (b.onclick = () => shiftPeriod(+b.dataset.shift)));
   root.querySelectorAll('[data-clear-group]').forEach((b) => (b.onclick = () => setView({ group: null })));
+  wireReorder(root);
+}
+
+// ---------- giữ & kéo để đổi thứ tự giao dịch trong ngày ----------
+const HOLD_MS = 380;
+let swallowClick = false;
+document.addEventListener('click', (e) => { if (swallowClick) { swallowClick = false; e.stopPropagation(); e.preventDefault(); } }, true);
+
+function wireReorder(root) {
+  root.querySelectorAll('.dayblk').forEach((blk) => {
+    const rows = [...blk.querySelectorAll(':scope > .tx')];
+    if (rows.length < 2) return;
+    rows.forEach((row) => {
+      row.addEventListener('pointerdown', (e) => holdToDrag(e, blk, row));
+      row.addEventListener('contextmenu', (e) => e.preventDefault());
+    });
+  });
+}
+
+function holdToDrag(e, blk, row) {
+  if (e.button !== 0 || !e.isPrimary) return;
+  const x0 = e.clientX, y0 = e.clientY;
+  const early = (ev) => { if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 8) stop(); };
+  const stop = () => { clearTimeout(timer); removeEventListener('pointermove', early); removeEventListener('pointerup', stop); removeEventListener('pointercancel', stop); };
+  const timer = setTimeout(() => { stop(); begin(); }, HOLD_MS);
+  addEventListener('pointermove', early); addEventListener('pointerup', stop); addEventListener('pointercancel', stop);
+
+  function begin() {
+    if (!row.isConnected) return; // màn hình vừa được vẽ lại trong lúc giữ
+    ui.hold = true;
+    const rows = [...blk.querySelectorAll(':scope > .tx')];
+    const from = rows.indexOf(row);
+    const sc = blk.closest('.scroll') || document.scrollingElement;
+    const st0 = sc.scrollTop;
+    const slots = rows.map((r) => { const b = r.getBoundingClientRect(); return { top: b.top + st0, h: b.height }; });
+    const h = slots[from].h + (rows[1] ? slots[1].top - slots[0].top - slots[0].h : 0);
+    let to = from, lastY = y0, raf = 0;
+    navigator.vibrate?.(12);
+    blk.classList.add('reordering'); row.classList.add('lifting');
+    const place = () => {
+      const dy = lastY - y0 + (sc.scrollTop - st0);
+      row.style.transform = `translateY(${dy}px)`;
+      const mid = slots[from].top + slots[from].h / 2 + dy;
+      // vị trí thả: vượt qua điểm giữa của dòng bên dưới / bên trên thì đổi chỗ
+      const midOf = (i) => slots[i].top + slots[i].h / 2;
+      to = from;
+      for (let i = from + 1; i < slots.length && mid > midOf(i); i++) to = i;
+      if (to === from) for (let i = from - 1; i >= 0 && mid < midOf(i); i--) to = i;
+      rows.forEach((r, i) => {
+        if (r === row) return;
+        const shift = from < to && i > from && i <= to ? -h : to < from && i >= to && i < from ? h : 0;
+        r.style.transform = shift ? `translateY(${shift}px)` : '';
+      });
+    };
+    // kéo sát mép trên / dưới thì tự cuộn
+    const edge = () => {
+      const b = sc === document.scrollingElement ? { top: 0, bottom: innerHeight } : sc.getBoundingClientRect();
+      const v = lastY < b.top + 60 ? -8 : lastY > b.bottom - 60 ? 8 : 0;
+      if (v) { sc.scrollTop += v; place(); }
+      raf = requestAnimationFrame(edge);
+    };
+    raf = requestAnimationFrame(edge);
+    const move = (ev) => { lastY = ev.clientY; place(); };
+    const block = (ev) => ev.preventDefault(); // giữ ngón tay kéo, không cho trang cuộn
+    const end = (commit) => {
+      cancelAnimationFrame(raf);
+      removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', cancel);
+      removeEventListener('touchmove', block); removeEventListener('keydown', esc, true);
+      swallowClick = true; setTimeout(() => { swallowClick = false; }, 400);
+      const target = commit ? to : from;
+      const off = target === from ? 0 : slots[target].top - slots[from].top + (target > from ? slots[target].h - slots[from].h : 0);
+      row.classList.add('settling'); row.style.transform = `translateY(${off}px)`;
+      if (!commit) rows.forEach((r) => { if (r !== row) r.style.transform = ''; });
+      setTimeout(() => {
+        blk.classList.remove('reordering'); row.classList.remove('lifting', 'settling');
+        ui.hold = false;
+        const later = ui.pending; ui.pending = null;
+        if (commit && to !== from) {
+          const ids = rows.map((r) => r.dataset.tx);
+          ids.splice(to, 0, ids.splice(from, 1)[0]);
+          reorderTx(ids);
+        } else { rows.forEach((r) => { r.style.transform = ''; }); later?.(); }
+      }, 180);
+    };
+    const up = () => end(true), cancel = () => end(false);
+    const esc = (ev) => { if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); end(false); } };
+    addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', cancel);
+    addEventListener('touchmove', block, { passive: false }); addEventListener('keydown', esc, true);
+    place();
+  }
 }
 const sameMonth = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
 

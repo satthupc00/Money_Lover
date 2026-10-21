@@ -11,6 +11,8 @@ export const view = {
   gmType: 'exp',
   hideAmt: !!saved.hideAmt, // ẩn số tổng trên thẻ Chi tiêu / Thu nhập
 };
+// đang kéo đổi thứ tự: tạm hoãn vẽ lại màn hình (vẽ lại sẽ làm mất dòng đang kéo)
+export const ui = { hold: false, pending: null };
 const subs = new Set();
 export const onView = (f) => { subs.add(f); return () => subs.delete(f); };
 export function setView(p) {

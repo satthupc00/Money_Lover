@@ -147,6 +147,8 @@ export function addTx({ amount, type, groupId, note, date }) {
 }
 export function updateTx(id, patch) { apply([{ type: 'update', col: 'tx', id, data: { ...patch, updatedAt: now() } }]); }
 export function deleteTx(id) { apply([{ type: 'delete', col: 'tx', id }]); }
+// đổi thứ tự giao dịch trong 1 ngày: ids theo thứ tự mới (trên xuống)
+export function reorderTx(ids) { apply(ids.map((id, i) => ({ type: 'update', col: 'tx', id, data: { pos: i } }))); }
 
 export function addGroup({ name, icon, color, type, parent }) {
   const id = 'g' + newId().slice(0, 12);

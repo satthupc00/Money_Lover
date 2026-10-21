@@ -1,6 +1,6 @@
 // Khung app: PC (>= 1000px), Fold mở (600-999px, 2 cột), điện thoại (< 600px, 1 cột)
 import { store, tops, gById, groupIds } from '../store.js';
-import { view, setView } from '../state.js';
+import { view, setView, ui } from '../state.js';
 import { upd } from '../updater.js';
 import { updateAction } from './update.js';
 import { getReminder } from '../reminder.js';
@@ -111,6 +111,7 @@ function searchBox() {
 }
 
 export function render(root) {
+  if (ui.hold) { ui.pending = () => render(root); return; }
   const mode = layout();
   const keep = {};
   root.querySelectorAll('[data-key]').forEach((e) => (keep[e.dataset.key] = e.scrollTop));
