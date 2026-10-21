@@ -14,7 +14,7 @@ export const LIB = {
   'Sức khoẻ': ["1f3e5", "1f48a", "1fa7a", "1fa79", "1f489", "1f9b7", "1f9d8", "1f4aa", "1f3c3", "1f6e1-fe0f", "1f431", "1f436", "1f43e", "1f420", "1f331", "1f490"],
   'Người thân': ["1f46a", "1f476", "1f474", "1f475", "1f469", "1f468", "1f491", "1f497", "1f49d", "1f496", "2764-fe0f", "1f91d", "1f9e7", "1f381", "1f33e", "1f60a", "1f970"],
   'Tiền bạc': ["1f4b0", "1f4b5", "1f4b6", "1f4b7", "1f4b8", "1f4b3", "1fa99", "1f3e6", "1f4bc", "1f4c8", "1f4c9", "1f4ca", "1f9fe", "1f4dd", "1f4cb", "1f4e4", "1f4e5", "1f510", "2696-fe0f", "1f4b9", "1f437"],
-  'Ứng dụng': ["brand-claude", "brand-gemini", "brand-chatgpt"],
+  'Ứng dụng': ["brand-claude", "brand-gemini", "brand-chatgpt", "brand-grok"],
 };
 
 // Cấu trúc nhóm mặc định = cấu trúc nhóm của Money Lover cũ.

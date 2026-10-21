@@ -25,5 +25,7 @@ SOFTWARE.
 
 ---
 Icon thương hiệu (brand-claude, brand-gemini, brand-chatgpt): hình logo lấy từ bộ Simple Icons
-(https://simpleicons.org, giấy phép CC0), đặt trên ô nền tự vẽ. Claude là thương hiệu của Anthropic,
-Gemini là thương hiệu của Google, ChatGPT/OpenAI là thương hiệu của OpenAI; chỉ dùng để nhận diện nhóm chi tiêu.
+(https://simpleicons.org, giấy phép CC0), đặt trên ô nền tự vẽ.
+brand-grok: hình logo lấy từ bộ LobeHub Icons (@lobehub/icons-static-svg, giấy phép MIT).
+Claude là thương hiệu của Anthropic,
+Gemini là thương hiệu của Google, ChatGPT/OpenAI là thương hiệu của OpenAI, Grok là thương hiệu của xAI; chỉ dùng để nhận diện nhóm chi tiêu.
