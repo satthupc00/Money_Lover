@@ -22,3 +22,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+Icon thương hiệu (brand-claude, brand-gemini, brand-chatgpt): hình logo lấy từ bộ Simple Icons
+(https://simpleicons.org, giấy phép CC0), đặt trên ô nền tự vẽ. Claude là thương hiệu của Anthropic,
+Gemini là thương hiệu của Google, ChatGPT/OpenAI là thương hiệu của OpenAI; chỉ dùng để nhận diện nhóm chi tiêu.
