@@ -204,10 +204,10 @@ export function openTxForm(tx, { compact = false, date } = {}) {
   };
   if (amtIn) {
     amtIn.addEventListener('input', () => { st.expr = String(parseInt(amtIn.value.replace(/\D/g, ''), 10) || ''); amtIn.value = st.expr ? (+st.expr).toLocaleString('vi-VN') : ''; afterTyping(showA); });
-    amtIn.addEventListener('focus', showA);
   }
   note.addEventListener('input', () => { st.note = note.value; afterTyping(showN); });
-  note.addEventListener('focus', () => { if (note.value) showN(); else close(); });
+  // chỉ hiện gợi ý khi đang gõ, không tự bật lúc mở bảng / chuyển ô
+  note.addEventListener('focus', close);
   // bấm vào chữ ngày là mở lịch
   const openCal = () => { try { dateIn.showPicker(); } catch { dateIn.focus(); dateIn.click(); } };
   el.querySelector('.tf-date').addEventListener('click', (e) => { if (e.target !== dateIn) openCal(); });
