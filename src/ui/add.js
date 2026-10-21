@@ -158,7 +158,10 @@ export function openTxForm(tx, { compact = false, date } = {}) {
     amtView.innerHTML = st.expr ? prettyExpr(st.expr) : '0';
   };
   const drawDate = () => { el.querySelector('[data-dlabel]').textContent = dateLabel(st.date); dateIn.value = st.date; };
-  const close = () => { dA.innerHTML = ''; dN.innerHTML = ''; hits = null; hi = -1; };
+  let typingT = 0;
+  const close = () => { clearTimeout(typingT); dA.innerHTML = ''; dN.innerHTML = ''; hits = null; hi = -1; };
+  // đang gõ thì ẩn gợi ý; ngừng gõ 1 giây mới hiện
+  const afterTyping = (show) => { close(); typingT = setTimeout(show, 1000); };
   const showA = () => { dN.innerHTML = ''; const v = /[+−×÷]/.test(st.expr) ? 0 : amount(); const r = amtHits(v, st.type); hits = r?.items || null; hi = -1; dA.innerHTML = r ? ddHtml(`Số tiền này bạn đã nhập ${r.total} lần`, r.items) : ''; };
   const showN = () => { dA.innerHTML = ''; const r = noteHits(note.value, st.type); hits = r?.items || null; hi = -1; dN.innerHTML = r ? ddHtml('Ghi chú bạn đã dùng', r.items) : ''; };
   const pick = (i, fromNote) => {
@@ -197,13 +200,13 @@ export function openTxForm(tx, { compact = false, date } = {}) {
     else if (k === '=') x = String(amount() || '');
     else if (/[+−×÷]/.test(k)) { if (!x) return; x = /[+−×÷]$/.test(x) ? x.slice(0, -1) + k : x + k; }
     else { const last = x.match(/\d*$/)[0]; if (last.length >= 12) return; x = (last === '0' ? x.slice(0, -1) : x) + k; if (/(^|[+−×÷])0+\d/.test(x)) x = x.replace(/(^|[+−×÷])0+(\d)/g, '$1$2'); }
-    st.expr = x; drawAmt(); showA();
+    st.expr = x; drawAmt(); afterTyping(showA);
   };
   if (amtIn) {
-    amtIn.addEventListener('input', () => { st.expr = String(parseInt(amtIn.value.replace(/\D/g, ''), 10) || ''); amtIn.value = st.expr ? (+st.expr).toLocaleString('vi-VN') : ''; showA(); });
+    amtIn.addEventListener('input', () => { st.expr = String(parseInt(amtIn.value.replace(/\D/g, ''), 10) || ''); amtIn.value = st.expr ? (+st.expr).toLocaleString('vi-VN') : ''; afterTyping(showA); });
     amtIn.addEventListener('focus', showA);
   }
-  note.addEventListener('input', () => { st.note = note.value; showN(); });
+  note.addEventListener('input', () => { st.note = note.value; afterTyping(showN); });
   note.addEventListener('focus', () => { if (note.value) showN(); else close(); });
   // bấm vào chữ ngày là mở lịch
   const openCal = () => { try { dateIn.showPicker(); } catch { dateIn.focus(); dateIn.click(); } };

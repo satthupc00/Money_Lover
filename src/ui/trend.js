@@ -138,7 +138,7 @@ export function mountTrend(el) {
         ${on('cur') && cv != null ? `<circle data-k="dcur" cx="${x(d)}" cy="${yy(cv)}" r="6" fill="#fff" stroke="#E5383B" stroke-width="2.6"/>` : ''}
         <text x="${x(1)}" y="${H - 6}" text-anchor="start">01/${mm}</text><text x="${x(s.n)}" y="${H - 6}" text-anchor="end">${s.n}/${mm}</text>
         <rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/></svg>
-      <div class="tlegend two">${['prev', 'avg'].map((k) => `<label class="lchk" style="--c:${SER[k][1]}"><input type="checkbox" data-s="${k}" ${on(k) ? 'checked' : ''}>${SER[k][0]}</label>`).join('')}</div>
+      <div class="tlegend two">${['prev', 'avg'].map((k) => `<label class="lchk" style="--c:${SER[k][1]}"><input type="checkbox" data-s="${k}" ${on(k) ? 'checked' : ''}><i class="box"></i>${SER[k][0]}</label>`).join('')}</div>
       ${verdict}`;
     const svg = el.querySelector('svg.tchart');
     morph(svg, before, (v) => yy(v));
@@ -160,7 +160,8 @@ export function mountTrend(el) {
   draw();
   if (el._ro) el._ro.disconnect();
   let lastW = el.clientWidth;
-  el._ro = new ResizeObserver(() => { if (Math.abs(el.clientWidth - lastW) > 8) { lastW = el.clientWidth; draw(); } });
+  // vẽ lại ở khung hình kế tiếp, tránh lỗi "ResizeObserver loop" khi gập / mở máy
+  el._ro = new ResizeObserver(() => { if (Math.abs(el.clientWidth - lastW) > 8) { lastW = el.clientWidth; requestAnimationFrame(() => draw()); } });
   el._ro.observe(el);
   el._redraw = draw;
 }

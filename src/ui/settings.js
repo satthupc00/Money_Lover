@@ -30,7 +30,7 @@ export function settingsHtml() {
   if (bioOk === null && isNative) bioAvailable().then((v) => { bioOk = v; document.dispatchEvent(new Event('mml:rerender')); });
   if (prefs === null && isElectron) window.mondiro.getPrefs().then((p) => { prefs = p; document.dispatchEvent(new Event('mml:rerender')); });
   let acc;
-  if (!store.fbReady) acc = row('cloud', 'Chưa kết nối Firebase', 'Dữ liệu đang lưu trên máy này. Kết nối để đồng bộ PC và điện thoại.', '<button class="btn primary" type="button" data-fbsetup>Kết nối</button>');
+  if (!store.fbReady) acc = row('cloud', 'Chưa kết nối đồng bộ', 'Dữ liệu đang lưu trên máy này. Kết nối để đồng bộ PC và điện thoại.', '<button class="btn primary" type="button" data-fbsetup>Kết nối</button>');
   else if (!store.user) acc = `<div class="set-row" style="display:grid;gap:8px">
       <div style="display:flex;gap:12px;align-items:center">${I('cloud', 'ic')}<div class="t"><b>Đăng nhập để đồng bộ</b><small>Dùng cùng một tài khoản trên PC và điện thoại</small></div></div>
       <form class="two" data-login autocomplete="on"><input class="inp" type="email" name="email" placeholder="Email" autocomplete="username" required><input class="inp" type="password" name="pass" placeholder="Mật khẩu (từ 6 ký tự)" autocomplete="current-password" required minlength="6">
@@ -40,7 +40,7 @@ export function settingsHtml() {
     ? `<button class="btn upd-av" type="button" data-install>${I('refresh-cw')}${upd.status === 'ready' ? 'Cài đặt' : upd.status === 'downloading' ? 'Đang tải ' + Math.round(upd.progress || 0) + '%' : 'Xem bản mới'}</button>`
     : `<button class="btn ${upd.status === 'checking' ? 'spin' : ''}" type="button" data-check>${I('refresh-cw')}Kiểm tra bản cập nhật</button>`;
   return `<div class="set-h">Tài khoản và đồng bộ</div><div class="set-group">${acc}
-      ${store.fbReady && !hasBuiltinConfig() && !store.user ? '<button class="linkbtn" type="button" data-fbclear style="justify-self:start">Đổi dự án Firebase</button>' : ''}</div>
+      ${store.fbReady && !hasBuiltinConfig() && !store.user ? '<button class="linkbtn" type="button" data-fbclear style="justify-self:start">Đổi máy chủ đồng bộ</button>' : ''}</div>
     <div class="set-h">Giao diện</div><div class="set-group">
       ${row('palette', 'Tông màu', 'Ấm áp hoặc trắng xám giống Money Lover, dịu mắt hơn khi nhìn lâu', `<div class="themepick" role="radiogroup" aria-label="Tông màu">${THEMES.map(([k, n]) => `<button type="button" role="radio" aria-checked="${getTheme() === k}" class="${getTheme() === k ? 'on' : ''}" data-theme-set="${k}"><i class="sw sw-${k}"></i>${n}</button>`).join('')}</div>`)}</div>
     <div class="set-h">Nhắc nhở</div><div class="set-group">
@@ -64,7 +64,7 @@ export function wireSettings(root) {
   const $ = (s) => root.querySelector(s);
   root.querySelectorAll('[data-theme-set]').forEach((b) => (b.onclick = () => { if (b.dataset.themeSet !== getTheme()) { setTheme(b.dataset.themeSet); setView({}); } }));
   $('[data-fbsetup]') && ($('[data-fbsetup]').onclick = fbSetup);
-  $('[data-fbclear]') && ($('[data-fbclear]').onclick = async () => { if (await confirmBox('Đổi dự án Firebase?', 'App sẽ mở lại để nhập cấu hình mới.', 'Đổi')) { clearConfig(); location.reload(); } });
+  $('[data-fbclear]') && ($('[data-fbclear]').onclick = async () => { if (await confirmBox('Đổi máy chủ đồng bộ?', 'App sẽ mở lại để nhập cấu hình mới.', 'Đổi')) { clearConfig(); location.reload(); } });
   const lf = $('[data-login]');
   if (lf) {
     let mode = 'in';
@@ -117,14 +117,14 @@ function authErr(e) {
   if (c.includes('weak-password')) return 'Mật khẩu cần ít nhất 6 ký tự';
   if (c.includes('invalid-email')) return 'Email chưa đúng';
   if (c.includes('network')) return 'Mất mạng, thử lại sau';
-  if (c.includes('operation-not-allowed')) return 'Chưa bật đăng nhập Email/Password trong Firebase';
+  if (c.includes('operation-not-allowed')) return 'Máy chủ đồng bộ chưa bật đăng nhập bằng email';
   return 'Lỗi: ' + (e?.message || e);
 }
 
 function fbSetup() {
-  const d = dialog(`<h3>${I('cloud')}Kết nối Firebase</h3>
-    <p>Mở Firebase console → Project settings → Your apps → Web app, copy đoạn <b>firebaseConfig</b> rồi dán vào đây. Chỉ cần làm 1 lần trên mỗi máy.</p>
-    <textarea class="inp" rows="8" id="fbcfg" placeholder="const firebaseConfig = { apiKey: '...', projectId: '...', appId: '...' }"></textarea>
+  const d = dialog(`<h3>${I('cloud')}Kết nối đồng bộ</h3>
+    <p>Dán đoạn cấu hình đồng bộ (lấy theo file hướng dẫn) vào đây. Chỉ cần làm 1 lần trên mỗi máy.</p>
+    <textarea class="inp" rows="8" id="fbcfg" placeholder="{ apiKey: '...', projectId: '...', appId: '...' }"></textarea>
     <div class="err"></div><div class="actions"><button class="btn" type="button" data-x>Huỷ</button><button class="btn primary" type="button" data-ok>Lưu và mở lại app</button></div>`, { wide: true });
   d.el.querySelector('[data-ok]').onclick = () => {
     const cfg = parseConfig(d.el.querySelector('#fbcfg').value);

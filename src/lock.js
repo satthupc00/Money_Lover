@@ -113,7 +113,7 @@ function wireForgot(root, restart) {
   b.onclick = () => {
     const u = store.user;
     root.querySelector('.lock').innerHTML = u
-      ? `${head('Đặt lại mã khoá', `Đăng nhập lại tài khoản <b>${esc(u.email)}</b> để đặt mã mới. Dữ liệu vẫn an toàn trên Firebase.`)}
+      ? `${head('Đặt lại mã khoá', `Đăng nhập lại tài khoản <b>${esc(u.email)}</b> để đặt mã mới. Dữ liệu vẫn an toàn trên máy chủ đồng bộ.`)}
         <form class="pcform"><input class="inp" type="password" id="fpw" placeholder="Mật khẩu tài khoản" aria-label="Mật khẩu tài khoản"><div class="err"></div>
         <button class="btn primary big" type="submit">Xác nhận</button><button class="linkbtn" type="button" data-back>Quay lại</button></form>`
       : `${head('Đặt lại mã khoá', 'Máy này chưa đăng nhập tài khoản đồng bộ, nên đặt lại mã sẽ <b>xoá dữ liệu chỉ lưu trên máy này</b>.')}

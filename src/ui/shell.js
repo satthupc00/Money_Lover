@@ -27,9 +27,10 @@ const syncText = () => ({ synced: 'Đã đồng bộ', pending: 'Đang đồng b
 function updButton(desk) {
   const av = upd.status === 'available' || upd.status === 'ready';
   const label = av ? (upd.status === 'ready' ? 'Cài bản mới' : `Có bản mới ${upd.version}`) : upd.status === 'downloading' ? `Đang tải ${Math.round(upd.progress)}%` : 'Kiểm tra bản cập nhật';
-  if (desk) return `<button class="btn ${av ? 'upd-av' : ''} ${upd.status === 'checking' ? 'spin' : ''}" type="button" data-upd title="${esc(updLabel())}">${I('refresh-cw')}${label}</button>`;
   const ok = upd.status === 'latest';
-  return `<button class="icb updbtn ${av ? 'upd-av' : ''} ${ok ? 'ok' : ''} ${upd.status === 'checking' ? 'spin' : ''}" type="button" data-upd title="${esc(av ? label : ok ? 'Đang dùng bản mới nhất · bấm để kiểm tra lại' : 'Kiểm tra bản cập nhật')}" aria-label="${esc(ok ? 'Đang dùng bản mới nhất' : label)}">${I('refresh-cw')}${ok ? '<span class="lt">latest</span>' : ''}</button>`;
+  // PC: chỉ icon (chữ LATEST đã nằm cạnh tên app); điện thoại: icon + chữ "latest"
+  if (desk) return `<button class="icb updbtn ${av ? 'upd-av' : ''} ${ok ? 'ok' : ''} ${upd.status === 'checking' ? 'spin' : ''}" type="button" data-upd title="${esc(av ? label : updLabel())}" aria-label="${esc(av ? 'Kiểm tra cập nhật · ' + label.toLowerCase() : 'Kiểm tra bản cập nhật')}">${I('refresh-cw')}</button>`;
+  return `<button class="icb updbtn ${av ? 'upd-av' : ''} ${ok ? 'ok' : ''} ${upd.status === 'checking' ? 'spin' : ''}" type="button" data-upd title="${esc(av ? label : ok ? 'Kiểm tra cập nhật · đang dùng bản mới nhất' : 'Kiểm tra bản cập nhật')}" aria-label="${esc(ok ? 'Kiểm tra cập nhật · đang dùng bản mới nhất' : av ? 'Kiểm tra cập nhật · ' + label.toLowerCase() : label)}">${I('refresh-cw')}${ok ? '<span class="lt">latest</span>' : ''}</button>`;
 }
 
 function miniTree() {
@@ -60,7 +61,7 @@ function deskHtml() {
   else main = `<div class="bar"><h2 style="margin:0;font-size:21.5px;font-weight:800">Cài đặt</h2></div><div class="page settings scroll" data-key="set"><div>${settingsHtml()}</div></div>`;
   return `<div class="shell-desk desk">
     <header class="top"><div class="brand"><svg class="brand-icon" aria-hidden="true"><use href="#logo"/></svg>
-      <div><div class="brand-name"><span class="m">Mon</span> <span class="a">Money Lover</span> ${latestBadge()}</div><div class="brand-desc">Ghi chi tiêu, thu nhập · đồng bộ PC và điện thoại</div></div></div>
+      <div><div class="brand-name"><span class="m">Mon</span> <span class="a">Money Lover</span> ${latestBadge()}</div></div></div>
       <div class="spacer"></div><div style="display:flex;gap:8px;align-items:center">
       ${syncDot()}
       <button class="btn" type="button" data-search title="Tìm giao dịch (Ctrl+F)">${I('search')}Tìm</button>${updButton(true)}
@@ -69,7 +70,7 @@ function deskHtml() {
       ${view.tab === 'ledger' ? `<h4>Nhóm chi · ${view.period === 'year' ? 'năm ' + view.cursor.getFullYear() : view.period === 'day' ? 'ngày này' : 'tháng ' + (view.cursor.getMonth() + 1)}</h4><div class="mini scroll" data-key="mini">${miniTree()}</div>` : ''}</aside>
       <main class="main">${main}</main></div>
     <footer class="foot"><button type="button" data-tab="settings">${I('bell')}${r.enabled ? `Nhắc nhập chi tiêu ${r.time} mỗi ngày` : 'Đang tắt nhắc nhở'}</button>
-      <span>${I('cloud')} ${store.mode === 'cloud' ? 'Firebase · ' + store.tx.length.toLocaleString('vi-VN') + ' giao dịch' : 'Lưu trên máy · ' + store.tx.length.toLocaleString('vi-VN') + ' giao dịch'}</span>
+      <span>${I('cloud')} ${store.mode === 'cloud' ? 'Đồng bộ · ' + store.tx.length.toLocaleString('vi-VN') + ' giao dịch' : 'Lưu trên máy · ' + store.tx.length.toLocaleString('vi-VN') + ' giao dịch'}</span>
       <span class="credit">Created by Mondiro</span></footer></div>`;
 }
 
