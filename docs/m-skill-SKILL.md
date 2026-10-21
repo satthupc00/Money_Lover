@@ -50,7 +50,7 @@ html,body{margin:0;height:100%;background:var(--chrome);color:var(--text);
 
 ## 2. Header chuẩn Mondiro (desktop — BẮT BUỘC)
 
-Góc trái trên cùng: **icon app** → bên phải là **"Mondiro"** (đỏ) + **tên app** (trắng), cùng size; dòng dưới là mô tả ngắn tính năng (1 dòng, tiếng Việt, ≤ ~45 ký tự). Kích thước **giống hệt giữa các app**.
+Góc trái trên cùng: **icon app** → bên phải là **"Mondiro"** (đỏ `#E5383B`) + **tên app** (trắng), cùng size. **Không có dòng mô tả nhỏ dưới tên** (m-test báo lỗi nếu có). Kích thước **giống hệt giữa các app**.
 
 **Hai dạng tên (chọn theo tên app):**
 - Tên dạng **"Mondiro + tên app"** (vd Mondiro GifCap) → làm như cũ: `<span class="m">Mondiro</span> <span class="a">GifCap</span>`.
@@ -63,7 +63,6 @@ Góc trái trên cùng: **icon app** → bên phải là **"Mondiro"** (đỏ) +
     <img class="brand-icon" src="build/icon.png" alt="">
     <div class="brand-text">
       <div class="brand-name"><span class="m">Mondiro</span> <span class="a">Tên App</span></div>
-      <div class="brand-desc">Mô tả ngắn gọn tính năng chính</div>
     </div>
   </div>
   <div class="file-info" id="fileInfo"></div>   <!-- tuỳ app, có thể bỏ -->
@@ -77,7 +76,6 @@ Góc trái trên cùng: **icon app** → bên phải là **"Mondiro"** (đỏ) +
 .brand-icon{width:34px;height:34px;flex:0 0 auto}
 .brand-name{font-size:17px;font-weight:700;line-height:1.15;white-space:nowrap}
 .brand-name .m{color:var(--red)} .brand-name .a{color:#fff}
-.brand-desc{font-size:11.5px;color:var(--muted);margin-top:2px}
 .tools{display:flex;gap:8px}
 ```
 
@@ -103,7 +101,9 @@ Góc trái trên cùng: **icon app** → bên phải là **"Mondiro"** (đỏ) +
 
 **Nút kiểm tra cập nhật** — icon **mũi tên xoay** (lucide `refresh-cw`), tách riêng với chấm đồng bộ:
 - Đang kiểm tra: icon xoay. Có bản mới: icon xanh lá nhấp nháy (pulse). Đã là bản mới nhất: icon **xanh lá** + chữ **"latest"** xanh lá ngay cạnh icon.
-- Desktop: vẫn có badge "LATEST" xanh lá cạnh tên app trên header (§2) và nút "Kiểm tra bản cập nhật" có chữ.
+- Desktop: nút cập nhật **chỉ là icon** (không ghi chữ "Kiểm tra cập nhật" bên cạnh); khi là bản mới nhất thì có badge "LATEST" xanh lá cạnh tên app (§2).
+- Nút luôn có `title`/`aria-label` chứa chữ "Kiểm tra cập nhật" (kể cả khi đang báo latest / có bản mới) để m-test nhận ra.
+- Giao diện **không ghi chữ "Firebase"** ở bất kỳ đâu (kể cả title/placeholder): luôn gọi là "đồng bộ".
 - Thứ tự góc phải trên: `[chấm đồng bộ] [các nút khác, vd Tìm] [cập nhật]`.
 
 ## 3. "Created by Mondiro" (BẮT BUỘC mọi app)
@@ -236,7 +236,7 @@ input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.25);box-shadow:0
 
 ## 8. Checklist trước khi giao
 
-- [ ] Desktop: header đúng §2 (icon 34px, "Mondiro" hoặc "Mon" đỏ 17px bold + phần tên còn lại trắng, mô tả 11.5px muted). Android: không header logo/tên, chỉ hàng icon mỏng góc phải.
+- [ ] Desktop: header đúng §2 (icon 34px, "Mondiro" hoặc "Mon" đỏ #E5383B 17px bold + phần tên còn lại trắng, không dòng mô tả). Android: không header logo/tên, chỉ hàng icon mỏng góc phải.
 - [ ] Góc phải trên đúng §2b: chấm đồng bộ (xanh lá khi xong) + nút cập nhật mũi tên xoay (xanh lá + "latest" khi là bản mới nhất).
 - [ ] Có "Created by Mondiro".
 - [ ] Có icon mới (app mới) hợp với app, đủ size .png/.ico (+ .svg gốc) hoặc adaptive icon.
