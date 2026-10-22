@@ -1,19 +1,18 @@
-## Mon Money Lover 1.0.23 · nhóm con cấp 2, kéo đổi thứ tự giao dịch
+## Mon Money Lover 1.0.24 · loại trừ nhóm trên biểu đồ, bộ icon A.I
 
 **Tải về**
-- **Điện thoại Android:** `MonMoneyLover-1.0.23.apk`
-- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.23.exe`
+- **Điện thoại Android:** `MonMoneyLover-1.0.24.apk`
+- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.24.exe`
 
-**Nhóm con cấp 2**
-- Nhóm giờ có tối đa 3 cấp: nhóm cha › nhóm con › nhóm con cấp 2.
-- Tạo / sửa nhóm: chọn "Thuộc nhóm cha" là một nhóm con để tạo nhóm cấp 2. Chuyển, gộp, kéo thả (PC) đều theo 3 cấp; app báo rõ khi một lần chuyển sẽ vượt quá 3 cấp.
-- Nhóm con có nhóm con cấp 2 cũng thu gọn / mở rộng được. Báo cáo và biểu đồ cộng dồn đủ cả 3 cấp.
+**Báo cáo · biểu đồ Xu hướng chi tiêu**
+- Mới: **loại trừ nhóm** khỏi biểu đồ. Mở menu chọn nhóm, bấm **icon con mắt** bên phải một nhóm để bỏ nó (và các nhóm con của nó) ra khỏi đường chi tiêu, tháng trước và TB 3 tháng.
+- Nhóm đang bị loại trừ hiện mờ, gạch ngang. Nút chọn nhóm hiện số nhóm đang loại trừ (vd `−1`).
+- Dưới biểu đồ có dòng "Đang loại trừ: …" kèm nút **Bỏ loại trừ** để bật lại tất cả. Lựa chọn được ghi nhớ khi mở lại app.
 
 **Sổ giao dịch**
-- Đổi thứ tự giao dịch trong một ngày: **giữ khoảng nửa giây** lên giao dịch cho nó nhấc lên, rồi **kéo** lên / xuống và thả. Thứ tự được lưu và đồng bộ. Bấm nhanh vẫn mở sửa giao dịch như cũ. PC: giữ chuột rồi kéo, nhấn Esc để huỷ.
+- Bỏ tab **Ngày**, giờ chỉ còn **Tháng** và **Năm** cho gọn.
 
-**Sửa lỗi**
-- PC: icon kiểm tra cập nhật bị lệch khỏi vòng tròn.
-- Điện thoại: các nút trong tab Nhóm to hơn, dễ bấm hơn.
+**Icon nhóm**
+- Thư viện icon có thêm tab **A.I** với 24 icon: ChatGPT, Claude, Gemini, Grok, Copilot, Perplexity, DeepSeek, Meta AI, Mistral, Qwen, Kimi, Midjourney, Cursor, GitHub Copilot, Suno, Runway, ElevenLabs, Kling, Firefly, Hugging Face, Poe, Lovable, Manus, Notion. Tiện cho các nhóm chi phí thuê bao A.I.
 
 Created by Mondiro

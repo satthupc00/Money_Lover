@@ -818,3 +818,21 @@ html[data-theme=gray] .dayblk.sun .dayhd { background: #FDE3E3; }
 @media (prefers-reduced-motion: reduce) { .dayblk.reordering > .tx { transition: none; } }
 .shell-m .foldbtn { width: 44px; height: 44px; }
 .shell-m .gm-tools .btn, .shell-m .gm-tools .linkbtn { min-height: 44px; }
+/* biểu đồ: loại trừ nhóm */
+.gmhint { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 13.5px; color: var(--muted); font-weight: 500; padding: 4px 8px 8px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.gmhint .lc { width: 16px; height: 16px; }
+.gmhint .linkbtn { padding: 2px 6px; font-size: 13.5px; }
+.gmrow { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.gmrow > [data-g] { flex: 1; min-width: 0; }
+.gmrow > [data-g] > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gmenu .gex { flex: 0 0 auto; width: 40px; height: 40px; justify-content: center; padding: 0; color: var(--dim); }
+.gmenu .gex .lc { width: 20px; height: 20px; }
+.gmenu .gex.on { color: var(--red); background: var(--red-soft); }
+.gmenu .gex:disabled { opacity: .5; cursor: default; }
+.gmrow.ex > [data-g] { opacity: .45; }
+.gmrow.ex > [data-g] > span { text-decoration: line-through; }
+.chip .exn { font-style: normal; font-size: 12.5px; font-weight: 800; color: var(--red); background: var(--surface); border-radius: 999px; padding: 0 6px; margin-left: 2px; }
+.exnote { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); font-weight: 500; padding: 2px 4px; }
+.exnote .lc { width: 18px; height: 18px; flex: 0 0 auto; color: var(--red); }
+.exnote span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.exnote .linkbtn { padding: 4px 8px; flex: 0 0 auto; }

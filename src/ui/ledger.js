@@ -209,7 +209,7 @@ function holdToDrag(e, blk, row) {
 }
 const sameMonth = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
 
-export const periodTabs = () => `<div class="tabs" data-tabkey="period">${[['day', 'Ngày'], ['month', 'Tháng'], ['year', 'Năm']].map(([k, n]) => `<button type="button" data-period="${k}" class="${view.period === k ? 'on' : ''}">${n}</button>`).join('')}<span class="ind"></span></div>`;
+export const periodTabs = () => `<div class="tabs" data-tabkey="period">${[['month', 'Tháng'], ['year', 'Năm']].map(([k, n]) => `<button type="button" data-period="${k}" class="${view.period === k ? 'on' : ''}">${n}</button>`).join('')}<span class="ind"></span></div>`;
 export const periodNav = () => `<div class="period"><button class="icb" type="button" data-shift="-1" title="Kỳ trước (←)">${I('chevron-left')}</button><span>${periodLabel()}</span><button class="icb" type="button" data-shift="1" title="Kỳ sau (→)">${I('chevron-right')}</button></div>`;
 export const groupFilterChip = () => view.group ? `<button type="button" class="chip on" data-clear-group title="Bỏ lọc">${tile(gById(view.group), 24)}${esc(gById(view.group)?.name)} ${I('x')}</button>` : '';
 export { fmt };

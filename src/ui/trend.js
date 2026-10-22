@@ -1,12 +1,21 @@
 // Biểu đồ xu hướng chi tiêu (đường cộng dồn chồng lên nhau) + phân bổ theo nhóm
 import { store, gById, tops, kids, groupIds, flatTree, rootOf } from '../store.js';
 import { view } from '../state.js';
-import { fmt, shortM, esc, daysIn } from '../util.js';
+import { fmt, shortM, esc, daysIn, ls } from '../util.js';
 import { I } from '../icons.js';
 import { tile } from './common.js';
 import { PAL } from '../defaults.js';
 
-export const trendState = { g: 'all', show: { cur: true, prev: false, avg: true }, sel: null, key: '', menu: false };
+export const trendState = { g: 'all', show: { cur: true, prev: false, avg: true }, sel: null, key: '', menu: false, ex: new Set(ls.get('mml.trendEx', [])) };
+// nhóm bị loại trừ khỏi biểu đồ (kèm nhóm con). Nhóm đang được chọn xem thì không tự loại chính nó.
+function skipIds(gid) {
+  const keep = gid === 'all' ? new Set() : new Set([gid, ...ancestors(gid)]);
+  const out = new Set();
+  for (const id of trendState.ex) if (gById(id) && !keep.has(id)) groupIds(id).forEach((x) => out.add(x));
+  return out;
+}
+const ancestors = (id) => { const a = []; let g = gById(id); while (g?.parent) { a.push(g.parent); g = gById(g.parent); } return a; };
+const saveEx = () => ls.set('mml.trendEx', [...trendState.ex].filter(gById));
 // bấm ra ngoài thì đóng menu chọn nhóm
 document.addEventListener('pointerdown', (e) => {
   if (trendState.menu && !e.target.closest('.gsel')) { trendState.menu = false; document.querySelectorAll('.trend').forEach((t) => t._redraw && t._redraw()); }
@@ -14,12 +23,13 @@ document.addEventListener('pointerdown', (e) => {
 const SER = { cur: ['Tháng này', '#E5383B'], prev: ['Tháng trước', '#5B8DEF'], avg: ['TB 3 tháng', '#B3A396'] };
 
 // tổng chi theo ngày của tháng (y, m: 0-11)
-function daily(y, m, ids) {
+function daily(y, m, ids, skip) {
   const n = daysIn(y, m), arr = Array(n).fill(0), pre = `${y}-${String(m + 1).padStart(2, '0')}-`;
   const set = ids ? new Set(ids) : null;
   for (const t of store.tx) {
     if (t.type !== 'exp' || t.exclude || !t.date?.startsWith(pre)) continue;
     if (set && !set.has(t.groupId)) continue;
+    if (skip?.has(t.groupId)) continue;
     arr[+t.date.slice(8, 10) - 1] += t.amount;
   }
   return arr;
@@ -29,13 +39,14 @@ const shift = (y, m, k) => { const d = new Date(y, m - k, 1); return [d.getFullY
 
 export function series(y, m, gid) {
   const ids = gid === 'all' ? null : groupIds(gid);
+  const skip = skipIds(gid);
   const n = daysIn(y, m);
   const today = new Date();
   const isCur = today.getFullYear() === y && today.getMonth() === m;
   const future = new Date(y, m, 1) > today;
   const upto = future ? 0 : isCur ? today.getDate() : n;
-  const cur = cum(daily(y, m, ids)).slice(0, upto);
-  const past = [1, 2, 3].map((k) => { const [yy, mm] = shift(y, m, k); return cum(daily(yy, mm, ids)); });
+  const cur = cum(daily(y, m, ids, skip)).slice(0, upto);
+  const past = [1, 2, 3].map((k) => { const [yy, mm] = shift(y, m, k); return cum(daily(yy, mm, ids, skip)); });
   const at = (c, d) => c[Math.min(d, c.length) - 1] || 0;
   const prev = Array.from({ length: n }, (_, i) => at(past[0], i + 1));
   const avg = Array.from({ length: n }, (_, i) => (at(past[0], i + 1) + at(past[1], i + 1) + at(past[2], i + 1)) / 3);
@@ -123,10 +134,17 @@ export function mountTrend(el) {
       if (b > 0) { const pc = (a - b) / b * 100; verdict = `<div class="verdict ${pc <= 0 ? 'good' : ''}"><span>Đến ${s.upto}/${m + 1}: ${pc > 0 ? 'nhiều' : 'ít'} hơn <b>${Math.abs(pc).toFixed(0)}%</b> so với ${ref[1]} cùng kỳ</span></div>`; }
     } else if (!s.upto) verdict = '<div class="verdict idle">Tháng này chưa bắt đầu</div>';
     const cg = trendState.g === 'all' ? null : gById(trendState.g);
-    const menu = trendState.menu ? `<div class="gmenu" role="listbox"><button type="button" data-g="all" class="${trendState.g === 'all' ? 'on' : ''}"><span class="allic">${I('layers')}</span>Tất cả nhóm</button>${flatTree('exp').map(({ g, depth }) => `<button type="button" data-g="${g.id}" class="${depth ? 'child d' + depth : ''} ${trendState.g === g.id ? 'on' : ''}">${tile(g, depth ? 26 : 30)}${esc(g.name)}</button>`).join('')}</div>` : '';
+    const exList = [...trendState.ex].filter(gById);
+    const inherited = (g) => ancestors(g.id).some((a) => trendState.ex.has(a));
+    const menu = trendState.menu ? `<div class="gmenu" role="listbox"><div class="gmhint">${I('eye-off')}Bấm con mắt để loại trừ nhóm khỏi biểu đồ${exList.length ? ` <button type="button" class="linkbtn" data-exclear>Bỏ loại trừ (${exList.length})</button>` : ''}</div>
+      <button type="button" data-g="all" class="${trendState.g === 'all' ? 'on' : ''}"><span class="allic">${I('layers')}</span>Tất cả nhóm</button>${flatTree('exp').map(({ g, depth }) => {
+        const ex = trendState.ex.has(g.id), inh = !ex && inherited(g);
+        return `<div class="gmrow ${ex || inh ? 'ex' : ''}"><button type="button" data-g="${g.id}" class="${depth ? 'child d' + depth : ''} ${trendState.g === g.id ? 'on' : ''}">${tile(g, depth ? 26 : 30)}<span>${esc(g.name)}</span></button><button type="button" class="gex ${ex ? 'on' : ''}" data-ex="${g.id}" ${inh ? 'disabled' : ''} aria-pressed="${ex}" title="${ex ? 'Đưa lại vào biểu đồ' : inh ? 'Nhóm cha đang bị loại trừ' : 'Loại trừ khỏi biểu đồ'}">${I(ex || inh ? 'eye-off' : 'eye')}</button></div>`;
+      }).join('')}</div>` : '';
+    const exNote = exList.length ? `<div class="exnote">${I('eye-off')}<span>Đang loại trừ: ${exList.map((id) => esc(gById(id).name)).join(', ')}</span><button type="button" class="linkbtn" data-exclear>Bỏ loại trừ</button></div>` : '';
     const before = anim ? snapshot(el) : null;
     el.innerHTML = `<div class="trend-h"><h3>Xu hướng chi tiêu</h3>
-        <div class="gsel"><button type="button" class="chip ${cg ? '' : 'txt'} on" data-gmenu aria-expanded="${trendState.menu}">${cg ? tile(cg, 24) : ''}${cg ? esc(cg.name) : 'Tất cả'}${I('chevron-down')}</button>${menu}</div></div>
+        <div class="gsel"><button type="button" class="chip ${cg ? '' : 'txt'} on" data-gmenu aria-expanded="${trendState.menu}">${cg ? tile(cg, 24) : ''}${cg ? esc(cg.name) : 'Tất cả'}${exList.length ? `<em class="exn">−${exList.length}</em>` : ''}${I('chevron-down')}</button>${menu}</div></div>
       <div class="tip"><span class="td">${dd}/${mm}/${y}</span><b class="tv cur">${cv != null ? fmt(cv) : '–'}</b>
         <span class="tv prev ${on('prev') ? '' : 'off'}" title="Tháng trước">${fmt(s.prev[d - 1])}</span><span class="tv avg ${on('avg') ? '' : 'off'}" title="TB 3 tháng trước">${fmt(s.avg[d - 1])}</span></div>
       <svg class="tchart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Biểu đồ chi tiêu cộng dồn">
@@ -139,7 +157,7 @@ export function mountTrend(el) {
         <text x="${x(1)}" y="${H - 6}" text-anchor="start">01/${mm}</text><text x="${x(s.n)}" y="${H - 6}" text-anchor="end">${s.n}/${mm}</text>
         <rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/></svg>
       <div class="tlegend two">${['prev', 'avg'].map((k) => `<label class="lchk" style="--c:${SER[k][1]}"><input type="checkbox" data-s="${k}" ${on(k) ? 'checked' : ''}><i class="box"></i>${SER[k][0]}</label>`).join('')}</div>
-      ${verdict}`;
+      ${verdict}${exNote}`;
     const svg = el.querySelector('svg.tchart');
     morph(svg, before, (v) => yy(v));
     // chọn ngày trên biểu đồ: điểm được giữ lại sau khi thả tay
@@ -149,6 +167,15 @@ export function mountTrend(el) {
     svg.onpointermove = (e) => { if (drag.on) pick(e); };
     el.querySelector('[data-gmenu]').onclick = (e) => { e.stopPropagation(); trendState.menu = !trendState.menu; draw(); };
     el.querySelectorAll('[data-g]').forEach((b) => (b.onclick = () => { const ch = trendState.g !== b.dataset.g; trendState.g = b.dataset.g; trendState.menu = false; draw(ch); }));
+    // loại trừ / đưa lại nhóm: giữ menu mở, biểu đồ co giãn theo
+    el.querySelectorAll('[data-ex]').forEach((b) => (b.onclick = (e) => {
+      e.stopPropagation();
+      const id = b.dataset.ex;
+      trendState.ex.has(id) ? trendState.ex.delete(id) : trendState.ex.add(id);
+      saveEx(); const sc = el.querySelector('.gmenu')?.scrollTop || 0; draw(true);
+      const m = el.querySelector('.gmenu'); if (m) m.scrollTop = sc;
+    }));
+    el.querySelectorAll('[data-exclear]').forEach((b) => (b.onclick = (e) => { e.stopPropagation(); trendState.ex.clear(); saveEx(); draw(true); }));
     el.querySelectorAll('[data-s]').forEach((b) => (b.onchange = () => {
       const k = b.dataset.s;
       if (b.checked) { trendState.show[k] = true; draw(true); return; }

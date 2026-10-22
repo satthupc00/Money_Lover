@@ -4,7 +4,7 @@ import { ls } from './util.js';
 const saved = ls.get('mml.view', {});
 export const view = {
   tab: 'ledger', // ledger | report | groups | settings
-  period: saved.period || 'month', // day | month | year
+  period: saved.period === 'year' ? 'year' : 'month', // month | year (đã bỏ xem theo ngày)
   cursor: new Date(),
   group: null, // lọc theo nhóm
   heroKind: 'exp',
