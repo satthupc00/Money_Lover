@@ -25,6 +25,16 @@ jobs:
         env: { ELECTRON_SKIP_BINARY_DOWNLOAD: '1' }
       - name: Build web + đồng bộ Android
         run: npm run build && npx cap sync android
+      - name: Giải mã khoá ký (GitHub Secrets)
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -z "$KS_B64" ] || [ -z "$KS_PASS" ]; then echo "::error::Thiếu secret ANDROID_KEYSTORE_BASE64 / ANDROID_KEYSTORE_PASSWORD"; exit 1; fi
+          echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/mondiro.jks"
+          echo "ANDROID_KEYSTORE_FILE=$RUNNER_TEMP/mondiro.jks" >> "$GITHUB_ENV"
+          echo "ANDROID_KEYSTORE_PASSWORD=$KS_PASS" >> "$GITHUB_ENV"
+          echo "::add-mask::$KS_PASS"
       - name: Build APK
         working-directory: android
         run: chmod +x gradlew && ./gradlew assembleRelease --no-daemon --stacktrace
