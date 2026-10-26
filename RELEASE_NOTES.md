@@ -1,10 +1,15 @@
-## Mon Money Lover 1.0.25 · sửa lỗi giao diện bị đẩy sang phải
+## Mon Money Lover 1.0.26 · đăng ký chính chủ với Google
 
 **Tải về**
-- **Điện thoại Android:** `MonMoneyLover-1.0.25.apk`
-- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.25.exe`
+- **Điện thoại Android:** `MonMoneyLover-1.0.26.apk`
+- **Máy tính Windows:** `MonMoneyLover-Setup-1.0.26.exe`
 
-**Sửa lỗi**
-- Báo cáo: khi loại trừ từ 2 nhóm trở lên, dòng "Đang loại trừ: …" dài ra làm khung biểu đồ phình rộng hơn màn hình và giao diện bị đẩy sang phải. Giờ khung luôn vừa màn hình, danh sách nhóm dài tự rút gọn bằng dấu "…".
+**Quan trọng – bản Android này là app MỚI**
+- App đã được đăng ký chính chủ với Google (Android Developer Console) để không còn bị Play Protect chặn khi cập nhật.
+- Vì vậy app Android đổi sang khoá ký mới và mã app mới `com.mondiro.moneylover`, **không cài đè lên bản cũ được**.
+- Cách lên đời: sao lưu / đồng bộ dữ liệu trên bản cũ → cài `MonMoneyLover-1.0.26.apk` → kiểm tra dữ liệu → gỡ bản cũ.
+- Từ bản này trở đi, cập nhật sẽ cài đè bình thường.
+
+Bản Windows không thay đổi gì, cập nhật như bình thường.
 
 Created by Mondiro
