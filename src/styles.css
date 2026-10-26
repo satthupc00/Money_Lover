@@ -836,3 +836,27 @@ html[data-theme=gray] .dayblk.sun .dayhd { background: #FDE3E3; }
 .exnote .lc { width: 18px; height: 18px; flex: 0 0 auto; color: var(--red); }
 .exnote span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .exnote .linkbtn { padding: 4px 8px; flex: 0 0 auto; }
+/* khung sửa nhóm (PC): cửa sổ thấp thì thư viện icon co lại / cả khung cuộn, nút Lưu luôn nằm sẵn ở đáy */
+.editor { overflow: auto; overscroll-behavior: contain; }
+.editor > * { flex-shrink: 0; }
+.editor > .lib { flex: 1 1 0; min-height: 116px; }
+.editor > .actions { position: sticky; bottom: -16px; z-index: 1; margin: 0 -16px -16px; padding: 10px 16px 16px; background: var(--surface); border-top: 1px solid var(--line); }
+@media (max-height: 760px) {
+  .editor { gap: 9px; }
+  .editor .prevrow { padding: 6px 10px; }
+  .editor .prevrow .tile { width: 42px !important; height: 42px !important; }
+  .editor .libtabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; padding-bottom: 2px; }
+  .editor .libtabs button { flex: 0 0 auto; }
+}
+/* cửa sổ hẹp: danh sách nhóm giữ chỗ cho tên, nút thao tác chỉ còn icon */
+.gm-list { container-type: inline-size; }
+.grow .acts, .grow .tile, .grow > input, .grow .foldsp { flex-shrink: 0; }
+@container (max-width: 600px) {
+  .grow .acts button { font-size: 0; gap: 0; width: 34px; justify-content: center; padding: 0; }
+  .grow .acts .lc { width: 17px; height: 17px; }
+}
+@media (max-width: 1100px) { .gm { grid-template-columns: minmax(0, 1fr) 330px; } }
+@container (max-width: 470px) {
+  .grow .acts { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); opacity: 0; pointer-events: none; background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); padding: 2px; }
+  .grow:hover .acts, .grow:focus-within .acts { opacity: 1; pointer-events: auto; }
+}
