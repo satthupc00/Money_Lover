@@ -860,3 +860,21 @@ html[data-theme=gray] .dayblk.sun .dayhd { background: #FDE3E3; }
   .grow .acts { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); opacity: 0; pointer-events: none; background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); padding: 2px; }
   .grow:hover .acts, .grow:focus-within .acts { opacity: 1; pointer-events: auto; }
 }
+/* trung bình chi 1 ngày (báo cáo) */
+.dstat { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.dstat.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dstat > div { background: var(--soft); border-radius: 14px; padding: 8px 10px; display: grid; gap: 1px; min-width: 0; }
+.dstat span { font-size: 13.5px; color: var(--muted); font-weight: 700; line-height: 1.25; }
+.dstat b { font-family: var(--num); font-size: 19px; font-weight: 800; color: #7C665A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dstat b.cur { color: var(--red); }
+.dstat small { font-size: 13px; color: var(--muted); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dstat small.good { color: #17804D; }
+.dstat small.bad { color: #A3262A; }
+.trend { container-type: inline-size; }
+@container (max-width: 500px) {
+  .dstat { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dstat > div:first-child { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "l v" "s v"; align-items: center; }
+  .dstat > div:first-child span { grid-area: l; }
+  .dstat > div:first-child small { grid-area: s; }
+  .dstat > div:first-child b { grid-area: v; font-size: 24px; }
+}

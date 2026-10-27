@@ -50,7 +50,11 @@ export function series(y, m, gid) {
   const at = (c, d) => c[Math.min(d, c.length) - 1] || 0;
   const prev = Array.from({ length: n }, (_, i) => at(past[0], i + 1));
   const avg = Array.from({ length: n }, (_, i) => (at(past[0], i + 1) + at(past[1], i + 1) + at(past[2], i + 1)) / 3);
-  return { cur, prev, avg, n, upto };
+  // trung bình chi 1 ngày: tháng đang xem (tính đến hôm nay) và 3 tháng trước (theo số ngày thật của từng tháng)
+  const pastDays = [1, 2, 3].reduce((a, k) => { const [yy, mm] = shift(y, m, k); return a + daysIn(yy, mm); }, 0);
+  const pastTot = past.reduce((a, c) => a + (c[c.length - 1] || 0), 0);
+  const perDay = upto ? (cur[upto - 1] || 0) / upto : 0, pastPerDay = pastTot / pastDays;
+  return { cur, prev, avg, n, upto, isCur, perDay, pastPerDay };
 }
 
 function niceStep(max) {
@@ -141,6 +145,12 @@ export function mountTrend(el) {
         const ex = trendState.ex.has(g.id), inh = !ex && inherited(g);
         return `<div class="gmrow ${ex || inh ? 'ex' : ''}"><button type="button" data-g="${g.id}" class="${depth ? 'child d' + depth : ''} ${trendState.g === g.id ? 'on' : ''}">${tile(g, depth ? 26 : 30)}<span>${esc(g.name)}</span></button><button type="button" class="gex ${ex ? 'on' : ''}" data-ex="${g.id}" ${inh ? 'disabled' : ''} aria-pressed="${ex}" title="${ex ? 'Đưa lại vào biểu đồ' : inh ? 'Nhóm cha đang bị loại trừ' : 'Loại trừ khỏi biểu đồ'}">${I(ex || inh ? 'eye-off' : 'eye')}</button></div>`;
       }).join('')}</div>` : '';
+    // TB chi 1 ngày + dự kiến cả tháng (chỉ tháng hiện tại)
+    const dc = s.pastPerDay > 0 && s.upto ? (s.perDay - s.pastPerDay) / s.pastPerDay * 100 : null;
+    const daily1 = `<div class="dstat${s.isCur ? '' : ' two'}">
+      <div><span>TB / ngày</span><b class="cur">${s.upto ? fmt(Math.round(s.perDay)) : '–'}</b><small>${s.upto ? (s.isCur ? `${s.upto} ngày qua` : `cả ${s.n} ngày`) : 'chưa bắt đầu'}</small></div>
+      <div><span>TB / ngày 3 tháng trước</span><b>${fmt(Math.round(s.pastPerDay))}</b>${dc == null ? '<small>&nbsp;</small>' : `<small class="${dc <= 0 ? 'good' : 'bad'}">${dc <= 0 ? 'ít' : 'nhiều'} hơn ${Math.abs(dc).toFixed(0)}%</small>`}</div>
+      ${s.isCur ? `<div><span>Dự kiến cả tháng</span><b>${fmt(Math.round(s.perDay * s.n / 1000) * 1000)}</b><small>nếu giữ mức này</small></div>` : ''}</div>`;
     const exNote = exList.length ? `<div class="exnote">${I('eye-off')}<span>Đang loại trừ: ${exList.map((id) => esc(gById(id).name)).join(', ')}</span><button type="button" class="linkbtn" data-exclear>Bỏ loại trừ</button></div>` : '';
     const before = anim ? snapshot(el) : null;
     el.innerHTML = `<div class="trend-h"><h3>Xu hướng chi tiêu</h3>
@@ -157,7 +167,7 @@ export function mountTrend(el) {
         <text x="${x(1)}" y="${H - 6}" text-anchor="start">01/${mm}</text><text x="${x(s.n)}" y="${H - 6}" text-anchor="end">${s.n}/${mm}</text>
         <rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/></svg>
       <div class="tlegend two">${['prev', 'avg'].map((k) => `<label class="lchk" style="--c:${SER[k][1]}"><input type="checkbox" data-s="${k}" ${on(k) ? 'checked' : ''}><i class="box"></i>${SER[k][0]}</label>`).join('')}</div>
-      ${verdict}${exNote}`;
+      ${verdict}${daily1}${exNote}`;
     const svg = el.querySelector('svg.tchart');
     morph(svg, before, (v) => yy(v));
     // chọn ngày trên biểu đồ: điểm được giữ lại sau khi thả tay
